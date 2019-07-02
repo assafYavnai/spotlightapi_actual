@@ -1,0 +1,61 @@
+doctype html
+html
+  head
+    title OTP Recieved
+    style.
+      .container{
+      margin:0;
+      padding:0;
+      }
+      .content{
+      padding:10px;;
+      font-size:18px;
+      font-family:Arial, Helvetica, sans-serif;
+      }
+      .txt-otp{
+      background:#14a89f;padding:25px;width:180px;
+      border-radius:5px;
+      text-align:center;
+      margin-left: 100px;
+      }
+      .txt-otp>span{
+      font-size:25px;
+      font-stretch:expanded;
+      letter-spacing: 10px;
+      color:white;
+      }
+  body
+    .container
+      div
+        span(style='font-size: 35px;\
+        font-weight: bold;\
+        color: #14a89f;\
+        letter-spacing:3px;\
+        text-shadow: 1px 2px 3px #8f5b5b;')
+          | spot
+          span(style='color: #29235c;letter-spacing:3px') light
+      | &#x9;
+      .content
+        p(style='font-weight:bold') #{data.greet}
+        | &#x9;&#x9;
+        p
+          | This is a verification email sent from SpotLight 
+          sup TM
+          |  system
+        | &#x9;&#x9;
+        p Please copy the verification code below and provide in the designated area
+        | &#x9;&#x9;
+        p
+        h3.txt-otp
+          span #{data.OTP}
+        | &#x9;&#x9;
+        p
+        | &#x9;&#x9;
+        p(style='font-size:15px;')
+          | If you can&apos;t find the registration window press this 
+          
+        | &#x9;&#x9;
+        p
+          | If you didn&apos;t used SpotLight 
+          sup TM
+          |  system please ignore this mail

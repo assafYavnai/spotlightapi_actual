@@ -1,0 +1,69 @@
+doctype html
+html
+  head
+    title Email Invitation
+    style.
+      .container{
+      margin:0;
+      padding:0;
+      }
+      .content{
+      padding:10px;;
+      font-size:18px;
+      font-family:Arial, Helvetica, sans-serif;
+      }
+      .txt-otp{
+      background:#14a89f;padding:25px;width:180px;
+      border-radius:5px;
+      text-align:center;
+      margin-left: 100px;
+      }
+      .txt-otp>span{
+      font-size:25px;
+      font-stretch:expanded;
+      letter-spacing: 10px;
+      color:white;
+      }
+  body
+    .container
+      div
+        span(style='font-size: 35px;\
+        font-weight: bold;\
+        color: #14a89f;\
+        letter-spacing:3px;\
+        text-shadow: 1px 2px 3px #8f5b5b;')
+          | sp
+          span
+            | o
+            span
+              | t
+              span(style='color: #29235c;letter-spacing:3px') light
+      | &#x9;
+      .content
+        p(style='font-weight:bold') Hello #{data.email}!
+        | &#x9;&#x9;
+        p
+          | This is Invitation email sent by 
+          span SPOTLIGHT
+          |  regarding your views to improve their system.
+        | &#x9;&#x9;
+        p Details below:
+        | &#x9;&#x9;
+        p Check Name: #{data.checkName}
+        | &#x9;&#x9;
+        p Summary: #{data.customMessage}
+        | &#x9;&#x9;
+        p Please click on below link or copy paste in browser to join.
+        | &#x9;&#x9;
+        p
+          a(style='text-decoration:none', href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
+            | [ #{data.host}/spotlight/check/#{data.check_code}/#{data.code} ]
+        | &#x9;&#x9;
+        | &#x9;&#x9;
+        p(style='margin-top:40px')
+          | Thank You,
+          br
+          | &#x9;&#x9;&#x9;
+          span
+            | SPOTLIGHT Team!!
+            

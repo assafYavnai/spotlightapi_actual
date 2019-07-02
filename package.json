@@ -1,0 +1,62 @@
+{
+  "name": "spotlightapi",
+  "version": "1.0.0",
+  "description": "API created to use in spotlight project which will use postgresql database",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec babel-node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/ferventsoft/spotlightapi.git"
+  },
+  "keywords": [
+    "SPOTLIGHT",
+    "REST",
+    "API"
+  ],
+  "author": "Fervent Software Solutions",
+  "license": "ISC",
+  "homepage": "https://bitbucket.org/ferventsoft/spotlightapi#readme",
+  "dependencies": {
+    "assert": "^2.0.0",
+    "axios": "^0.19.0",
+    "bcrypt-nodejs": "0.0.3",
+    "bluebird": "^3.5.5",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "connect-mongo": "^3.0.0",
+    "connect-pg-simple": "^5.0.0",
+    "cookie-parser": "^1.4.4",
+    "express": "^4.17.1",
+    "express-error-handler": "^1.1.0",
+    "express-flash": "0.0.2",
+    "express-mailer": "^0.3.1",
+    "express-session": "^1.16.2",
+    "expressjs": "^1.0.1",
+    "helmet": "^3.18.0",
+    "jade": "^1.11.0",
+    "jsonwebtoken": "^8.5.1",
+    "lodash": "^4.17.11",
+    "method-override": "^3.0.0",
+    "moment": "^2.24.0",
+    "mongoose": "^5.6.2",
+    "passport": "^0.4.0",
+    "passport-google-oauth": "^2.0.0",
+    "passport-local": "^1.0.0",
+    "path": "^0.12.7",
+    "pg": "^7.11.0",
+    "sequelize": "^5.9.0",
+    "uuid": "^3.3.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-register": "^6.26.0",
+    "nodemon": "^1.19.1"
+  }
+}
