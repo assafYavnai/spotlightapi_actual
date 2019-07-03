@@ -21,6 +21,7 @@ export default (app) => {
     app.delete('/api/sessions', usersController.logout);
     app.post('/api/user/verifyotp', usersController.verifyOTP);
     app.post('/api/user/changePassword', usersController.changePassword);
+    app.post('/api/user/recoveryPasswordVerifyOTP', usersController.recoveryPasswordVerifyOTP);
   } else {
     console.warn(unsupportedMessage('users routes'));
   }

@@ -410,7 +410,11 @@ export function addGroup(req, res) {
             return res.status(500).send('Something went wrong.' + error);
           });
         } else { // go to create new group
-          UserGroups.create(data).then((uc) => {
+          UserGroups.findOne({ where: { group_name:data.group_name,user_id:data.user_id }}).then((existinggroup) => {
+            if(existinggroup){
+              return res.status(409).send({errorMessage: 'Sorry this group name already exist',status: 409});
+            }
+            UserGroups.create(data).then((uc) => {
               console.log(uc);
               console.debug('New group created');
               const { emailList } = req.body;
@@ -440,6 +444,9 @@ export function addGroup(req, res) {
           }).catch((error) => {
               return res.status(500).send('Something went wrong.' + error);
           });
+          }).catch((error) => {
+            return res.status(500).send('Something went wrong.' + error);
+        });
         }
       });
 }

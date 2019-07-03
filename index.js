@@ -16,8 +16,8 @@ app.use(errorHandler({ dumpExceptions: true, showStack: true }));
  * - register mongoose Schema
  */
 connect();
-app.options('*', cors()); // include before other routes
-
+//app.options('*', cors()); // include before other routes
+app.use(cors());
 /*
  * REMOVE if you do not need passport configuration
  */
