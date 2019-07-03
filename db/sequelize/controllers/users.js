@@ -139,9 +139,65 @@ export function verifyOTP(req, res) {
   }
 }
 
+export function changePassword(req, res) {
+  try {
+    
+    const dt = new Date();
+    const data = req.body;
+    dt.setMinutes(dt.getMinutes() - 5);
+    OTPSchema.findAndCount({
+      where: {
+        otp: req.body.otp,
+        email: req.body.email,
+        createdAt: {
+          [sequelize.Op.lt]: sequelize.fn('NOW'),
+          [sequelize.Op.gt]:  sequelize.literal("NOW() - interval '5 minute'")
+        }
+      }
+    }).then((d) => {
+      if (d.count > 0) {
+        console.log('Get user API call');
+        User.findOne({ where: { email:data.email }}).then((existingUser) => {
+          if (existingUser) {
+            //existingUser.set('passsword',data.password);
+            bcrypt.genSaltAsync(5).then(salt =>
+              bcrypt.hashAsync(data.password, salt, null).then((hash) => {
+                data.password = hash;
+                
+                User.update(data,{where: {id:existingUser.id}}).then((uc) => {
+                  console.log('response change password api');
+                  console.log(uc);
+                  return res.status(200).send({successMessage: 'Password has been changed', status: 200});
+                }).catch((err) => {
+                  return res.status(404).send({errorMessage: err.message, status: 404});
+                });
+            }));
+          }
+          else{
+            return res.status(404).send({errorMessage: 'User not found', status: 404});
+          }
+        }).catch((err) => {
+          return res.status(404).send({errorMessage: 'Password not changed', status: 404});
+        });
+      }
+      else{
+        return res.status(404).send({errorMessage: 'Not Found', status: 404});
+      }
+    }).catch((err) => {
+      return res.status(404).send({errorMessage: 'Not Found', status: 404});
+    });
+  } catch (e) {
+    console.log(e);
+    return res.status(500).send({
+      message: 'Unable to process request.Plese try again after some time', data: e
+    });
+  }
+}
+
 export default {
   login,
   logout,
   signUp,
-  verifyOTP
+  verifyOTP,
+  changePassword
 };

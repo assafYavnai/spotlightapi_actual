@@ -155,4 +155,34 @@ app.post('/api/sendInvitation', (req, res, next) => {
   }
     
 });
+
+app.post('/api/sendForgetOTP', (req, res) => {
+  console.log(db);
+ const {email} = req.body;
+ User.findOne({ where: { email } }).then((existingUser) => {
+  if (existingUser) {
+    const otp  = Math.floor(100000 + Math.random() * 900000);
+    const obj = {email, otp};
+   OTPSchema.create(obj).then(() => {
+     app.mailer.send('otp', {
+     to: email,
+     subject: 'Your One Time Password(OTP) from Spotlight ',
+     otherProperty: 'Other Property',
+     data: {greet: 'Hi ' + email + '', OTP: otp}
+     }, (err) => {
+         if (err) {
+             res.status(500).send({errorMessage: 'otpError', errorInfo: err});
+             return;
+         }
+         res.status(200).send({successMessage: 'otpSentSuccess', status: 200});
+     });
+   })
+  }
+  else{
+    return res.status(404).send({errorMessage: 'Sorry this user not exist',status: 404});
+  } 
+}).catch((error) => {
+   res.status(500).send('Exception throwing' + error);
+});
+});
 };

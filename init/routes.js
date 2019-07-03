@@ -20,6 +20,7 @@ export default (app) => {
     app.post('/api/users', usersController.signUp);
     app.delete('/api/sessions', usersController.logout);
     app.post('/api/user/verifyotp', usersController.verifyOTP);
+    app.post('/api/user/changePassword', usersController.changePassword);
   } else {
     console.warn(unsupportedMessage('users routes'));
   }
