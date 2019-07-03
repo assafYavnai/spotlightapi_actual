@@ -1,6 +1,7 @@
 import express from 'express';
 import { isDebug } from './config/app';
 import { connect } from './db';
+import cors  from 'cors';
 import initPassport from './init/passport';
 import initExpress from './init/express';
 import initRoutes from './init/routes';
@@ -15,6 +16,7 @@ app.use(errorHandler({ dumpExceptions: true, showStack: true }));
  * - register mongoose Schema
  */
 connect();
+app.options('*', cors()); // include before other routes
 
 /*
  * REMOVE if you do not need passport configuration
