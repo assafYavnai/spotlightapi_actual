@@ -6,6 +6,9 @@ import moment from 'moment';
 import { throws } from 'assert';
 const User = Models.User;
 const OTPSchema = Models.OTPSchema;
+import Promise from 'bluebird';
+import bcryptNode from 'bcrypt-nodejs';
+const bcrypt = Promise.promisifyAll(bcryptNode);
 /**
  * POST /login
  */
@@ -156,7 +159,7 @@ export function recoveryPasswordVerifyOTP(req, res) {
       if (d.count > 0) {
         return res.status(200).send({successMessage: 'OTP confirmed', status: 200});
       }
-      return res.status(404).send({errorMessage: 'Not Found', status: 404});
+      return res.status(404).send({errorMessage: 'OTP not correct', status: 404});
     }).catch((err) => {
       return res.status(404).send({errorMessage: 'Not Found', status: 404});
     });
