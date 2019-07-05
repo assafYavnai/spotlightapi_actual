@@ -166,7 +166,7 @@ app.post('/api/sendForgetOTP', (req, res) => {
    OTPSchema.create(obj).then(() => {
      app.mailer.send('otp', {
      to: email,
-     subject: 'Your One Time Password(OTP) from Spotlight ',
+     subject: 'Forget Password - One Time Password(OTP) from Spotlight ',
      otherProperty: 'Other Property',
      data: {greet: 'Hi ' + email + '', OTP: otp}
      }, (err) => {
