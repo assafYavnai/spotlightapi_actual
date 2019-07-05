@@ -24,6 +24,17 @@ html
       letter-spacing: 10px;
       color:white;
       }
+      .createCheckBtn{
+        padding: 8px 12px;
+        border-radius: 2px;
+        font-family: Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        color: #ffffff !important; 
+        text-decoration: none;
+        font-weight: bold;
+        display: inline-block;
+        background:#3b235c;
+      }
   body
     .container
       div
@@ -40,24 +51,27 @@ html
               span(style='color: #29235c;letter-spacing:3px') light
       | &#x9;
       .content
-        p(style='font-weight:bold') Hello #{data.email}!
-        | &#x9;&#x9;
-        p
-          | This is Invitation email sent by 
-          span SPOTLIGHT
-          |  regarding your views to improve their system.
-        | &#x9;&#x9;
-        p Details below:
-        | &#x9;&#x9;
         p Check Name: #{data.checkName}
         | &#x9;&#x9;
-        p Summary: #{data.customMessage}
+        p #{data.customMessage}
         | &#x9;&#x9;
-        p Please click on below link or copy paste in browser to join.
+        p This invitation was sent to you by #{data.firstName} #{data.lastName}
+        |&#x9;&#x9; 
+        p #{data.participant} participants are participating in this check
+        |&#x9;&#x9;
+        p 
+          a(style='text-decoration:none' class='createCheckBtn' href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
+            | Start Check
+        | &#x9;&#x9;
+        p if button is not working use below direct link
         | &#x9;&#x9;
         p
-          a(style='text-decoration:none', href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
+          a(href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
             | [ #{data.host}/spotlight/check/#{data.check_code}/#{data.code} ]
+        | &#x9;&#x9;
+        p Due Date : #{data.dueDate} (GMT +05:30)
+        | &#x9;&#x9;
+        p Please note that this check is totally confidential and anonymous, i,e the initiator will see all the results provided by the participants, but will not be able to know who provided each result.
         | &#x9;&#x9;
         | &#x9;&#x9;
         p(style='margin-top:40px')

@@ -35,7 +35,7 @@ export function sendInvitation(req, res) {
       if (e) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
-      const { emails, check_id, customMessage,checkName } = req.body;
+      const { emails, check_id, customMessage,checkName,firstName,lastName,participant,dueDate } = req.body;
       const data = [];
       UserCheckMaster.findById(check_id).then((check) =>{
         emails.split(',').forEach((item) => {
@@ -55,7 +55,7 @@ export function sendInvitation(req, res) {
             UserCheckInvitation.bulkCreate(data).then((d) => {
             console.debug('Inserted all user for log');
             data.forEach((item) => {
-              Axios.post(privateLocalAddress+'/api/sendInvitation', {email: item.email, code: item.uniqe_id, check_code: check.tiny_url, host: hostName,  customMessage, checkName}).then((response)=>{
+              Axios.post(privateLocalAddress+'/api/sendInvitation', {email: item.email, code: item.uniqe_id, check_code: check.tiny_url, host: hostName,  customMessage, checkName,firstName,lastName,participant,dueDate}).then((response)=>{
                 console.log('Sent Invitation email');
               }).catch((err) => {
                 console.log('Error in sending Email');
