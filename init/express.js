@@ -16,7 +16,7 @@ import { session as dbSession } from '../db';
 
 
 export default (app) => {
-  app.set('port', (process.env.PORT || 5001));
+  app.set('port', (process.env.PORT || 5000));
   var expressWs = require('express-ws')(app);
   //expressWs = expressWs(express());
   //expressWs(app);
