@@ -153,8 +153,6 @@ order: [
             const checks = d.map((p) => {
               return p.id;
             });
-            console.log('Munna');
-            console.log(checks);
             UserCheckInvitation.findAll({
               where: {
                   user_check_id: {
@@ -162,16 +160,29 @@ order: [
                 }
               }
             }).then((i) => {
-              d.forEach((item) => {
-                const obj = item.toJSON();
-                obj.completed = parseFloat((i.filter((t) => {
-                  return t.is_completed === true && t.user_check_id === obj.id;
-                }).length) / (i.filter((t) => {
-                  return t.user_check_id === obj.id;
-                }).length)) * 100;
-                data.push(obj);
-              });
-              return res.status(200).send(data);
+              sequelize.query(`SELECT a.user_check_id,(count(b.id::numeric)/count(a.id::numeric))::numeric(18,2)*100 as topics_completed  FROM user_check_topics a
+              inner join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
+                console.log('Manju');
+                console.log(t);
+                d.forEach((item) => {
+                  const obj = item.toJSON();
+                  obj.completed = parseFloat((i.filter((t) => {
+                    return t.is_completed === true && t.user_check_id === obj.id;
+                  }).length) / (i.filter((t) => {
+                    return t.user_check_id === obj.id;
+                  }).length)) * 100;
+                  const completed_arr = t.filter((s)=>{
+                    return (s.user_check_id === obj.id);
+                  });
+                  obj.topics_completed=0;
+                  if(completed_arr.length>0){
+                    obj.topics_completed=parseInt(completed_arr[0].topics_completed);
+                  }
+                  data.push(obj);
+                });
+                return res.status(200).send(data);
+          });
+             
             });
           }).catch((error) => {
             console.debug('error while fetching users check');
