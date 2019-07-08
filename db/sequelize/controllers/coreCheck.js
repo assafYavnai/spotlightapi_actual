@@ -162,6 +162,7 @@ order: [
                 }
               }
             }).then((i) => {
+              
               d.forEach((item) => {
                 const obj = item.toJSON();
                 obj.completed = parseFloat((i.filter((t) => {
@@ -169,7 +170,9 @@ order: [
                 }).length) / (i.filter((t) => {
                   return t.user_check_id === obj.id;
                 }).length)) * 100;
-                obj.totalParticipant=i.length;
+                obj.totalParticipant=i.filter((k)=>{
+                  return k.user_check_id === obj.id;
+                }).length;
                 data.push(obj);
               });
               return res.status(200).send(data);
