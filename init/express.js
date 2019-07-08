@@ -16,7 +16,7 @@ import { session as dbSession } from '../db';
 
 
 export default (app) => {
-  app.set('port', (process.env.PORT || 5000));
+  app.set('port', (process.env.PORT || 5001));
   var expressWs = require('express-ws')(app);
   //expressWs = expressWs(express());
   //expressWs(app);
@@ -43,7 +43,7 @@ ws.onmessage = function(msg) {
     // });
 };
 });
-app.get('/dashboardUpdate',function(req,res,next){
+app.get('/api/dashboardUpdate',function(req,res,next){
 aWss.clients.forEach(function (client) {
     client.send('refreshData');
 });
@@ -51,11 +51,7 @@ return res.status(200).send("Notiifcaiton Sent");
 });
 
   app.use('/apidoc', express.static(path.join(process.cwd(), 'apidoc')));
-  app.get('/api/dashboardUpdate',function(req,res,next){
-    aWss.clients.forEach(function (client) {
-      client.send('refreshData');
-    });
-  });
+
   process.on('uncaughtException', function (err) {
     console.log('Critital Error');
     console.log((new Date).toUTCString() + ' Uncaught Exception:', err.message);
