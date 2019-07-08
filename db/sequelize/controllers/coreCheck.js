@@ -175,7 +175,9 @@ order: [
                     return (s.user_check_id === obj.id);
                   });
                   obj.topics_completed=0;
-                  obj.totalParticipant=i.length;
+                  obj.totalParticipant=i.filter((k)=>{
+                    return k.user_check_id === obj.id;
+                  }).length;
                   if(completed_arr.length>0){
                     obj.topics_completed=parseInt(completed_arr[0].topics_completed);
                   }
