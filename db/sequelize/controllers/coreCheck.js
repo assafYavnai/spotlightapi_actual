@@ -169,6 +169,7 @@ order: [
                 }).length) / (i.filter((t) => {
                   return t.user_check_id === obj.id;
                 }).length)) * 100;
+                obj.totalParticipant=i.length;
                 data.push(obj);
               });
               return res.status(200).send(data);
