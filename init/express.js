@@ -13,9 +13,13 @@ import { sessionSecret, sessionId } from '../config/secrets';
 import { DB_TYPE, ENV } from '../config/env';
 import { session as dbSession } from '../db';
 
+
+
 export default (app) => {
   app.set('port', (process.env.PORT || 5000));
-
+  var expressWs = require('express-ws')(app);
+  //expressWs = expressWs(express());
+  //expressWs(app);
   if (ENV === 'production') {
     app.use(gzip());
     // Secure your Express apps by setting various HTTP headers. Documentation: https://github.com/helmetjs/helmet
@@ -28,7 +32,30 @@ export default (app) => {
   app.use(cookieParser());
 
   app.use(express.static(path.join(process.cwd(), 'public')));
+  var aWss = expressWs.getWss('/');
+app.ws('/', function(ws, req) {
+console.log('Socket Connected');
+
+ws.onmessage = function(msg) {
+    console.log(msg.data);
+    // aWss.clients.forEach(function (client) {
+    //   client.send(msg.data);
+    // });
+};
+});
+app.get('/dashboardUpdate',function(req,res,next){
+aWss.clients.forEach(function (client) {
+    client.send('refreshData');
+});
+return res.status(200).send("Notiifcaiton Sent");
+});
+
   app.use('/apidoc', express.static(path.join(process.cwd(), 'apidoc')));
+  app.get('/dashboardUpdate',function(req,res,next){
+    aWss.clients.forEach(function (client) {
+      client.send('refreshData');
+    });
+  });
   process.on('uncaughtException', function (err) {
     console.log('Critital Error');
     console.log((new Date).toUTCString() + ' Uncaught Exception:', err.message);

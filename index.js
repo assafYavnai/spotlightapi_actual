@@ -6,8 +6,11 @@ import initPassport from './init/passport';
 import initExpress from './init/express';
 import initRoutes from './init/routes';
 import errorHandler from  'express-error-handler';
+var enableWs =require('express-ws');
 const app = express();
-
+enableWs(app);
+// var expressWs = require('express-ws')(app);
+//expressWs(app);
 app.use(errorHandler({ dumpExceptions: true, showStack: true })); 
 
 /*
@@ -46,3 +49,5 @@ initRoutes(app);
 //app.get('*', renderMiddleware);
 
 app.listen(app.get('port'));
+
+

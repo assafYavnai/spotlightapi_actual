@@ -203,7 +203,7 @@ export function getTopics(req, res) {
  *     HTTP/1.1 500 Error
  *     HTTP/1.1 404 Error
  */
-export function saveAnswer(req, res) {
+export function saveAnswer(req, res,next) {
     try {
         const {
 checkUniqueId, topicId, userId, answer, option, takenTime
