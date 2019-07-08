@@ -51,7 +51,7 @@ return res.status(200).send("Notiifcaiton Sent");
 });
 
   app.use('/apidoc', express.static(path.join(process.cwd(), 'apidoc')));
-  app.get('/dashboardUpdate',function(req,res,next){
+  app.get('/api/dashboardUpdate',function(req,res,next){
     aWss.clients.forEach(function (client) {
       client.send('refreshData');
     });
