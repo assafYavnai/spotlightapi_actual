@@ -1,5 +1,6 @@
 import passport from 'passport';
 import jwt from 'jsonwebtoken';
+import * as config from '../constants';
 import { Models, sequelize } from '../models';
 import { tokenSecret } from '../constants';
 import moment from 'moment';
@@ -229,7 +230,7 @@ export function validateToken(req, res) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
       else{
-        return res.status(200);
+        return res.status(200).send({auth:true,message:'Token is valid'});
       }});
   } catch (error) {
     return res.status(500).send(error);
@@ -242,5 +243,6 @@ export default {
   signUp,
   verifyOTP,
   changePassword,
-  recoveryPasswordVerifyOTP
+  recoveryPasswordVerifyOTP,
+  validateToken
 };
