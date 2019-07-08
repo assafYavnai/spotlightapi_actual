@@ -160,10 +160,10 @@ order: [
                 }
               }
             }).then((i) => {
-              sequelize.query(`SELECT a.user_check_id,(count(b.id::numeric)/count(a.id::numeric))::numeric(18,2)*100 as topics_completed  FROM user_check_topics a
-              inner join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
-                console.log('Manju');
-                console.log(t);
+              sequelize.query(`SELECT a.user_check_id,CASE count(distinct b.user_check_topic_id::numeric ) WHEN 0 then 0 else 
+              ((count(b.id::numeric))/(count(distinct b.user_check_topic_id::numeric )* (SELECT count(1)::numeric from user_check_invitations where user_check_id=a.user_check_id)))::numeric(18,2)*100 end as topics_completed   FROM user_check_topics a
+              left join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
+               
                 d.forEach((item) => {
                   const obj = item.toJSON();
                   obj.completed = parseFloat((i.filter((t) => {
