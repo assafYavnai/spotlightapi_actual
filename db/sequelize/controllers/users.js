@@ -206,6 +206,36 @@ export function changePassword(req, res) {
   }
 }
 
+/**
+ * @api {post} /api/user/validateToken Invite users.
+ * @apiName ValidateToken
+ * @apiGroup User
+ * @apiHeader {String} x-access-token require latest acces token.
+ *  @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *  @apiErrorExample Error-Response:
+ *     HTTP/1.1 500 Error
+ *     HTTP/1.1 401 Error Access Denied
+ */
+export function validateToken(req, res) {
+  try {
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+
+    jwt.verify(token, config.tokenSecret, (e, decoded) => {
+      if (e) {
+        return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      else{
+        return res.status(200);
+      }});
+  } catch (error) {
+    return res.status(500).send(error);
+  }
+}
+
 export default {
   login,
   logout,

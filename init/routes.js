@@ -22,6 +22,7 @@ export default (app) => {
     app.post('/api/user/verifyotp', usersController.verifyOTP);
     app.post('/api/user/changePassword', usersController.changePassword);
     app.post('/api/user/recoveryPasswordVerifyOTP', usersController.recoveryPasswordVerifyOTP);
+    app.post('/api/user/validateToken',usersController.validateToken);
   } else {
     console.warn(unsupportedMessage('users routes'));
   }
