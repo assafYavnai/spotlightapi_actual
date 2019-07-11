@@ -38,7 +38,7 @@ html
           span(style='color: #29235c;letter-spacing:3px') light
       | &#x9;
       .content
-        p(style='font-weight:bold') Hello! XYZ
+        p(style='font-weight:bold') Hello! #{data.full_name}
         | &#x9;&#x9;
         p
           | Thank you for contacting Spotlight 
@@ -51,7 +51,7 @@ html
         | &#x9;&#x9;
         p
         h3.txt-otp
-          span 123456
+          span #{data.request_id}
         | &#x9;&#x9;
         p
         | &#x9;&#x9;

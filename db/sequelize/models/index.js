@@ -15,6 +15,7 @@ import TopicCategoryMasterModel from './topics_category_master';
 import TopicsAnswerModel from './user_check_topics_answer';
 import UserGroupsModel from './user_groups';
 import UserGroupsEmailsModel from './user_groups_email';
+import proEnquiryModel from './pro_enquiry';
 const config = sequelizeConfig[ENV];
 
 const db = {};
@@ -36,6 +37,7 @@ db.TopicCategoryMaster = sequelize.import('TopicCategoryMaster', TopicCategoryMa
 db.TopicsAnswer = sequelize.import('TopicsAnswer', TopicsAnswerModel);
 db.UserGroups=sequelize.import('UserGroups',UserGroupsModel);
 db.UserGroupsEmail=sequelize.import('UserGroupsEmail',UserGroupsEmailsModel);
+db.proEnquiryModel=sequelize.import('ProEnquiry',proEnquiryModel);
 Object.keys(db).forEach((key) => {
   const model = db[key];
   if (model.associate) {

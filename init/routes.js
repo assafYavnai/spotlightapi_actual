@@ -4,6 +4,7 @@
 import passport from 'passport';
 import unsupportedMessage from '../db/unsupportedMessage';
 import { controllers, passport as passportConfig } from '../db';
+import proEnquiry from '../db/sequelize/controllers/proEnquiry';
 //import mailsend from '../db/sequelize/controllers/sendingMail'
 
 const usersController = controllers && controllers.users;
@@ -12,8 +13,16 @@ const themeCategoryController = controllers && controllers.themecategory;
 const coreCheckController = controllers && controllers.coreCheck;
 const checkInvitation = controllers && controllers.checkInvitation;
 const checkApplication = controllers && controllers.checkApplication;
+const askproEnquiry = controllers && controllers.proEnquiry;
 
 export default (app) => {
+//pro_Enquiry
+if(askproEnquiry){
+  app.post('/api/proEnquiry/add',askproEnquiry.add);
+} else {
+  console.warn(unsupportedMessage('users routes'));
+}
+
   // user routes
   if (usersController) {
     app.post('/api/sessions', usersController.login);
@@ -23,6 +32,7 @@ export default (app) => {
     app.post('/api/user/changePassword', usersController.changePassword);
     app.post('/api/user/recoveryPasswordVerifyOTP', usersController.recoveryPasswordVerifyOTP);
     app.get('/api/user/validateToken',usersController.validateToken);
+    //app.get('/api/proEnquiry',proEnquiry.Add);
   } else {
     console.warn(unsupportedMessage('users routes'));
   }

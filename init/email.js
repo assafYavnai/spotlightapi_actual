@@ -2,7 +2,6 @@
 
 
 const envVars = require('../config/env');
-
  import path from 'path';
  import { Models, sequelize } from '../db/sequelize/models';
 // mailer = require('express-mailer');
@@ -15,6 +14,7 @@ const User = Models.User;
   secureConnection: true,
   port: envVars.SMTP_PORT,
   transportMethod: 'SMTP',
+  
   auth: {
     user: envVars.SMTP_USERNAME,
     pass: envVars.SMTP_PASSWORD
@@ -156,6 +156,35 @@ app.post('/api/sendInvitation', (req, res, next) => {
     
 });
 
+// askpro send Email..
+
+app.post('/api/sendEnquiry', (req, res, next) => {
+  try{
+    const {request_id,full_name,email} = req.body;
+    const bccmail=envVars.PRO_ENQUIRY_BccEmail;
+    console.log("id:"+request_id);
+    app.mailer.send('askPro', {
+        to: email,
+        // bcc:'joabkr@gmail.com,sufinoon@gmail.com',
+        //bcc:'moanish940@gmail.com,anish15.786@outlook.com',
+        bcc:bccmail,
+        subject: 'Send Pro Enquiry',
+        data: {request_id,full_name}
+
+    }, (error) => {
+      console.log(error);
+        if (error) {
+            res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
+        }
+        res.status(200).send({successMessage: 'Email has been sent for Ask Pro Enquiry', status: 200});
+    });
+  } catch(e){
+   res.send({errorMsg:e});
+    console.log(e);
+  }
+    
+});
+
 app.post('/api/sendForgetOTP', (req, res) => {
   console.log(db);
  const {email} = req.body;
@@ -186,3 +215,8 @@ app.post('/api/sendForgetOTP', (req, res) => {
 });
 });
 };
+
+
+
+
+
