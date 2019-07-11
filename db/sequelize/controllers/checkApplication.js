@@ -381,7 +381,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
     try {
         console.log(req.params);
         let data = {};
-        sequelize.query(`SELECT distinct c.*,
+        sequelize.query(`SELECT distinct c.*,u.company_name,
         ((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100)::bigint  completed, count(tbl.*),
         ((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optiona,
         ((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionb,
@@ -389,7 +389,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
         (SELECT a.*,t.user_check_id FROM user_check_topics_answers a 
          inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
          left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
-        on c.id=tbl.user_check_id WHERE c.id=? group by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((summary) => {
+        on c.id=tbl.user_check_id 
+        inner join users u on c.user_id::integer=u.id  WHERE c.id=? group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((summary) => {
             if (summary != null && summary.length > 0) {
                 data = summary[0];
                 sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
@@ -398,7 +399,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                 ((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionc FROM user_check_topics c
                 inner join 
                 (SELECT a.* FROM user_check_topics_answers a 
-                 inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id
+                 inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
                 WHERE c.user_check_id=?   group by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
                     //data.topics = topics;
                     if (topics.length > 0) {
