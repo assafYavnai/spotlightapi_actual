@@ -15,11 +15,11 @@ export function add(req, res) {
     // console.log("?shdjweb"+d.id);
    // sending pro enquiry email..
     Axios.post(privateLocalAddress+'/api/sendEnquiry', {request_id: d.id, full_name: d.full_name}).then((response)=>{
-        res.status(200).send('OK');
+        res.status(200).send({message:'Sent',date:new Date()});
         console.log('Sent Pro Enquiry email');
       }).catch((err) => {
         console.log('Error in sending Email'+err);
-        res.status(500).send({errorMesg:error});
+        res.status(500).send({errorMesg:err});
       });
     
   }).catch((err) => {
