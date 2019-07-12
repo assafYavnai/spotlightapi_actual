@@ -14,7 +14,8 @@ export function add(req, res) {
   askPro.create(req.body).then((d) => {
     // console.log("?shdjweb"+d.id);
    // sending pro enquiry email..
-    Axios.post(privateLocalAddress+'/api/sendEnquiry', {request_id: d.id, full_name: d.full_name}).then((response)=>{
+   const{email}=req.body;
+    Axios.post(privateLocalAddress+'/api/sendEnquiry', {request_id: d.id, full_name: d.full_name,email:email}).then((response)=>{
         res.status(200).send({message:'Sent',date:new Date()});
         console.log('Sent Pro Enquiry email');
       }).catch((err) => {
