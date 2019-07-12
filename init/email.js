@@ -160,15 +160,15 @@ app.post('/api/sendInvitation', (req, res, next) => {
 
 app.post('/api/sendEnquiry', (req, res, next) => {
   try{
-    const {request_id,full_name,email} = req.body;
+    const {request_id,full_name,email,organization,phone} = req.body;
     const bccmail=envVars.PRO_ENQUIRY_BccEmail;
     console.log("id:"+request_id);
     app.mailer.send('askPro', {
         to: email,
         // bcc:'joabkr@gmail.com,sufinoon@gmail.com',
         //bcc:'moanish940@gmail.com,anish15.786@outlook.com',
-        bcc:bccmail,
-        subject: 'Send Pro Enquiry',
+        //bcc:bccmail,
+        subject: 'Your request for PRO service',
         data: {request_id,full_name}
 
     }, (error) => {
@@ -176,7 +176,22 @@ app.post('/api/sendEnquiry', (req, res, next) => {
         if (error) {
             res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
         }
-        res.status(200).send({successMessage: 'Email has been sent for Ask Pro Enquiry', status: 200});
+        app.mailer.send('adminAskPro', {
+          to: bccmail,
+          // bcc:'joabkr@gmail.com,sufinoon@gmail.com',
+          //bcc:'moanish940@gmail.com,anish15.786@outlook.com',
+          //bcc:bccmail,
+          subject: 'PRO Enquiry - Request ID - '+[request_id],
+          data: {request_id,full_name,organization,phone,email}
+    
+        }, (error) => {
+          console.log(error);
+            if (error) {
+                res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
+            }
+            res.status(200).send({successMessage: 'Email has been sent for Ask Pro Enquiry', status: 200});
+        });
+        //res.status(200).send({successMessage: 'Email has been sent for Ask Pro Enquiry', status: 200});
     });
   } catch(e){
    res.send({errorMsg:e});
