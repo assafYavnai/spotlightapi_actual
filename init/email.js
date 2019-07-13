@@ -174,7 +174,7 @@ app.post('/api/sendEnquiry', (req, res, next) => {
     }, (error) => {
       console.log(error);
         if (error) {
-            res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
+          return  res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
         }
         app.mailer.send('adminAskPro', {
           to: bccmail,
@@ -187,14 +187,14 @@ app.post('/api/sendEnquiry', (req, res, next) => {
         }, (error) => {
           console.log(error);
             if (error) {
-                res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
+              return  res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
             }
-            res.status(200).send({successMessage: 'Email has been sent for Ask Pro Enquiry', status: 200});
+            return  res.status(200).send({successMessage: 'Email has been sent for Ask Pro Enquiry', status: 200});
         });
         //res.status(200).send({successMessage: 'Email has been sent for Ask Pro Enquiry', status: 200});
     });
   } catch(e){
-   res.send({errorMsg:e});
+    return res.send({errorMsg:e});
     console.log(e);
   }
     

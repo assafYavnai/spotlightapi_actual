@@ -16,16 +16,16 @@ export function add(req, res) {
    // sending pro enquiry email..
    const{email,organization,phone}=req.body;
     Axios.post(privateLocalAddress+'/api/sendEnquiry', {request_id: d.id, full_name: d.full_name,email,organization,phone}).then((response)=>{
-        res.status(200).send({message:'Sent',date:new Date()});
+        return res.status(200).send({message:'Sent',date:new Date()});
         console.log('Sent Pro Enquiry email');
     }).catch((err) => {
         console.log('Error in sending Email'+err);
-        res.status(500).send({errorMesg:err});
+        return  res.status(500).send({errorMesg:err});
     });
     
   }).catch((err) => {
     console.log(err);
-    res.status(400).send(err);
+    return res.status(400).send(err);
   });
 }catch(error){
   return res.status(500).send(error);
