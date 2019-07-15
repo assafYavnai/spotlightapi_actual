@@ -14,14 +14,14 @@ export function add(req, res) {
   askPro.create(req.body).then((d) => {
     // console.log("?shdjweb"+d.id);
    // sending pro enquiry email..
-   const{email}=req.body;
-    Axios.post(privateLocalAddress+'/api/sendEnquiry', {request_id: d.id, full_name: d.full_name,email:email}).then((response)=>{
+   const{email,organization,phone}=req.body;
+    Axios.post(privateLocalAddress+'/api/sendEnquiry', {request_id: d.id, full_name: d.full_name,email,organization,phone}).then((response)=>{
         res.status(200).send({message:'Sent',date:new Date()});
         console.log('Sent Pro Enquiry email');
-      }).catch((err) => {
+    }).catch((err) => {
         console.log('Error in sending Email'+err);
         res.status(500).send({errorMesg:err});
-      });
+    });
     
   }).catch((err) => {
     console.log(err);
