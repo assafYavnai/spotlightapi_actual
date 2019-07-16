@@ -1,5 +1,6 @@
 import fs from 'fs';
 const fileUpload = require('express-fileupload');
+const { spawn } = require('child_process');
 
 // import multer from 'multer';
 // var storage = multer.diskStorage({
@@ -40,6 +41,29 @@ app.post('/api/uploadconfig', (req, res) => {
         
   
    
+});
+app.post('/api/startapp', (req, res) => {
+    const {lang,lang1} = req.body;
+    var ls = spawn(require.resolve('../spotlight.sh'));
+    ls.stdout.on('data', function (data) {
+        console.log('stderr: ' + data);
+        //return  res.status(200).send({'status':data});
+    });
+    
+    ls.stderr.on('data', function (data) {
+        console.log('stderr: ' + data);
+        //return  res.status(200).send({'status':data});
+    });
+    
+    ls.on('exit', function (code) {
+        if(code>0){
+            return  res.status(500).send({'message':'Unable to start application'});  
+        }
+        else{
+            return  res.status(200).send({'status':'Application Started'});
+        }
+        
+    });
 });
 };
 
