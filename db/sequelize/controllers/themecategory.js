@@ -126,7 +126,9 @@ const TopicCategoryMaster= Models.TopicCategoryMaster;
    TopicCategoryMaster.findAll().then((tc)=>{
     TopicCategoryList=tc;
     
-   Topics.findAll().then((topics) => {
+   Topics.findAll({order: [
+    ['sequence', 'ASC'],
+]}).then((topics) => {
     topicList = topics;
     categoryList.forEach((cat) => {
       themeData = themeList.filter((p) => {
