@@ -28,7 +28,6 @@ app.post('/api/sendEmail', (req, res, next) => {
   console.log(req.body.to);
     app.mailer.send('email', {
     to: req.body.to,
-   // to:'moanish940@gmail.com',
     subject: 'Reset Your Oracle Account Password',
      otherProperty: 'Other Property'
   }, (err) => {
@@ -69,8 +68,9 @@ app.post('/api/forgotPassword', (req, res, next) => {
  */
 app.post('/api/sendOTP', (req, res) => {
      console.log(db);
-    const {email} = req.body;
+    const {email,name} = req.body;
     User.findOne({ where: { email } }).then((existingUser) => {
+     // var fullName=existingUser.first_name;
       if (existingUser) {
         return res.status(409).send({errorMessage: 'Sorry this user already exist',status: 409});
       }
@@ -82,7 +82,7 @@ app.post('/api/sendOTP', (req, res) => {
       to: email,
       subject: 'Your One Time Password(OTP) from Spotlight ',
       otherProperty: 'Other Property',
-      data: {greet: 'Hi ' + email + '', OTP: otp}
+      data: {greet: 'Hi '+name+',', OTP: otp}
       }, (err) => {
           if (err) {
               res.status(500).send({errorMessage: 'otpError', errorInfo: err});
@@ -202,8 +202,10 @@ app.post('/api/sendEnquiry', (req, res, next) => {
 
 app.post('/api/sendForgetOTP', (req, res) => {
   console.log(db);
- const {email} = req.body;
+  const {email} = req.body;
  User.findOne({ where: { email } }).then((existingUser) => {
+  // console.log("what:"+existingUser);
+  var fullName=existingUser.first_name;
   if (existingUser) {
     const otp  = Math.floor(100000 + Math.random() * 900000);
     const obj = {email, otp};
@@ -212,7 +214,7 @@ app.post('/api/sendForgetOTP', (req, res) => {
      to: email,
      subject: 'Forget Password - One Time Password(OTP) from Spotlight ',
      otherProperty: 'Other Property',
-     data: {greet: 'Hi ' + email + '', OTP: otp}
+     data: {greet: 'Hi '+fullName+',',OTP: otp}
      }, (err) => {
          if (err) {
              res.status(500).send({errorMessage: 'otpError', errorInfo: err});

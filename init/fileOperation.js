@@ -28,6 +28,7 @@ app.post('/api/uploadconfig', (req, res) => {
     console.log(location);
         fs.rename(`${location}.js`,`${location}_${(new Date()).getTime()}.js`, function(err) {
             //if ( err ) return res.status(500).send({'status':'Error','messagerenmame':err});
+            if ( err ) console.log(err);
             
                 fs.writeFile(`${location}.js`,req.files.config.data,function(err){
                     if(err) {
