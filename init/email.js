@@ -85,7 +85,7 @@ app.post('/api/sendOTP', (req, res) => {
       data: {greet: 'Hi '+name+',', OTP: otp}
       }, (err) => {
           if (err) {
-              res.status(500).send({errorMessage: 'otpError', errorInfo: err});
+              res.status(500).send({errorMessage: 'otpSentError', errorInfo: err});
               return;
           }
           res.status(200).send({successMessage: 'otpSentSuccess', status: 200});
@@ -218,7 +218,7 @@ app.post('/api/sendForgetOTP', (req, res) => {
      data: {greet: 'Hi '+fullName+',',OTP: otp}
      }, (err) => {
          if (err) {
-             res.status(500).send({errorMessage: 'otpError', errorInfo: err});
+             res.status(500).send({errorMessage: 'otpSentError', errorInfo: err});
              return;
          }
          res.status(200).send({successMessage: 'otpSentSuccess', status: 200});
