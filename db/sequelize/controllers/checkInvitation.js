@@ -24,7 +24,7 @@ const UserCheckMaster = Models.UserCheck;
  *  @apiErrorExample Error-Response:
  *     HTTP/1.1 500 Error
  */
-export function sendInvitation(req, res) {
+ export function sendInvitation(req, res) {
   try {
     const token = req.headers['x-access-token'];
     if (!token) {
@@ -54,13 +54,23 @@ export function sendInvitation(req, res) {
         if (data.length > 0) {
             UserCheckInvitation.bulkCreate(data).then((d) => {
             console.debug('Inserted all user for log');
-            data.forEach((item) => {
-              Axios.post(privateLocalAddress+'/api/sendInvitation', {email: item.email, code: item.uniqe_id, check_code: check.tiny_url, host: hostName,  customMessage, checkName,firstName,lastName,participant,dueDate}).then((response)=>{
+            let mainObject = {},
+            promises = [];
+            data.forEach(async (item) => {
+              
+              // const sendEmail= () =>{ return new Promise((resolve, reject) => {
+              console.log("start Email");
+              await Axios.post(privateLocalAddress+'/api/sendInvitation', {email: item.email, code: item.uniqe_id, check_code: check.tiny_url, host: hostName,  customMessage, checkName,firstName,lastName,participant,dueDate}).then((response)=>{
                 console.log('Sent Invitation email');
+                //return resolve(true);
               }).catch((err) => {
                 console.log('Error in sending Email');
                 //console.log(err);
+                //return resolve(true);
               });
+          //   });
+          // };
+           //var d = await sendEmail();
             });
             // TODO Implement here email notification for all email.
             return res.status(200).send('OK');
@@ -76,7 +86,7 @@ export function sendInvitation(req, res) {
   } catch (error) {
     return res.status(500).send(error);
   }
-}
+};
 /**
  * @api {post} /api/check/users Invite users.
  * @apiName AllInvitedUsers

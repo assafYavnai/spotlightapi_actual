@@ -143,11 +143,12 @@ app.post('/api/sendInvitation', (req, res, next) => {
         data: {email, code, check_code,host, customMessage, checkName,firstName,lastName,participant,dueDate}
 
     }, (error) => {
-      console.log(error);
+      //console.log(error);
         if (error) {
-            res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
+           return res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
         }
-        res.status(200).send({successMessage: 'Email has been sent for Verification', status: 200});
+        console.log("Email sent");
+        return res.status(200).send({successMessage: 'Email has been sent for Verification', status: 200});
     });
   } catch(e){
    
