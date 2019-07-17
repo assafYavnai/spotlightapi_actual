@@ -147,7 +147,7 @@ app.post('/api/sendInvitation', (req, res, next) => {
         if (error) {
             res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
         }
-        res.status(500).send({successMessage: 'Email has been sent for Verification', status: 200});
+        res.status(200).send({successMessage: 'Email has been sent for Verification', status: 200});
     });
   } catch(e){
    
