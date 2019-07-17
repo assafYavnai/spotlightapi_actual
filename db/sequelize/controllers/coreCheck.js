@@ -261,7 +261,9 @@ export function CreateOrUpdate(req, res) {
                 UserCheckTopics.destroy({where: {user_check_id: data.id}}).then((deleted) => {
                   console.log('deleted topics from check');
                   console.log(deleted);
-                  TopicsMaster.findAll({where: {theme_id: data.theme_id}}).then((d) => {
+                  TopicsMaster.findAll({where: {theme_id: data.theme_id}, order: [
+                    ['sequence', 'ASC']
+                ]}).then((d) => {
                     const topics = [];
                     d.forEach((tm) => {
                       topics.push({
@@ -300,7 +302,9 @@ export function CreateOrUpdate(req, res) {
                 // delete topics if already exists
                 UserCheckTopics.destroy({where: {user_check_id: uc.id}});
                 // find all topics for selected theme and insert to userchecktopics
-                TopicsMaster.findAll({where: {theme_id: uc.theme_id}}).then((d) => {
+                TopicsMaster.findAll({where: {theme_id: uc.theme_id}, order: [
+                  ['sequence', 'ASC']
+              ]}).then((d) => {
                     const topics = [];
                     d.forEach((tm) => {
                         topics.push({

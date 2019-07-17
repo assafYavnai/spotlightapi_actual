@@ -131,9 +131,9 @@ export function verifyOTP(req, res) {
       if (d.count > 0) {
         return res.status(200).send({successMessage: 'OTP confirmed', status: 200});
       }
-      return res.status(404).send({errorMessage: 'Not Found', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
     }).catch((err) => {
-      return res.status(404).send({errorMessage: 'Not Found', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
     });
   } catch (e) {
     console.log(e);
@@ -160,9 +160,9 @@ export function recoveryPasswordVerifyOTP(req, res) {
       if (d.count > 0) {
         return res.status(200).send({successMessage: 'OTP confirmed', status: 200});
       }
-      return res.status(404).send({errorMessage: 'OTP not correct', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
     }).catch((err) => {
-      return res.status(404).send({errorMessage: 'Not Found', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
     });
   } catch (e) {
     console.log(e);
