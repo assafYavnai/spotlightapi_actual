@@ -1,16 +1,14 @@
 import { DB_TYPES } from './dbTypes';
 export const ENV = process.env.NODE_ENV || 'development';
 export const DB_TYPE = process.env.DB_TYPE || DB_TYPES.POSTGRES;
-
+const isProduction = ENV === 'production';
 export const GOOGLE_ANALYTICS_ID = process.env.GOOGLE_ANALYTICS_ID || null;
 
-export const SMTP_FROM ='noreply@thespotlightsystem.com';
-export const CONTACT_SMTP_FROM='contactus@thespotlightsystem.com';
-export const SMTP_HOST='smtp.gmail.com';
-export const SMTP_PORT=465;
-export const SMTP_USERNAME='noreply@thespotlightsystem.com';
-export const SMTP_PASSWORD='gunr1014';
-export const PRO_ENQUIRY_BccEmail='joabkr@gmail.com,sufinoon@gmail.com';
-//export const PRO_ENQUIRY_BccEmail='surinderdhanjufss@gmail.com,surinderdhanju056@gmail.com';
-export const invitationLink="http://signal-in.com/spotlight/check/";
-export const config_dir = 'F:/bit-bucket/spotlight/config';
+export const SMTP_FROM = isProduction ? 'noreply@thespotlightsystem.com' : 'munna.bhakta1001@gmail.com';
+export const CONTACT_SMTP_FROM=isProduction ? 'contactus@thespotlightsystem.com' : 'contactus@thespotlightsystem.com';
+export const SMTP_HOST = isProduction ? 'smtp.gmail.com' : 'smtp.gmail.com';
+export const SMTP_PORT = isProduction ? 465 : 465;
+export const SMTP_USERNAME = isProduction ? 'noreply@thespotlightsystem.com' : 'munna.bhakta1001@gmail.com';
+export const SMTP_PASSWORD = isProduction ? 'gunr1014' : 'rrguuftkqwdoxuav';
+export const PRO_ENQUIRY_BccEmail = isProduction ? 'joabkr@gmail.com,sufinoon@gmail.com' : 'surinderdhanjufss@gmail.com,surinderdhanju056@gmail.com';
+export const config_dir = isProduction ? '/usr/src/spotlight/config' : 'F:/bit-bucket/spotlight/config';
