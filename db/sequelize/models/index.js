@@ -16,7 +16,7 @@ import TopicsAnswerModel from './user_check_topics_answer';
 import UserGroupsModel from './user_groups';
 import UserGroupsEmailsModel from './user_groups_email';
 import proEnquiryModel from './pro_enquiry';
-const config = sequelizeConfig[ENV];
+const config = ENV ==='production'? sequelizeConfig.production : sequelizeConfig.development;
 
 const db = {};
 const dbUrl = process.env[config.use_env_variable];
