@@ -11,14 +11,14 @@ const User = Models.User;
     mailer.extend(app, {
   from: envVars.SMTP_FROM,
   host: envVars.SMTP_HOST,
-  secureConnection: true,
+  secureConnection: false,
   port: envVars.SMTP_PORT,
-  transportMethod: 'SMTP',
+  transportMethod: 'SMTP'
   
-  auth: {
-    user: envVars.SMTP_USERNAME,
-    pass: envVars.SMTP_PASSWORD
-  }
+  // auth: {
+  //   user: envVars.SMTP_USERNAME,
+  //   pass: envVars.SMTP_PASSWORD
+  // }
 });
 //app.set('views', path.dirname('../') + '/views');
 app.set('views', path.dirname('../') + '/views');
