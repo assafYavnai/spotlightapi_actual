@@ -149,6 +149,11 @@ order: [
             ['id', 'DESC'],
         ]
 }).then((d) => {
+            console.log('User check List');
+            console.log(d);
+            if(d==null || d.length==0){
+              return res.status(404).send({ message: 'Check not exist.' });
+            }
             const data = [];
             const checks = d.map((p) => {
               return p.id;
@@ -160,6 +165,11 @@ order: [
                 }
               }
             }).then((i) => {
+            console.log('User check invitation List');
+            console.log(i);
+            if(i==null || i.length==0){
+              return res.status(404).send({ message: 'Check Invitation not exist.' });
+            }
               sequelize.query(`SELECT a.user_check_id,count(b.id) as answered,count(b.id) as answered,(( CASE WHEN  count(a.id) >
               (SELECT count(id) FROM user_check_topics where user_check_id=a.user_check_id) then count(distinct b.user_check_topic_id::numeric ) else count(distinct a.id::numeric ) end)
               * 
