@@ -13,8 +13,7 @@ const User = Models.User;
   host: envVars.SMTP_HOST,
   secureConnection: true,
   port: envVars.SMTP_PORT,
-  transportMethod: 'SMTP',
-  
+  transportMethod: 'SMTP',  
   auth: {
     user: envVars.SMTP_USERNAME,
     pass: envVars.SMTP_PASSWORD
