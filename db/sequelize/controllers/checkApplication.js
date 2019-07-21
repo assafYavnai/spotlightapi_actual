@@ -171,20 +171,20 @@ export function getTopics(req, res) {
                 }
               }).catch((err) => {
                 res.statusMessage = err.message;
-               return res.status(500).send(err);
+               return res.status(200).send({error:{msg:err.message},dt:new Date()});
             });
           }).catch((err) => {
             res.statusMessage = err.message;
-            return res.status(500).send(err);
+            return res.status(200).send({error:{msg:err.message},dt:new Date()});
           });
       }).catch((err) => {
         res.statusMessage = err.message;
-        return res.status(500).send(err);
+        return res.status(200).send({error:{msg:err.message},dt:new Date()});
     });
       
   } catch (error) {
     res.statusMessage = error.message;
-    return res.status(500).send(error);
+    return res.status(200).send({error:{msg:error.message},dt:new Date()});
   }
 }
 /** 
