@@ -11,14 +11,15 @@ const User = Models.User;
     mailer.extend(app, {
   from: envVars.SMTP_FROM,
   host: envVars.SMTP_HOST,
-  secureConnection: true,
+  secureConnection: false,
   port: envVars.SMTP_PORT,
-  transportMethod: 'SMTP',  
-  auth: {
-    user: envVars.SMTP_USERNAME,
-    pass: envVars.SMTP_PASSWORD
-  }
+  transportMethod: 'SMTP'  
+  //auth: {
+  //  user: envVars.SMTP_USERNAME,
+  //  pass: envVars.SMTP_PASSWORD
+  //}
 });
+console.log(envVars);
 //app.set('views', path.dirname('../') + '/views');
 app.set('views', path.dirname('../') + '/views');
 app.set('view engine', 'jade');
@@ -35,18 +36,6 @@ app.post('/api/sendEmail', (req, res, next) => {
       return;
     }
     res.send({successMessage:'Email has been sent',status:200});
-  });
-});
-app.post('/api/forgotPassword', (req, res, next) => {
-  app.mailer.send('forgotPassword', {
-    to: req.body.to,
-    subject: 'Reset Your Growths-Map Account Password',
-     name: req.body.name
-  }, (err) => {
-    if (err) {
-      res.json({message: 'There was an error while sending the email', success: false});
-    }
-    res.json({message: 'Please check email in your inbox.', success: true});
   });
 });
 
@@ -66,7 +55,7 @@ app.post('/api/forgotPassword', (req, res, next) => {
  *  HTTP/1.1 404 NotFound
  */
 app.post('/api/sendOTP', (req, res) => {
-     console.log(db);
+    
     const {email,name} = req.body;
     User.findOne({ where: { email } }).then((existingUser) => {
      // var fullName=existingUser.first_name;
@@ -83,9 +72,11 @@ app.post('/api/sendOTP', (req, res) => {
       otherProperty: 'Other Property',
       data: {greet: 'Hi '+name+',', OTP: otp}
       }, (err) => {
+        
           if (err) {
-              res.status(500).send({errorMessage: 'otpSentError', errorInfo: err});
-              return;
+              console.log(err);
+              return res.status(500).send({errorMessage: 'otpSentError', errorInfo: err});
+              
           }
           res.status(200).send({successMessage: 'otpSentSuccess', status: 200});
       });
