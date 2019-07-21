@@ -171,20 +171,20 @@ export function getTopics(req, res) {
                 }
               }).catch((err) => {
                 res.statusMessage = err.message;
-               return res.status(500).send(err);
+               return res.status(200).send({error:{msg:err.message},dt:new Date()});
             });
           }).catch((err) => {
             res.statusMessage = err.message;
-            return res.status(500).send(err);
+            return res.status(200).send({error:{msg:err.message},dt:new Date()});
           });
       }).catch((err) => {
         res.statusMessage = err.message;
-        return res.status(500).send(err);
+        return res.status(200).send({error:{msg:err.message},dt:new Date()});
     });
       
   } catch (error) {
     res.statusMessage = error.message;
-    return res.status(500).send(error);
+    return res.status(200).send({error:{msg:error.message},dt:new Date()});
   }
 }
 /** 
@@ -379,57 +379,66 @@ checkUniqueId, topicId, userId, answer, option, takenTime
  */
   export function viewReport(req, res) {
     try {
-        console.log(req.params);
-        let data = {};
-        sequelize.query(`SELECT distinct c.*,u.company_name,
-        ((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100)::bigint  completed, count(tbl.*),
-        ((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optiona,
-        ((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionb,
-        ((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionc FROM user_checks c  inner join  
-        (SELECT a.*,t.user_check_id FROM user_check_topics_answers a 
-         inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
-         left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
-        on c.id=tbl.user_check_id 
-        inner join users u on c.user_id::integer=u.id  WHERE c.id=? group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((summary) => {
-            if (summary != null && summary.length > 0) {
-                data = summary[0];
-                sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
-                ((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optiona,
-                ((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionb,
-                ((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionc FROM user_check_topics c
-                inner join 
-                (SELECT a.* FROM user_check_topics_answers a 
-                 inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
-                WHERE c.user_check_id=?   group by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
-                    //data.topics = topics;
-                    if (topics.length > 0) {
-                        const topicsId = topics.map((item) => {
-                           return item.id;
-                        });
-                        TopicsAnswer.findAll({
-                            where: {
-                                user_check_topic_id: {
-                                [sequelize.Op.in]: topicsId
-                              }
-                            }
-                          }).then((comments) => {
-                            data.topics = topics.map((t) => {
-                                const topic = t;
-                                topic.comments = comments.filter((c) => {
-                                    return c.user_check_topic_id === t.id;
-                                });
-                                return topic;
-                            });
-                            res.status(200).send(data);
-                          }).catch((err) => {
-                            return res.status(500).send('Error while fetching comments');
-                          });
-                    }
-                });
-                console.log(data);
-            } else {
-                return res.status(404).send('NotFound');
+        const token = req.headers['x-access-token'];
+        if (!token) {
+            return res.status(401).send({ auth: false, message: 'No token provided.' });
+        }
+        jwt.verify(token, config.tokenSecret, (err, decoded) => {
+            if (err) {
+                return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
             }
+            console.log(req.params);
+            let data = {};
+            sequelize.query(`SELECT distinct c.*,u.company_name,
+            ((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100)::bigint  completed, count(tbl.*),
+            ((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optiona,
+            ((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionb,
+            ((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionc FROM user_checks c  inner join  
+            (SELECT a.*,t.user_check_id FROM user_check_topics_answers a 
+            inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
+            left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
+            on c.id=tbl.user_check_id 
+            inner join users u on c.user_id::integer=u.id  WHERE c.id=? and c.user_id=?::character varying group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id,decoded.id]}).then((summary) => {
+                if (summary != null && summary.length > 0) {
+                    data = summary[0];
+                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
+                    ((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optiona,
+                    ((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionb,
+                    ((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionc FROM user_check_topics c
+                    inner join 
+                    (SELECT a.* FROM user_check_topics_answers a 
+                    inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
+                    WHERE c.user_check_id=?   group by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
+                        //data.topics = topics;
+                        if (topics.length > 0) {
+                            const topicsId = topics.map((item) => {
+                            return item.id;
+                            });
+                            TopicsAnswer.findAll({
+                                where: {
+                                    user_check_topic_id: {
+                                    [sequelize.Op.in]: topicsId
+                                }
+                                }
+                            }).then((comments) => {
+                                data.topics = topics.map((t) => {
+                                    const topic = t;
+                                    topic.comments = comments.filter((c) => {
+                                        return c.user_check_topic_id === t.id;
+                                    });
+                                    return topic;
+                                });
+                                res.status(200).send(data);
+                            }).catch((err) => {
+                                return res.status(500).send('Error while fetching comments');
+                            });
+                        }
+                    });
+                    console.log(data);
+                } else {
+                    return res.status(404).send('Not Found');
+                }
+            });
         });
     } catch (error) {
         return res.status(500).send(error);
