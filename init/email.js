@@ -13,11 +13,11 @@ const User = Models.User;
   host: envVars.SMTP_HOST,
   secureConnection: false,
   port: envVars.SMTP_PORT,
-  transportMethod: 'SMTP'  
-  //auth: {
+  transportMethod: 'SMTP' 
+  // auth: {
   //  user: envVars.SMTP_USERNAME,
   //  pass: envVars.SMTP_PASSWORD
-  //}
+  // }
 });
 console.log(envVars);
 //app.set('views', path.dirname('../') + '/views');
@@ -159,7 +159,7 @@ app.post('/api/sendEnquiry', (req, res, next) => {
         // bcc:'joabkr@gmail.com,sufinoon@gmail.com',
         //bcc:'moanish940@gmail.com,anish15.786@outlook.com',
         //bcc:bccmail,
-        subject: 'Your request for PRO service',
+        subject: 'PRO Enquiry - Request ID - '+[request_id],
         data: {request_id,full_name}
 
     }, (error) => {
@@ -201,9 +201,9 @@ app.post('/api/sendForgetOTP', (req, res) => {
     const otp  = Math.floor(100000 + Math.random() * 900000);
     const obj = {email, otp};
    OTPSchema.create(obj).then(() => {
-     app.mailer.send('otp', {
+     app.mailer.send('forgetPassword', {
      to: email,
-     subject: 'Forget Password - One Time Password(OTP) from Spotlight ',
+     subject: 'Spotlight System - Reset Password request',
      otherProperty: 'Other Property',
      data: {greet: 'Hi '+fullName+',',OTP: otp}
      }, (err) => {

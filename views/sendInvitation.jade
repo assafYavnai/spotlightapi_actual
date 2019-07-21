@@ -37,9 +37,6 @@ html
       }
   body
     .container
-      div(style='margin-left: 10px')
-        img(src='http://www.thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')
-      | &#x9;
       .content
         p Check Name: #{data.checkName}
         | &#x9;&#x9;
@@ -59,7 +56,7 @@ html
           a(href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
             | [ #{data.host}/spotlight/check/#{data.check_code}/#{data.code} ]
         | &#x9;&#x9;
-        p Due Date : #{data.dueDate} (GMT +05:30)
+        p Please conclude the Check no later than : #{data.dueDate} (GMT +05:30)
         | &#x9;&#x9;
         p Please note that this check is totally confidential and anonymous, i,e the initiator will see all the results provided by the participants, but will not be able to know who provided each result.
         | &#x9;&#x9;
@@ -70,4 +67,6 @@ html
           | &#x9;&#x9;&#x9;
           span
             | SPOTLIGHT Team!!
-            
+        | &#x9;&#x9;
+        p
+          img(src='https://thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')    

@@ -26,24 +26,17 @@ html
       }
   body
     .container
-     div(style='margin-left: 10px')
-        img(src='http://www.thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')
-     | &#x9;
      .content
-        p(style='font-weight:bold') Hello! #{data.full_name}
+        //- p(style='font-weight:bold') Hello! #{data.full_name}
+        //- | &#x9;&#x9;
+        p Thank you for requesting our PRO service. One of our consultants will contact you shortly.
+        | &#x9;&#x9;
+        p Regards,
+        | &#x9;&#x9;
+        p The SPOTLIGHT team
         | &#x9;&#x9;
         p
-          | Thank you for contacting Spotlight 
-          sup TM
-          |  regarding our professional services
-        | &#x9;&#x9;
-        p One of our consultant will contact you in the coming days.
-        | &#x9;&#x9;
-        p This is your request ID 
-        | &#x9;&#x9;
-        p
-        h3.txt-otp
-          span #{data.request_id}
+          img(src='https://thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')
         | &#x9;&#x9;
         p
         | &#x9;&#x9;
@@ -52,3 +45,4 @@ html
           | If you didn&apos;t used SpotLight 
           sup TM
           |  system please ignore this mail
+        
