@@ -44,8 +44,12 @@ html
         | &#x9;&#x9;
         p This invitation was sent to you by #{data.firstName} #{data.lastName}
         |&#x9;&#x9; 
-        p #{data.participant} participants are participating in this check
+        p #{data.participant} participants are participating in this Check
         |&#x9;&#x9;
+        p Please conclude the Check no later than : #{data.dueDate} (GMT +05:30)
+        | &#x9;&#x9;
+        p Please note that this check is totally confidential and anonymous, i,e the initiator will see all the results provided by the participants, but will not be able to know who provided each result.
+        | &#x9;&#x9;
         p 
           a(style='text-decoration:none' class='createCheckBtn' href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
             | Start Check
@@ -56,17 +60,13 @@ html
           a(href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
             | [ #{data.host}/spotlight/check/#{data.check_code}/#{data.code} ]
         | &#x9;&#x9;
-        p Please conclude the Check no later than : #{data.dueDate} (GMT +05:30)
         | &#x9;&#x9;
-        p Please note that this check is totally confidential and anonymous, i,e the initiator will see all the results provided by the participants, but will not be able to know who provided each result.
-        | &#x9;&#x9;
-        | &#x9;&#x9;
-        p(style='margin-top:40px')
-          | Thank You,
+        p(style='margin-top:30px')
+          | Thank You for participating,
           br
           | &#x9;&#x9;&#x9;
           span
-            | SPOTLIGHT Team!!
+            | Spotlight team
         | &#x9;&#x9;
         p
           img(src='https://thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')    
