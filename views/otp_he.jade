@@ -1,9 +1,9 @@
 doctype html
-html
+html(dir='rtl')
   head
     title OTP Recieved
     style.
-     html{direction:rtl;float:right}
+     html,body{direction:rtl;}
       .container{
       margin:0;
       padding:0;
@@ -25,7 +25,7 @@ html
       letter-spacing: 10px;
       color:white;
       }
-  body
+  body(dir='rtl')
     .container
       .content
         p(style='font-weight:bold') #{data.greet}
