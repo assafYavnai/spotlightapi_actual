@@ -126,8 +126,9 @@ app.post('/api/SuccessRegistraion', (req, res, next) => {
 // send Invitation multiple users...
 app.post('/api/sendInvitation', (req, res, next) => {
   try{
-    const {email, code, check_code,host, customMessage, checkName,firstName,lastName,participant,dueDate} = req.body;
-    app.mailer.send('sendInvitation', {
+    const {email, code, check_code,host, customMessage, checkName,firstName,lastName,participant,dueDate,language} = req.body;
+    console.log('language : '+language);
+    app.mailer.send('sendInvitation_'+language, {
         to: email,
         subject: 'You Are Invited to Spotlight Check',
         data: {email, code, check_code,host, customMessage, checkName,firstName,lastName,participant,dueDate}
