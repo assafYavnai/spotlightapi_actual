@@ -27,30 +27,19 @@ html
   body
     .container
       .content
-        p(style='font-weight:bold') #{data.greet}
+        p(style='font-weight:bold') Name : #{data.full_name}
         | &#x9;&#x9;
-        p
-          | This is a verification email sent from SpotLight 
-          sup TM
-          |  system
+        p(style='font-weight:bold') Email : #{data.email}
         | &#x9;&#x9;
-        p Please copy the verification code below and provide in the designated area
+        p(style='font-weight:bold') Organization : #{data.organization}
         | &#x9;&#x9;
-        p
-        h3.txt-otp
-          span #{data.OTP}
+        p(style='font-weight:bold') Phone : #{data.phone}
         | &#x9;&#x9;
         p
         | &#x9;&#x9;
-        p Thank you for contacting us,
         | &#x9;&#x9;
         p The Spotlight team
         | &#x9;&#x9;
-        p 
-           img(src='https://thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')
-        | &#x9;&#x9;
-        | &#x9;&#x9;
         p
-          | If you didn&apos;t used SpotLight 
-          sup TM
-          |  system please ignore this mail
+          img(src='https://thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')
+        | &#x9;&#x9;  

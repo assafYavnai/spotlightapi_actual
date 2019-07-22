@@ -1,0 +1,45 @@
+doctype html
+html
+  head
+    title OTP Recieved
+    style.
+     html{direction:rtl;float:right}
+      .container{
+      margin:0;
+      padding:0;
+      }
+      .content{
+      padding:10px;;
+      font-size:18px;
+      font-family:Arial, Helvetica, sans-serif;
+      }
+      .txt-otp{
+      background:#14a89f;padding:25px;width:180px;
+      border-radius:5px;
+      text-align:center;
+      margin-left: 100px;
+      }
+      .txt-otp>span{
+      font-size:25px;
+      font-stretch:expanded;
+      letter-spacing: 10px;
+      color:white;
+      }
+  body(dir='rtl')
+    .container
+      .content
+        p(style='font-weight:bold') שם: #{data.full_name}
+        | &#x9;&#x9;
+        p(style='font-weight:bold') כתובת אי מייל: #{data.email}
+        | &#x9;&#x9;
+        p(style='font-weight:bold') ארגון: #{data.organization}
+        | &#x9;&#x9;
+        p(style='font-weight:bold') טלפון: #{data.phone}
+        | &#x9;&#x9;
+        p
+        | &#x9;&#x9;
+        | &#x9;&#x9;
+        p צוות SPOTLIGHT
+        | &#x9;&#x9;
+        p
+          img(src='https://thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')

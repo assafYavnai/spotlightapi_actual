@@ -1,0 +1,51 @@
+doctype html
+html
+  head
+    title OTP Recieved
+    style.
+      .container{
+      margin:0;
+      padding:0;
+      }
+      .content{
+      padding:10px;;
+      font-size:18px;
+      font-family:Arial, Helvetica, sans-serif;
+      }
+      .txt-otp{
+      background:#14a89f;padding:25px;width:180px;
+      border-radius:5px;
+      text-align:center;
+      margin-left: 100px;
+      }
+      .txt-otp>span{
+      font-size:25px;
+      font-stretch:expanded;
+      letter-spacing: 10px;
+      color:white;
+      }
+  body
+    .container
+      .content
+        p(style='font-weight:bold') #{data.greet}
+        | &#x9;&#x9;
+        p This is a verification email sent from The Spotlight system.  
+        | &#x9;&#x9;
+        p Please copy the verification code below to the designated area in your account:
+        | &#x9;&#x9;
+        p
+        h3.txt-otp
+          span #{data.OTP}
+        | &#x9;&#x9;
+        p
+        | &#x9;&#x9;
+        p Thank you for contacting us,
+        | &#x9;&#x9;
+        p The Spotlight team
+        | &#x9;&#x9;
+        p 
+           img(src='https://thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')
+        | &#x9;&#x9;
+        | &#x9;&#x9;
+        p(style='font-size:15px;') If you haven't used the Spotlight system please ignore this mail
+        | &#x9;&#x9;

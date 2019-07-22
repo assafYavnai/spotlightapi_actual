@@ -3,6 +3,7 @@ html
   head
     title Email Invitation
     style.
+     html{direction:rtl;float:right}
       .container{
       margin:0;
       padding:0;
@@ -35,38 +36,38 @@ html
         display: inline-block;
         background:#3b235c;
       }
-  body
+  body(dir='rtl')
     .container
       .content
-        p Check Name: #{data.checkName}
+        p שם המבדק: #{data.checkName}
         | &#x9;&#x9;
         p #{data.customMessage}
         | &#x9;&#x9;
-        p This invitation was sent to you by #{data.firstName} #{data.lastName}
+        p הזמנה זו נשלחה על ידי: #{data.firstName} #{data.lastName}
         |&#x9;&#x9; 
-        p #{data.participant} participants are participating in this check
+        p #{data.participant} משתתפים משתתפים בבדיקה זו
         |&#x9;&#x9;
+        p נא לסיים מבדק זה לא יאוחר מ: #{data.dueDate} (GMT +05:30)
+        | &#x9;&#x9;
+        p לידיעתך, מבדק זה הינו חסוי ואנונימי. יוזם המבדק יוכל לראות את התוצאות ללא שיוך למשתתף/ת ספציפי.
+        | &#x9;&#x9;
         p 
           a(style='text-decoration:none' class='createCheckBtn' href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
-            | Start Check
+            | התחל בדיקה
         | &#x9;&#x9;
-        p if button is not working use below direct link
+        p במידה וכפתור "התחל" אינו פעיל נא ללחוץ על הלינק שלהלן:
         | &#x9;&#x9;
         p
           a(href='#{data.host}/spotlight/check/#{data.check_code}/#{data.code}')
             | [ #{data.host}/spotlight/check/#{data.check_code}/#{data.code} ]
         | &#x9;&#x9;
-        p Please conclude the Check no later than : #{data.dueDate} (GMT +05:30)
         | &#x9;&#x9;
-        p Please note that this check is totally confidential and anonymous, i,e the initiator will see all the results provided by the participants, but will not be able to know who provided each result.
-        | &#x9;&#x9;
-        | &#x9;&#x9;
-        p(style='margin-top:40px')
-          | Thank You,
+        p(style='margin-top:30px')
+          | תודה על ההשתתפות!
           br
           | &#x9;&#x9;&#x9;
           span
-            | SPOTLIGHT Team!!
+            | צוות SPOTLIGHT
         | &#x9;&#x9;
         p
           img(src='https://thespotlightsystem.com/assets/4cdf3b0b1991c7173eb2d6efc17276bd.png', alt='logo')    
