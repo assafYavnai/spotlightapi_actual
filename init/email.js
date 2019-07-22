@@ -56,7 +56,7 @@ app.post('/api/sendEmail', (req, res, next) => {
  */
 app.post('/api/sendOTP', (req, res) => {
     
-    const {email,name} = req.body;
+    const {email,name,language,subject} = req.body;
     User.findOne({ where: { email } }).then((existingUser) => {
      // var fullName=existingUser.first_name;
       if (existingUser) {
@@ -66,9 +66,9 @@ app.post('/api/sendOTP', (req, res) => {
     const otp  = Math.floor(100000 + Math.random() * 900000);
       const obj = {email, otp};
     OTPSchema.create(obj).then(() => {
-      app.mailer.send('otp', {
+      app.mailer.send('otp_'+language, {
       to: email,
-      subject: 'Your One Time Password(OTP) from Spotlight ',
+      subject: subject,
       otherProperty: 'Other Property',
       data: {greet: 'Hi '+name+',', OTP: otp}
       }, (err) => {
@@ -126,11 +126,11 @@ app.post('/api/SuccessRegistraion', (req, res, next) => {
 // send Invitation multiple users...
 app.post('/api/sendInvitation', (req, res, next) => {
   try{
-    const {email, code, check_code,host, customMessage, checkName,firstName,lastName,participant,dueDate,language} = req.body;
+    const {email, code, check_code,host, customMessage, checkName,firstName,lastName,participant,dueDate,language,subject} = req.body;
     console.log('language : '+language);
     app.mailer.send('sendInvitation_'+language, {
         to: email,
-        subject: 'You Are Invited to Spotlight Check',
+        subject: subject,
         data: {email, code, check_code,host, customMessage, checkName,firstName,lastName,participant,dueDate}
 
     }, (error) => {
@@ -152,15 +152,15 @@ app.post('/api/sendInvitation', (req, res, next) => {
 
 app.post('/api/sendEnquiry', (req, res, next) => {
   try{
-    const {request_id,full_name,email,organization,phone} = req.body;
+    const {request_id,full_name,email,organization,phone,language,subject} = req.body;
     const bccmail=envVars.PRO_ENQUIRY_BccEmail;
     console.log("id:"+request_id);
-    app.mailer.send('askPro', {
+    app.mailer.send('askPro_'+language, {
         to: email,
         // bcc:'joabkr@gmail.com,sufinoon@gmail.com',
         //bcc:'moanish940@gmail.com,anish15.786@outlook.com',
         //bcc:bccmail,
-        subject: 'PRO Enquiry - Request ID - '+[request_id],
+        subject: subject+[request_id],
         data: {request_id,full_name}
 
     }, (error) => {
@@ -168,12 +168,12 @@ app.post('/api/sendEnquiry', (req, res, next) => {
         if (error) {
           return  res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
         }
-        app.mailer.send('adminAskPro', {
+        app.mailer.send('adminAskPro_'+language, {
           to: bccmail,
           // bcc:'joabkr@gmail.com,sufinoon@gmail.com',
           //bcc:'moanish940@gmail.com,anish15.786@outlook.com',
           //bcc:bccmail,
-          subject: 'PRO Enquiry - Request ID - '+[request_id],
+          subject: subject+[request_id],
           data: {request_id,full_name,organization,phone,email}
     
         }, (error) => {

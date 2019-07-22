@@ -35,7 +35,7 @@ const UserCheckMaster = Models.UserCheck;
       if (e) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
-      const { emails, check_id, customMessage,checkName,firstName,lastName,participant,dueDate,language } = req.body;
+      const { emails, check_id, customMessage,checkName,firstName,lastName,participant,dueDate,language,subject } = req.body;
       const data = [];
       UserCheckMaster.findById(check_id).then((check) =>{
         emails.split(',').forEach((item) => {
@@ -60,7 +60,7 @@ const UserCheckMaster = Models.UserCheck;
               
               // const sendEmail= () =>{ return new Promise((resolve, reject) => {
               console.log("start Email");
-              await Axios.post(privateLocalAddress+'/api/sendInvitation', {email: item.email, code: item.uniqe_id, check_code: check.tiny_url, host: hostName,  customMessage, checkName,firstName,lastName,participant,dueDate,language}).then((response)=>{
+              await Axios.post(privateLocalAddress+'/api/sendInvitation', {email: item.email, code: item.uniqe_id, check_code: check.tiny_url, host: hostName,  customMessage, checkName,firstName,lastName,participant,dueDate,language,subject}).then((response)=>{
                 console.log('Sent Invitation email');
                 //return resolve(true);
               }).catch((err) => {
