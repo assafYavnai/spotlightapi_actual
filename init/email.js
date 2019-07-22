@@ -56,7 +56,7 @@ app.post('/api/sendEmail', (req, res, next) => {
  */
 app.post('/api/sendOTP', (req, res) => {
     
-    const {email,name,language,subject} = req.body;
+    const {email,name,language,subject,content} = req.body;
     User.findOne({ where: { email } }).then((existingUser) => {
      // var fullName=existingUser.first_name;
       if (existingUser) {
@@ -70,7 +70,7 @@ app.post('/api/sendOTP', (req, res) => {
       to: email,
       subject: subject,
       otherProperty: 'Other Property',
-      data: {greet: 'Hi '+name+',', OTP: otp}
+      data: {greet: content+' '+name+',', OTP: otp}
       }, (err) => {
         
           if (err) {
@@ -194,7 +194,7 @@ app.post('/api/sendEnquiry', (req, res, next) => {
 
 app.post('/api/sendForgetOTP', (req, res) => {
   console.log(db);
-  const {email} = req.body;
+  const {email,language,subject,content} = req.body;
  User.findOne({ where: { email } }).then((existingUser) => {
   // console.log("what:"+existingUser);
   var fullName=existingUser.first_name;
@@ -202,11 +202,11 @@ app.post('/api/sendForgetOTP', (req, res) => {
     const otp  = Math.floor(100000 + Math.random() * 900000);
     const obj = {email, otp};
    OTPSchema.create(obj).then(() => {
-     app.mailer.send('forgetPassword', {
+     app.mailer.send('forgetPassword_'+language, {
      to: email,
-     subject: 'Spotlight System - Reset Password request',
+     subject: subject,
      otherProperty: 'Other Property',
-     data: {greet: 'Hi '+fullName+',',OTP: otp}
+     data: {greet: content+' '+fullName+',',OTP: otp}
      }, (err) => {
          if (err) {
              res.status(500).send({errorMessage: 'otpSentError', errorInfo: err});
