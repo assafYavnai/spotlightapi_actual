@@ -158,7 +158,9 @@ export function getTopics(req, res) {
                     if(u!=null){
                         data.company_name=u.company_name;
                     } 
-                    UserCheckTopic.findAll({where: {user_check_id: check.id}}).then((topics) => {
+                    UserCheckTopic.findAll({where: {user_check_id: check.id}, order: [
+                        ['id', 'ASC']
+                    ]}).then((topics) => {
                         topics.forEach((t) => {
                            data.topics.push(t.toJSON());
                         });

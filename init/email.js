@@ -8,17 +8,28 @@ const envVars = require('../config/env');
 const OTPSchema = Models.OTPSchema;
 const User = Models.User;
   module.exports = (app, db) => {
-    mailer.extend(app, {
-  from: envVars.SMTP_FROM,
-  host: envVars.SMTP_HOST,
-  secureConnection: true,
-  port: envVars.SMTP_PORT,
-  transportMethod: 'SMTP',  
-  auth: {
-   user: envVars.SMTP_USERNAME,
-   pass: envVars.SMTP_PASSWORD
-  }
-});
+    if(envVars.SMTP_USERNAME==''){
+      mailer.extend(app, {
+        from: envVars.SMTP_FROM,
+        host: envVars.SMTP_HOST,
+        secureConnection: envVars.SMTP_SECURE,
+        port: envVars.SMTP_PORT,
+        transportMethod: 'SMTP'
+      });
+    } else {
+      mailer.extend(app, {
+        from: envVars.SMTP_FROM,
+        host: envVars.SMTP_HOST,
+        secureConnection: envVars.SMTP_SECURE,
+        port: envVars.SMTP_PORT,
+        transportMethod: 'SMTP',  
+        auth: {
+         user: envVars.SMTP_USERNAME,
+         pass: envVars.SMTP_PASSWORD
+        }
+      });
+    }
+    
 console.log(envVars);
 //app.set('views', path.dirname('../') + '/views');
 app.set('views', path.dirname('../') + '/views');
