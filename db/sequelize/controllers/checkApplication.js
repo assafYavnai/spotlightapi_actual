@@ -4,6 +4,7 @@ import axios from 'axios';
 import Axios from 'axios';
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
+import moment from 'moment';
 
 const uuidv1 = require('uuid/v1');
 
@@ -127,7 +128,9 @@ export function getTopics(req, res) {
       const { checkUniqueId, userId } = req.body;
       let data = {};
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
-          console.log(invitaiton);
+        if(invitaiton==null){
+            throw new Error("Sorry! You have not been invited for this check");
+        }
           data.invitation = {};
         data.invitation.current_topic = invitaiton.current_topic;
         data.invitation.email = invitaiton.email;
@@ -138,8 +141,7 @@ export function getTopics(req, res) {
         UserCheckInvitation.update({
             is_accepted: true
           }, {where: {uniqe_id: userId}}).then((u) => {
-              console.log('Invitation Information');
-              console.log(u);
+              
               UserCheckMaster.findOne({
                 where: {
                 tiny_url: checkUniqueId,
@@ -169,7 +171,28 @@ export function getTopics(req, res) {
                  });
                  
                 } else {
-                    throw new Error('This check does not exists or already ended or not started till now.');
+                    UserCheckMaster.findOne({
+                        where: {
+                        tiny_url: checkUniqueId,
+                        is_active: true
+                    }}).then( (p)=>{
+                        var dt=new Date();
+                        if(p==null) {
+                            throw new Error('This check does not exist anymore');
+                        } else if(  (new Date(p.start_date))> dt){
+                            throw new Error('This check will start on '+  moment(p.start_date).format('LLLL'));
+                        } else if(  (new Date(p.end_date)) <dt){
+                            throw new Error('This check has expired on  '+ moment(p.end_date).format('LLLL') );
+                        } else{
+                            console.log(new Date(p.end_date));
+                            console.log(dt);
+                            console.log( (new Date(p.end_date)) >dt);
+                            throw new Error('Something went wrong');
+                        }
+                    }).catch( (err)=>{
+                        return res.status(200).send({error:{msg:err.message},dt:new Date()});
+                    });
+                    
                 }
               }).catch((err) => {
                 res.statusMessage = err.message;
