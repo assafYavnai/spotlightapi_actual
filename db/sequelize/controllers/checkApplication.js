@@ -5,7 +5,7 @@ import Axios from 'axios';
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
 import moment from 'moment';
-
+import {message} from '../../../config/constants';
 const uuidv1 = require('uuid/v1');
 
 const UserCheckTopic = Models.UserCheckTopics;
@@ -129,14 +129,14 @@ export function getTopics(req, res) {
       let data = {};
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
         if(invitaiton==null){
-            throw new Error("Sorry! You have not been invited for this check");
+            throw new Error(message.INVALID_CHECK_INVITATION);
         }
           data.invitation = {};
         data.invitation.current_topic = invitaiton.current_topic;
         data.invitation.email = invitaiton.email;
         data.invitation.is_completed = invitaiton.is_completed;
         if (data.invitation.is_completed) {
-            throw new Error('You have already completed this check.');
+            throw new Error(message.CHECK_COMPLETED);
         }
         UserCheckInvitation.update({
             is_accepted: true
@@ -178,11 +178,11 @@ export function getTopics(req, res) {
                     }}).then( (p)=>{
                         var dt=new Date();
                         if(p==null) {
-                            throw new Error('This check does not exist anymore');
+                            throw new Error(message.CHECK_INVALID);
                         } else if(  (new Date(p.start_date))> dt){
-                            throw new Error('This check will start on '+  moment(p.start_date).format('LLLL'));
+                            throw new Error( message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(p.start_date).format('LLLL')));
                         } else if(  (new Date(p.end_date)) <dt){
-                            throw new Error('This check has expired on  '+ moment(p.end_date).format('LLLL') );
+                            throw new Error( message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(p.end_date).format('LLLL')));
                         } else{
                             console.log(new Date(p.end_date));
                             console.log(dt);
