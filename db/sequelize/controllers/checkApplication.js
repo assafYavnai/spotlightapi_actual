@@ -129,26 +129,29 @@ export function getTopics(req, res) {
       let data = {};
       let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A'};
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
-        if(invitaiton==null){
-            errorData.status='not invited to you';
-            errorData.message= message.INVALID_CHECK_INVITATION;
-            //throw new Error(message.INVALID_CHECK_INVITATION);
-        }
           data.invitation = {};
           if(invitaiton!=null){
-            data.invitation.current_topic = invitaiton.current_topic;
-            data.invitation.email = invitaiton.email;
-            data.invitation.is_completed = invitaiton.is_completed;
-            if (data.invitation.is_completed) {
-                errorData.status='finished';
+                if(invitaiton.is_completed !== true){
+                data.invitation.current_topic = invitaiton.current_topic;
+                data.invitation.email = invitaiton.email;
+                data.invitation.is_completed = invitaiton.is_completed;
+              }
+              else {
+              
+                errorData.status = 'finished';
+                console.log(errorData.status);
+              
                 errorData.message = message.CHECK_COMPLETED;
-                //throw new Error(message.CHECK_COMPLETED);
-            }
+              }
+            
+          } else {
+            errorData.status='not invited to you';
+            errorData.message= message.INVALID_CHECK_INVITATION;
+         
           }
         
         UserCheckInvitation.update({
-            is_accepted: true, is_completed: false
-          }, {where: {uniqe_id: userId}}).then((u) => {
+            is_accepted: true}, {where: {uniqe_id: userId}}).then((u) => {
               
               UserCheckMaster.findOne({
                 where: {
@@ -158,8 +161,7 @@ export function getTopics(req, res) {
                 end_date: { [sequelize.Op.gt]: sequelize.fn('NOW')},
             }
         }).then((item) => {
-            console.log(item);
-                if (item != null && item.id > 0) {
+                if (item !== null && item.id > 0 && Object.keys(data.invitation).length > 0 ) {
                  const check = item.toJSON();
                  data ={...data, check};
                  data.topics = [];
@@ -187,7 +189,6 @@ export function getTopics(req, res) {
                         var uid=p!=null?p.user_id:0;
                         var dt=new Date();
                        UserMaster.findOne({where:{id:uid}}).then((u)=>{
-                           
                             if(u!=null){
                                 errorData.company_name=u.company_name;
                                 errorData.initiator= u.first_name;
@@ -204,7 +205,6 @@ export function getTopics(req, res) {
                             } else if(p.is_active==false){
                                 errorData.status='canceled';
                             } else{
-                               errorData.status='N/A';
                                errorData.message = 'Something went wrong';
                             }
                             if(p!=null){
