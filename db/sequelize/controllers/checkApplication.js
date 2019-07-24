@@ -127,7 +127,7 @@ export function getTopics(req, res) {
       console.log('getTopics Called');
       const { checkUniqueId, userId } = req.body;
       let data = {};
-      let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A'};
+      let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A'};
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
         if(invitaiton==null){
             errorData.status='not invited to you';
@@ -167,6 +167,7 @@ export function getTopics(req, res) {
                  UserMaster.findOne({where:{id:check.user_id}}).then((u)=>{
                     if(u!=null){
                         data.company_name=u.company_name;
+                        data.initiator= u.first_name;
                     } 
                     UserCheckTopic.findAll({where: {user_check_id: check.id}, order: [
                         ['id', 'ASC']
