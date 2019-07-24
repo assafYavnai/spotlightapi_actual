@@ -127,17 +127,25 @@ export function getTopics(req, res) {
       console.log('getTopics Called');
       const { checkUniqueId, userId } = req.body;
       let data = {};
+      let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A'};
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
         if(invitaiton==null){
-            throw new Error(message.INVALID_CHECK_INVITATION);
+            errorData.status='not invited to you';
+            errorData.message= message.INVALID_CHECK_INVITATION;
+            //throw new Error(message.INVALID_CHECK_INVITATION);
         }
           data.invitation = {};
-        data.invitation.current_topic = invitaiton.current_topic;
-        data.invitation.email = invitaiton.email;
-        data.invitation.is_completed = invitaiton.is_completed;
-        if (data.invitation.is_completed) {
-            throw new Error(message.CHECK_COMPLETED);
-        }
+          if(invitaiton!=null){
+            data.invitation.current_topic = invitaiton.current_topic;
+            data.invitation.email = invitaiton.email;
+            data.invitation.is_completed = invitaiton.is_completed;
+            if (data.invitation.is_completed) {
+                errorData.status='finished';
+                errorData.message = message.CHECK_COMPLETED;
+                //throw new Error(message.CHECK_COMPLETED);
+            }
+          }
+        
         UserCheckInvitation.update({
             is_accepted: true
           }, {where: {uniqe_id: userId}}).then((u) => {
@@ -176,21 +184,42 @@ export function getTopics(req, res) {
                         tiny_url: checkUniqueId,
                         is_active: true
                     }}).then( (p)=>{
+                        var uid=p!=null?p.user_id:0;
                         var dt=new Date();
-                        if(p==null) {
-                            throw new Error(message.CHECK_INVALID);
-                        } else if(  (new Date(p.start_date))> dt){
-                            throw new Error( message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(p.start_date).format('LLLL')));
-                        } else if(  (new Date(p.end_date)) <dt){
-                            throw new Error( message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(p.end_date).format('LLLL')));
-                        } else{
-                            console.log(new Date(p.end_date));
-                            console.log(dt);
-                            console.log( (new Date(p.end_date)) >dt);
-                            throw new Error('Something went wrong');
-                        }
+                       UserMaster.findOne({where:{id:uid}}).then((u)=>{
+                           
+                            if(u!=null){
+                                errorData.company_name=u.company_name;
+                            } 
+                            if(p==null) {
+                                errorData.status='invalid';
+                                errorData.message = message.CHECK_INVALID;
+                            } else if(  (new Date(p.start_date))> dt){
+                                errorData.status='not Started';
+                                errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(p.start_date).format('DD/MM/YYYY HH:mm:ss'));
+                            } else if(  (new Date(p.end_date)) <dt){
+                                errorData.status='expired';
+                                errorData.message = message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(p.end_date).format('DD/MM/YYYY HH:mm:ss'));
+                            } else if(p.is_active==false){
+                                errorData.status='canceled';
+                            } else{
+                               errorData.status='N/A';
+                               errorData.message = 'Something went wrong';
+                            }
+                            if(p!=null){
+                                errorData.name = p.name_en || p.name_he;
+                                errorData.start_date = moment(p.start_date).format('DD/MM/YYYY HH:mm:ss');
+                                errorData.end_date = moment(p.end_date).format('DD/MM/YYYY HH:mm:ss');
+                            }
+                            throw Error('Data Error');
+                         }).catch( (es)=>{
+                            console.log(es);
+                            return res.status(200).send({error:errorData,dt:new Date()});
+                         });
+                        
                     }).catch( (err)=>{
-                        return res.status(200).send({error:{msg:err.message},dt:new Date()});
+                        console.log(err);
+                        return res.status(200).send({error:errorData,dt:new Date()});
                     });
                     
                 }
