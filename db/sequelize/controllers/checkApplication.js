@@ -147,7 +147,7 @@ export function getTopics(req, res) {
           }
         
         UserCheckInvitation.update({
-            is_accepted: true
+            is_accepted: true, is_completed: false
           }, {where: {uniqe_id: userId}}).then((u) => {
               
               UserCheckMaster.findOne({
