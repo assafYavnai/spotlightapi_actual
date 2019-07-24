@@ -167,7 +167,6 @@ export function getTopics(req, res) {
                  UserMaster.findOne({where:{id:check.user_id}}).then((u)=>{
                     if(u!=null){
                         data.company_name=u.company_name;
-                        data.initiator= u.first_name;
                     } 
                     UserCheckTopic.findAll({where: {user_check_id: check.id}, order: [
                         ['id', 'ASC']
@@ -191,6 +190,7 @@ export function getTopics(req, res) {
                            
                             if(u!=null){
                                 errorData.company_name=u.company_name;
+                                errorData.initiator= u.first_name;
                             } 
                             if(p==null) {
                                 errorData.status='invalid';
