@@ -4,7 +4,8 @@ import axios from 'axios';
 import Axios from 'axios';
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
-
+import moment from 'moment';
+import {message} from '../../../config/constants';
 const uuidv1 = require('uuid/v1');
 
 const UserCheckTopic = Models.UserCheckTopics;
@@ -126,20 +127,32 @@ export function getTopics(req, res) {
       console.log('getTopics Called');
       const { checkUniqueId, userId } = req.body;
       let data = {};
+      let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A'};
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
-          console.log(invitaiton);
           data.invitation = {};
-        data.invitation.current_topic = invitaiton.current_topic;
-        data.invitation.email = invitaiton.email;
-        data.invitation.is_completed = invitaiton.is_completed;
-        if (data.invitation.is_completed) {
-            throw new Error('You have already completed this check.');
-        }
+          if(invitaiton!=null){
+                if(invitaiton.is_completed !== true){
+                data.invitation.current_topic = invitaiton.current_topic;
+                data.invitation.email = invitaiton.email;
+                data.invitation.is_completed = invitaiton.is_completed;
+              }
+              else {
+              
+                errorData.status = 'finished';
+                console.log(errorData.status);
+              
+                errorData.message = message.CHECK_COMPLETED;
+              }
+            
+          } else {
+            errorData.status='not invited to you';
+            errorData.message= message.INVALID_CHECK_INVITATION;
+         
+          }
+        
         UserCheckInvitation.update({
-            is_accepted: true
-          }, {where: {uniqe_id: userId}}).then((u) => {
-              console.log('Invitation Information');
-              console.log(u);
+            is_accepted: true}, {where: {uniqe_id: userId}}).then((u) => {
+              
               UserCheckMaster.findOne({
                 where: {
                 tiny_url: checkUniqueId,
@@ -148,8 +161,7 @@ export function getTopics(req, res) {
                 end_date: { [sequelize.Op.gt]: sequelize.fn('NOW')},
             }
         }).then((item) => {
-            console.log(item);
-                if (item != null && item.id > 0) {
+                if (item !== null && item.id > 0 && Object.keys(data.invitation).length > 0 ) {
                  const check = item.toJSON();
                  data ={...data, check};
                  data.topics = [];
@@ -169,7 +181,48 @@ export function getTopics(req, res) {
                  });
                  
                 } else {
-                    throw new Error('This check does not exists or already ended or not started till now.');
+                    UserCheckMaster.findOne({
+                        where: {
+                        tiny_url: checkUniqueId,
+                        is_active: true
+                    }}).then( (p)=>{
+                        var uid=p!=null?p.user_id:0;
+                        var dt=new Date();
+                       UserMaster.findOne({where:{id:uid}}).then((u)=>{
+                            if(u!=null){
+                                errorData.company_name=u.company_name;
+                                errorData.initiator= u.first_name;
+                            } 
+                            if(p==null) {
+                                errorData.status='invalid';
+                                errorData.message = message.CHECK_INVALID;
+                            } else if(  (new Date(p.start_date))> dt){
+                                errorData.status='not Started';
+                                errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(p.start_date).format('DD/MM/YYYY HH:mm:ss'));
+                            } else if(  (new Date(p.end_date)) <dt){
+                                errorData.status='expired';
+                                errorData.message = message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(p.end_date).format('DD/MM/YYYY HH:mm:ss'));
+                            } else if(p.is_active==false){
+                                errorData.status='canceled';
+                            } else{
+                               errorData.message = 'Something went wrong';
+                            }
+                            if(p!=null){
+                                errorData.name = p.name_en || p.name_he;
+                                errorData.start_date = moment(p.start_date).format('DD/MM/YYYY HH:mm:ss');
+                                errorData.end_date = moment(p.end_date).format('DD/MM/YYYY HH:mm:ss');
+                            }
+                            throw Error('Data Error');
+                         }).catch( (es)=>{
+                            console.log(es);
+                            return res.status(200).send({error:errorData,dt:new Date()});
+                         });
+                        
+                    }).catch( (err)=>{
+                        console.log(err);
+                        return res.status(200).send({error:errorData,dt:new Date()});
+                    });
+                    
                 }
               }).catch((err) => {
                 res.statusMessage = err.message;
