@@ -465,7 +465,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                     inner join 
                     (SELECT a.* FROM user_check_topics_answers a 
                     inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
-                    WHERE c.user_check_id=?   group by c.id order by tbl.user_check_topic_id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
+                    WHERE c.user_check_id=?   group by c.id order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
                         //data.topics = topics;
                         if (topics.length > 0) {
                             const topicsId = topics.map((item) => {
