@@ -220,17 +220,19 @@ export function changePassword(req, res) {
  */
 export function validateToken(req, res) {
   try {
+    console.log(req.user);
+    console.log(req.isAuthenticated());
     const token = req.headers['x-access-token'];
     if (!token) {
-      return res.status(401).send({ auth: false, message: 'No token provided.' });
+      return res.status(401).send({ auth: false, message: 'No token provided.',dt: new Date() });
     }
 
     jwt.verify(token, config.tokenSecret, (e, decoded) => {
       if (e) {
-        return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+        return res.status(401).send({ auth: false, message: 'Failed to authenticate token.',dt: new Date() });
       }
       else{
-        return res.status(200).send({auth:true,message:'Token is valid'});
+        return res.status(200).send({auth:false,message:'Token is valid',dt: new Date()});
       }});
   } catch (error) {
     return res.status(500).send(error);
