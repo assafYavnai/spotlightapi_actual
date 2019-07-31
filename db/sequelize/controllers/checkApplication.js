@@ -188,6 +188,8 @@ export function getTopics(req, res) {
                     }}).then( (p)=>{
                         var uid=p!=null?p.user_id:0;
                         var dt=new Date();
+                        var sdt= new Date(p.start_date);
+                        var edt= new Date(p.end_date);
                        UserMaster.findOne({where:{id:uid}}).then((u)=>{
                             if(u!=null){
                                 errorData.company_name=u.company_name;
@@ -198,10 +200,10 @@ export function getTopics(req, res) {
                                 errorData.message = message.CHECK_INVALID;
                             } else if(  (new Date(p.start_date))> dt){
                                 errorData.status='not Started';
-                                errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(p.start_date).format('DD/MM/YYYY HH:mm:ss'));
+                                errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(sdt).format('DD/MM/YYYY HH:mm:ss'));
                             } else if(  (new Date(p.end_date)) <dt){
                                 errorData.status='expired';
-                                errorData.message = message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(p.end_date).format('DD/MM/YYYY HH:mm:ss'));
+                                errorData.message = message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(edt).format('DD/MM/YYYY HH:mm:ss'));
                             } else if(p.is_active==false){
                                 errorData.status='canceled';
                             } else{
@@ -209,8 +211,8 @@ export function getTopics(req, res) {
                             }
                             if(p!=null){
                                 errorData.name = p.name_en || p.name_he;
-                                errorData.start_date = moment(p.start_date).format('DD/MM/YYYY HH:mm:ss');
-                                errorData.end_date = moment(p.end_date).format('DD/MM/YYYY HH:mm:ss');
+                                errorData.start_date = moment(sdt).format('DD/MM/YYYY HH:mm:ss');
+                                errorData.end_date = moment(edt).format('DD/MM/YYYY HH:mm:ss');
                             }
                             throw Error('Data Error');
                          }).catch( (es)=>{
