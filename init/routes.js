@@ -16,6 +16,10 @@ const checkApplication = controllers && controllers.checkApplication;
 const askproEnquiry = controllers && controllers.proEnquiry;
 
 export default (app) => {
+  app.get('/api', (req, res, next) => {
+    res.status(200).send("OK");
+  });
+  
 //pro_Enquiry
 if(askproEnquiry){
   app.post('/api/proEnquiry/add',askproEnquiry.add);
