@@ -139,7 +139,6 @@ export function getTopics(req, res) {
               else {
               
                 errorData.status = 'finished';
-                console.log(errorData.status);
               
                 errorData.message = message.CHECK_COMPLETED;
               }
@@ -216,7 +215,6 @@ export function getTopics(req, res) {
                             }
                             throw Error('Data Error');
                          }).catch( (es)=>{
-                            console.log(es);
                             return res.status(200).send({error:errorData,dt:new Date()});
                          });
                         
@@ -281,7 +279,6 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                           }, {where: {uniqe_id: userId}}).then((result) => {
 
                           });
-                        console.log(response);
                         res.status(200).send('OK');
                     }).catch((error) => {
                         res.status(500).send(error);
@@ -446,7 +443,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             }
             console.log(req.params);
             let data = {};
-            sequelize.query(`SELECT distinct c.*,u.company_name,
+            sequelize.query(`SELECT distinct c.*,u.company_name,count(distinct i.id) as participants, 
             ((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100)::bigint  completed, count(tbl.*),
             ((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optiona,
             ((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionb,
@@ -466,8 +463,9 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                     (SELECT a.* FROM user_check_topics_answers a 
                     inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
                     WHERE c.user_check_id=?   group by c.id order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
-                        //data.topics = topics;
+                        
                         if (topics.length > 0) {
+                            
                             const topicsId = topics.map((item) => {
                             return item.id;
                             });
@@ -491,8 +489,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                             });
                         }
                     });
-                    console.log(data);
-                } else {
+                } else { 
                     return res.status(404).send('Not Found');
                 }
             });

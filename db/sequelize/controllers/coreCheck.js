@@ -149,8 +149,7 @@ order: [
             ['id', 'DESC'],
         ]
 }).then((d) => {
-            console.log('User check List');
-            console.log(d);
+            
             if(d==null || d.length==0){
               return res.status(404).send({ message: 'Check not exist.' });
             }
@@ -165,20 +164,14 @@ order: [
                 }
               }
             }).then((i) => {
-            console.log('User check invitation List');
-            console.log(i);
             if(i==null || i.length==0){
               return res.status(404).send({ message: 'Check Invitation not exist.' });
             }
-              sequelize.query(`SELECT a.user_check_id,count(b.id) as answered,count(b.id) as answered,(( CASE WHEN  count(a.id) >
-              (SELECT count(id) FROM user_check_topics where user_check_id=a.user_check_id) then count(distinct b.user_check_topic_id::numeric ) else count(distinct a.id::numeric ) end)
-              * 
-              (SELECT count(1)::numeric from user_check_invitations where user_check_id=a.user_check_id)) as total ,CASE count(distinct b.user_check_topic_id::numeric ) WHEN 0 then 0 else 
-              ((count(b.id::numeric))/(( CASE WHEN  count(a.id) >
-                                       (SELECT count(id) FROM user_check_topics where user_check_id=a.user_check_id) then count(distinct b.user_check_topic_id::numeric ) else count(distinct a.id::numeric ) end)
-                                       * 
-                                       (SELECT count(1)::numeric from user_check_invitations where user_check_id=a.user_check_id)))::numeric(18,2)*100 end as topics_completed    FROM user_check_topics a
-              left join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
+              sequelize.query(`SELECT *,round((tbl.answered::numeric/total::numeric)*100,0) as topics_completed FROM (SELECT a.user_check_id,count(b.id) as answered ,(SELECT count(*) from user_check_invitations ci 
+              inner join user_check_topics ct on ct.user_check_id=ci.user_check_id  where ci.user_check_id=a.user_check_id) as total    
+              FROM user_check_topics a
+              left join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id)
+              tbl `, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
                
                 d.forEach((item) => {
                   const obj = item.toJSON();
@@ -266,8 +259,6 @@ export function CreateOrUpdate(req, res) {
           if (data.id > 0) { // go for update
             delete data.tiny_url;
             UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
-                console.log(uc);
-                console.debug('Updated check');
                 UserCheckTopics.destroy({where: {user_check_id: data.id}}).then((deleted) => {
                   console.log('deleted topics from check');
                   console.log(deleted);
@@ -288,8 +279,6 @@ export function CreateOrUpdate(req, res) {
                     });
                     if (topics.length > 0) {
                         UserCheckTopics.bulkCreate(topics).then((t) => {
-                            console.log('topics added to check');
-                            console.log(t);
                             return res.status(200).send(uc);
                         }).catch((e) => {
                             console.debug('Error occured while saving user check topics');
@@ -307,7 +296,7 @@ export function CreateOrUpdate(req, res) {
           } else { // go to create new check
             data.tiny_url = uuidv1();
             UserCheck.create(data).then((uc) => {
-                console.log(uc);
+               
                 console.debug('New check created');
                 // delete topics if already exists
                 UserCheckTopics.destroy({where: {user_check_id: uc.id}});
@@ -329,8 +318,7 @@ export function CreateOrUpdate(req, res) {
                     });
                     if (topics.length > 0) {
                         UserCheckTopics.bulkCreate(topics).then((t) => {
-                            console.log('topics added to check');
-                            console.log(t);
+                            
                             return res.status(200).send(uc);
                         }).catch((e) => {
                             console.debug('Error occured while saving user check topics');
@@ -375,8 +363,6 @@ export function updateCheck(req, res) {
         if (data.id > 0) { // go for update
           delete data.tiny_url;
           UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
-              console.log(uc);
-              console.debug('Updated check');
               return res.status(200).send(uc);
           }).catch((error) => {
              return res.status(500).send('Something went wrong.' + error);
@@ -405,11 +391,11 @@ export function addGroup(req, res) {
         console.log('user_id', data.user_id);
         if (data.id > 0) { // go for update
           UserGroups.update(data, {where: { id: data.id}}).then((uc) => {
-            console.log(uc);
+            
             console.debug('Updated group');
             UserGroupsEmail.destroy({where: {group_id: data.id}}).then((deleted) => {
               console.log('deleted emails from user groups email');
-              console.log(deleted);
+              
               const { emailList } = req.body;
               const emaildata = [];
               emailList.split(',').forEach((item) => {
@@ -423,14 +409,11 @@ export function addGroup(req, res) {
                 const groupList = [];
                 emaildata.forEach((item) => {
                   UserGroupsEmail.create(item).then((gc) => {
-                    console.log(gc);
-                    console.debug('Email added to new group');
+                    
                     groupList.push(gc);
                     if (groupList.length == emaildata.length) {
                       console.log('group id', data.id);
                       UserGroups.findAll({where: {id: data.id}}).then((gr) => {
-                        console.log('group data');
-                        console.log(gr);
                         return res.status(200).send([{group: gr, emailList: groupList}]);
                       }).catch((error) => {
                         return res.status(500).send('Something went wrong.' + error);
@@ -453,8 +436,7 @@ export function addGroup(req, res) {
               return res.status(409).send({errorMessage: 'Sorry this group name already exist',status: 409});
             }
             UserGroups.create(data).then((uc) => {
-              console.log(uc);
-              console.debug('New group created');
+              
               const { emailList } = req.body;
               const emaildata = [];
               emailList.split(',').forEach((item) => {
@@ -468,8 +450,7 @@ export function addGroup(req, res) {
                 const groupList = [];
                 emaildata.forEach((item) => {
                   UserGroupsEmail.create(item).then((gc) => {
-                    console.log(gc);
-                    console.debug('Email added to new group');
+                   
                     groupList.push(gc);
                     if (groupList.length == emaildata.length) {
                       return res.status(200).send([{group: uc, emailList: groupList}]);
