@@ -139,7 +139,6 @@ export function getTopics(req, res) {
               else {
               
                 errorData.status = 'finished';
-                console.log(errorData.status);
               
                 errorData.message = message.CHECK_COMPLETED;
               }
@@ -216,7 +215,6 @@ export function getTopics(req, res) {
                             }
                             throw Error('Data Error');
                          }).catch( (es)=>{
-                            console.log(es);
                             return res.status(200).send({error:errorData,dt:new Date()});
                          });
                         
@@ -281,7 +279,6 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                           }, {where: {uniqe_id: userId}}).then((result) => {
 
                           });
-                        console.log(response);
                         res.status(200).send('OK');
                     }).catch((error) => {
                         res.status(500).send(error);
@@ -492,8 +489,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                             });
                         }
                     });
-                    console.log(data);
-                } else {
+                } else { 
                     return res.status(404).send('Not Found');
                 }
             });

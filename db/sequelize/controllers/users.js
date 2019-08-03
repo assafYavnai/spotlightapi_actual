@@ -185,9 +185,7 @@ export function changePassword(req, res) {
               bcrypt.hashAsync(data.password, salt, null).then((hash) => {
                 data.password = hash;
                 User.update(data,{where: {id:existingUser.id}}).then((uc) => {
-                  console.log('response change password api');
-                  console.log(uc);
-                  return res.status(200).send({successMessage: 'Password has been changed', status: 200});
+                   return res.status(200).send({successMessage: 'Password has been changed', status: 200});
                 }).catch((err) => {
                   return res.status(404).send({errorMessage: err.message, status: 404});
                 });
@@ -220,7 +218,7 @@ export function changePassword(req, res) {
  */
 export function validateToken(req, res) {
   try {
-    console.log(req.user);
+    console.log(req.session.passport);
     console.log(req.isAuthenticated());
     const token = req.headers['x-access-token'];
     if (!token) {

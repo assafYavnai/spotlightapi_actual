@@ -149,8 +149,7 @@ order: [
             ['id', 'DESC'],
         ]
 }).then((d) => {
-            console.log('User check List');
-            console.log(d);
+            
             if(d==null || d.length==0){
               return res.status(404).send({ message: 'Check not exist.' });
             }
@@ -165,8 +164,6 @@ order: [
                 }
               }
             }).then((i) => {
-            console.log('User check invitation List');
-            console.log(i);
             if(i==null || i.length==0){
               return res.status(404).send({ message: 'Check Invitation not exist.' });
             }
@@ -262,8 +259,6 @@ export function CreateOrUpdate(req, res) {
           if (data.id > 0) { // go for update
             delete data.tiny_url;
             UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
-                console.log(uc);
-                console.debug('Updated check');
                 UserCheckTopics.destroy({where: {user_check_id: data.id}}).then((deleted) => {
                   console.log('deleted topics from check');
                   console.log(deleted);
@@ -284,8 +279,6 @@ export function CreateOrUpdate(req, res) {
                     });
                     if (topics.length > 0) {
                         UserCheckTopics.bulkCreate(topics).then((t) => {
-                            console.log('topics added to check');
-                            console.log(t);
                             return res.status(200).send(uc);
                         }).catch((e) => {
                             console.debug('Error occured while saving user check topics');
@@ -303,7 +296,7 @@ export function CreateOrUpdate(req, res) {
           } else { // go to create new check
             data.tiny_url = uuidv1();
             UserCheck.create(data).then((uc) => {
-                console.log(uc);
+               
                 console.debug('New check created');
                 // delete topics if already exists
                 UserCheckTopics.destroy({where: {user_check_id: uc.id}});
@@ -325,8 +318,7 @@ export function CreateOrUpdate(req, res) {
                     });
                     if (topics.length > 0) {
                         UserCheckTopics.bulkCreate(topics).then((t) => {
-                            console.log('topics added to check');
-                            console.log(t);
+                            
                             return res.status(200).send(uc);
                         }).catch((e) => {
                             console.debug('Error occured while saving user check topics');
@@ -371,8 +363,6 @@ export function updateCheck(req, res) {
         if (data.id > 0) { // go for update
           delete data.tiny_url;
           UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
-              console.log(uc);
-              console.debug('Updated check');
               return res.status(200).send(uc);
           }).catch((error) => {
              return res.status(500).send('Something went wrong.' + error);
@@ -401,11 +391,11 @@ export function addGroup(req, res) {
         console.log('user_id', data.user_id);
         if (data.id > 0) { // go for update
           UserGroups.update(data, {where: { id: data.id}}).then((uc) => {
-            console.log(uc);
+            
             console.debug('Updated group');
             UserGroupsEmail.destroy({where: {group_id: data.id}}).then((deleted) => {
               console.log('deleted emails from user groups email');
-              console.log(deleted);
+              
               const { emailList } = req.body;
               const emaildata = [];
               emailList.split(',').forEach((item) => {
@@ -419,14 +409,11 @@ export function addGroup(req, res) {
                 const groupList = [];
                 emaildata.forEach((item) => {
                   UserGroupsEmail.create(item).then((gc) => {
-                    console.log(gc);
-                    console.debug('Email added to new group');
+                    
                     groupList.push(gc);
                     if (groupList.length == emaildata.length) {
                       console.log('group id', data.id);
                       UserGroups.findAll({where: {id: data.id}}).then((gr) => {
-                        console.log('group data');
-                        console.log(gr);
                         return res.status(200).send([{group: gr, emailList: groupList}]);
                       }).catch((error) => {
                         return res.status(500).send('Something went wrong.' + error);
@@ -449,8 +436,7 @@ export function addGroup(req, res) {
               return res.status(409).send({errorMessage: 'Sorry this group name already exist',status: 409});
             }
             UserGroups.create(data).then((uc) => {
-              console.log(uc);
-              console.debug('New group created');
+              
               const { emailList } = req.body;
               const emaildata = [];
               emailList.split(',').forEach((item) => {
@@ -464,8 +450,7 @@ export function addGroup(req, res) {
                 const groupList = [];
                 emaildata.forEach((item) => {
                   UserGroupsEmail.create(item).then((gc) => {
-                    console.log(gc);
-                    console.debug('Email added to new group');
+                   
                     groupList.push(gc);
                     if (groupList.length == emaildata.length) {
                       return res.status(200).send([{group: uc, emailList: groupList}]);
