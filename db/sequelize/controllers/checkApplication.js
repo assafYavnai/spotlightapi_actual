@@ -447,7 +447,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             round((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100,2)::numeric  completed, count(tbl.*),
             round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
             round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
-            round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc FROM user_checks c  inner join  
+            round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc,
+            round((SuM(case tbl.choosen_option WHEN 'Not answered' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionna FROM user_checks c  inner join  
             (SELECT a.*,t.user_check_id FROM user_check_topics_answers a 
             inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
             left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
@@ -458,7 +459,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                     sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
                     round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
                     round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
-                    round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc FROM user_check_topics c
+                    round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc,
+                    round((SuM(case tbl.choosen_option WHEN 'Not answered' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionna FROM user_check_topics c
                     inner join 
                     (SELECT a.* FROM user_check_topics_answers a 
                     inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
