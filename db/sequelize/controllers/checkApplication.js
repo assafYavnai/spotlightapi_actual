@@ -444,10 +444,10 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             console.log(req.params);
             let data = {};
             sequelize.query(`SELECT distinct c.*,u.company_name,count(distinct i.id) as participants, 
-            ((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100)::bigint  completed, count(tbl.*),
-            ((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optiona,
-            ((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionb,
-            ((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionc FROM user_checks c  inner join  
+            round((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100,2)::bigint  completed, count(tbl.*),
+            round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::bigint optiona,
+            round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::bigint optionb,
+            round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::bigint optionc FROM user_checks c  inner join  
             (SELECT a.*,t.user_check_id FROM user_check_topics_answers a 
             inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
             left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
@@ -456,9 +456,9 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                 if (summary != null && summary.length > 0) {
                     data = summary[0];
                     sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
-                    ((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optiona,
-                    ((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionb,
-                    ((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100)::bigint optionc FROM user_check_topics c
+                    round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::bigint optiona,
+                    round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::bigint optionb,
+                    round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::bigint optionc FROM user_check_topics c
                     inner join 
                     (SELECT a.* FROM user_check_topics_answers a 
                     inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
