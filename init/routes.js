@@ -31,6 +31,8 @@ if(askproEnquiry){
   if (usersController) {
     app.post('/api/sessions', usersController.login);
     app.post('/api/users', usersController.signUp);
+    app.post('/api/user/logUserInfo', usersController.logUserInfo);
+    
     app.delete('/api/sessions', usersController.logout);
     app.post('/api/user/verifyotp', usersController.verifyOTP);
     app.post('/api/user/changePassword', usersController.changePassword);

@@ -6,6 +6,7 @@ import { tokenSecret } from '../constants';
 import moment from 'moment';
 import { throws } from 'assert';
 const User = Models.User;
+const UserLog = Models.UserLog;
 const OTPSchema = Models.OTPSchema;
 import Promise from 'bluebird';
 import bcryptNode from 'bcrypt-nodejs';
@@ -236,6 +237,24 @@ export function validateToken(req, res) {
     return res.status(500).send(error);
   }
 }
+ 
+ export function logUserInfo(req, res) {
+  try {
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    let data = req.body;
+    console.log(data);
+    const obj={browser_id:data.uid, data: JSON.stringify(data)};
+    UserLog.create(obj).then( (p)=>{
+      res.status(200).send("OK");
+    }).catch( (err)=>{
+      res.status(500).send("Error");
+    });
+  } catch (error) {
+    res.status(500).send(error);
+  }
+  
+
+ }
 
 export default {
   login,
@@ -244,5 +263,6 @@ export default {
   verifyOTP,
   changePassword,
   recoveryPasswordVerifyOTP,
-  validateToken
+  validateToken,
+  logUserInfo
 };

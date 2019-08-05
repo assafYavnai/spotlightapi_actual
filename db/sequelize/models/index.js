@@ -16,6 +16,7 @@ import TopicsAnswerModel from './user_check_topics_answer';
 import UserGroupsModel from './user_groups';
 import UserGroupsEmailsModel from './user_groups_email';
 import proEnquiryModel from './pro_enquiry';
+import UserLogModel from './user_log';
 const config = ENV ==='production'? sequelizeConfig.production : sequelizeConfig.development;
 
 const db = {};
@@ -38,6 +39,7 @@ db.TopicsAnswer = sequelize.import('TopicsAnswer', TopicsAnswerModel);
 db.UserGroups=sequelize.import('UserGroups',UserGroupsModel);
 db.UserGroupsEmail=sequelize.import('UserGroupsEmail',UserGroupsEmailsModel);
 db.proEnquiryModel=sequelize.import('ProEnquiry',proEnquiryModel);
+db.UserLog=sequelize.import('userLog',UserLogModel);
 Object.keys(db).forEach((key) => {
   const model = db[key];
   if (model.associate) {
