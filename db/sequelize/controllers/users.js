@@ -228,7 +228,7 @@ export function validateToken(req, res) {
 
     jwt.verify(token, config.tokenSecret, (e, decoded) => {
       if (e) {
-        return res.status(401).send({ auth: false, message: 'Failed to authenticate token.',dt: new Date() });
+        return res.status(200).send({ auth: false, message: 'Failed to authenticate token.',dt: new Date() });
       }
       else{
         return res.status(200).send({auth:true,message:'Token is valid',dt: new Date()});
