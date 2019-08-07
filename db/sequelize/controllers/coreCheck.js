@@ -171,7 +171,7 @@ order: [
               inner join user_check_topics ct on ct.user_check_id=ci.user_check_id  where ci.user_check_id=a.user_check_id) as total    
               FROM user_check_topics a
               left join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id)
-              tbl `, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
+              tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
                
                 d.forEach((item) => {
                   const obj = item.toJSON();
@@ -197,6 +197,8 @@ order: [
                   data.push(obj);
                 });
                 return res.status(200).send(data);
+          }).catch( (err) => {
+            return res.status(500).send(error);
           });
              
             });
