@@ -465,7 +465,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             inner join users u on c.user_id::integer=u.id left join report_sharable_links d on d.user_check_id=tbl.user_check_id   WHERE c.id=? and c.user_id=?::character varying group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id,decoded.id]}).then((summary) => {
                 if (summary != null && summary.length > 0) {
                     data = summary[0];
-                    if(data.sharable_link=="0" || data.sharable_link==""){
+                    if(data.sharable_link=="0" || data.sharable_link=="" || data.sharable_link==null){
                         // Generate 50 character String random unique id and make entry for Report_Sharable link
                 const stringUniqueId=(length)=> {
                     var result = '';
