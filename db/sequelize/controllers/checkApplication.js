@@ -434,7 +434,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
  */
   export function viewReport(req,res) {
      var id= parseInt(req.params.id);
-     if( id>-1){
+     if(req.params.id.length<10){
          viewAdminReport(req,res);
      } else {
         ShowUserReport(req,res);
