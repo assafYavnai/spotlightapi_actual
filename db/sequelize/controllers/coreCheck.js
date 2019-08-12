@@ -10,6 +10,7 @@ const {
 UserCheck, UserCheckTopics, TopicsMaster, UserCheckInvitation, UserGroups, UserGroupsEmail
 } = Models;
 const UserMaster = Models.User;
+const ReportSharableLink=Models.ReportSharableLinkModel;
 /**
  * @api {get} /api/checks/pending Last Pending check.
  * @apiName PendingCheck
@@ -298,7 +299,32 @@ export function CreateOrUpdate(req, res) {
           } else { // go to create new check
             data.tiny_url = uuidv1();
             UserCheck.create(data).then((uc) => {
-               
+               const user_checkId=uc.id;
+              
+               if(user_checkId>0){
+                // Generate 50 character String random unique id and make entry for Report_Sharable link
+                const stringUniqueId=(length)=> {
+                  var result = '';
+                  var characters  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                  var charactersLength = characters.length;
+                  for ( var i = 0; i < length; i++ ) {
+                     result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                  }
+                  return result;
+               }
+                const uniqueId=stringUniqueId(50);
+                const reportData={user_check_id:user_checkId,tiny_url:uniqueId};
+                  ReportSharableLink.create(reportData).then(()=>{
+                 res.status(200).send('OK');
+                 console.log("report Sharable link created");
+               }).catch((err) => {
+                console.log(err);
+                res.status(400).send(err);
+              });
+
+    
+               }
+          
                 console.debug('New check created');
                 // delete topics if already exists
                 UserCheckTopics.destroy({where: {user_check_id: uc.id}});

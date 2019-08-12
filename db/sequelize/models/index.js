@@ -16,7 +16,9 @@ import TopicsAnswerModel from './user_check_topics_answer';
 import UserGroupsModel from './user_groups';
 import UserGroupsEmailsModel from './user_groups_email';
 import proEnquiryModel from './pro_enquiry';
+import cmsPageModel from './cms_pages';
 import UserLogModel from './user_log';
+import ReportSharableLinkModel from './report_sharable_link';
 const config = ENV ==='production'? sequelizeConfig.production : sequelizeConfig.development;
 
 const db = {};
@@ -39,7 +41,9 @@ db.TopicsAnswer = sequelize.import('TopicsAnswer', TopicsAnswerModel);
 db.UserGroups=sequelize.import('UserGroups',UserGroupsModel);
 db.UserGroupsEmail=sequelize.import('UserGroupsEmail',UserGroupsEmailsModel);
 db.proEnquiryModel=sequelize.import('ProEnquiry',proEnquiryModel);
+db.cmsPageModel=sequelize.import('CmsPageModel',cmsPageModel);
 db.UserLog=sequelize.import('userLog',UserLogModel);
+db.ReportSharableLinkModel=sequelize.import('ReportSharableLink',ReportSharableLinkModel);
 Object.keys(db).forEach((key) => {
   const model = db[key];
   if (model.associate) {
