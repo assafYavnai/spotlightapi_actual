@@ -158,6 +158,7 @@ order: [
             const checks = d.map((p) => {
               return p.id;
             });
+            console.log(checks);
             UserCheckInvitation.findAll({
               where: {
                   user_check_id: {
@@ -165,9 +166,9 @@ order: [
                 }
               }
             }).then((i) => {
-            if(i==null || i.length==0){
-              return res.status(404).send({ message: 'Check Invitation not exist.' });
-            }
+            // if(i==null || i.length==0){
+            //   return res.status(404).send({ message: 'Check Invitation not exist.' });
+            // }
               sequelize.query(`SELECT *,round((tbl.answered::numeric/total::numeric)*100,0) as topics_completed FROM (SELECT a.user_check_id,count(b.id) as answered ,(SELECT count(*) from user_check_invitations ci 
               inner join user_check_topics ct on ct.user_check_id=ci.user_check_id  where ci.user_check_id=a.user_check_id) as total    
               FROM user_check_topics a
