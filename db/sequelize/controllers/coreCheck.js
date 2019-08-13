@@ -173,7 +173,7 @@ order: [
               inner join user_check_topics ct on ct.user_check_id=ci.user_check_id  where ci.user_check_id=a.user_check_id) as total    
               FROM user_check_topics a
               left join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id)
-              tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
+               tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
                
                 d.forEach((item) => {
                   const obj = item.toJSON();
@@ -302,29 +302,28 @@ export function CreateOrUpdate(req, res) {
             UserCheck.create(data).then((uc) => {
                const user_checkId=uc.id;
               
-               if(user_checkId>0){
-                // Generate 50 character String random unique id and make entry for Report_Sharable link
-                const stringUniqueId=(length)=> {
-                  var result = '';
-                  var characters  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-                  var charactersLength = characters.length;
-                  for ( var i = 0; i < length; i++ ) {
-                     result += characters.charAt(Math.floor(Math.random() * charactersLength));
-                  }
-                  return result;
-               }
-                const uniqueId=stringUniqueId(50);
-                const reportData={user_check_id:user_checkId,tiny_url:uniqueId};
-                  ReportSharableLink.create(reportData).then(()=>{
-                 res.status(200).send('OK');
-                 console.log("report Sharable link created");
-               }).catch((err) => {
-                console.log(err);
-                res.status(400).send(err);
-              });
+              //  if(user_checkId>0){
+              //   // Generate 50 character String random unique id and make entry for Report_Sharable link
+              //   const stringUniqueId=(length)=> {
+              //     var result = '';
+              //     var characters  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+              //     var charactersLength = characters.length;
+              //     for ( var i = 0; i < length; i++ ) {
+              //        result += characters.charAt(Math.floor(Math.random() * charactersLength));
+              //     }
+              //     return result;
+              //  }
+              //   const uniqueId=stringUniqueId(50);
+              //   const reportData={user_check_id:user_checkId,tiny_url:uniqueId};
+              //     ReportSharableLink.create(reportData).then(()=>{
+              //    return res.status(200).send(uc);
+              //  }).catch((err) => {
+              //   console.log(err);
+              //   res.status(400).send(err);
+              // });
 
     
-               }
+              //  }
           
                 console.debug('New check created');
                 // delete topics if already exists
