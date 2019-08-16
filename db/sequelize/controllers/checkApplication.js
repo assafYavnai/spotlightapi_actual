@@ -13,6 +13,7 @@ const UserMaster = Models.User;
 const UserCheckInvitation = Models.UserCheckInvitation;
 const UserCheckMaster = Models.UserCheck;
 const TopicsAnswer = Models.TopicsAnswer;
+const ReportSharableLink=Models.ReportSharableLinkModel;
 /**
  * @api {post} /api/checkapp/getTopics Fetch all topics and check inforamtion.
  * @apiName getTopics
@@ -431,7 +432,15 @@ checkUniqueId, topicId, userId, answer, option, takenTime
     ]
 *}
  */
-  export function viewReport(req, res) {
+  export function viewReport(req,res) {
+     var id= parseInt(req.params.id);
+     if(req.params.id.length<10){
+         viewAdminReport(req,res);
+     } else {
+        ShowUserReport(req,res);
+     }
+  }
+   function viewAdminReport(req, res) {
     try {
         const token = req.headers['x-access-token'];
         if (!token) {
@@ -443,7 +452,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             }
             console.log(req.params);
             let data = {};
-            sequelize.query(`SELECT distinct c.*,u.company_name,count(distinct i.id) as participants, 
+            sequelize.query(`SELECT distinct c.*,min(d.tiny_url) as sharable_link,u.company_name,count(distinct i.id) as participants, 
             round((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100,2)::numeric  completed, count(tbl.*),
             round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
             round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
@@ -453,9 +462,31 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
             left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
             on c.id=tbl.user_check_id 
-            inner join users u on c.user_id::integer=u.id  WHERE c.id=? and c.user_id=?::character varying group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id,decoded.id]}).then((summary) => {
+            inner join users u on c.user_id::integer=u.id left join report_sharable_links d on d.user_check_id=tbl.user_check_id   WHERE c.id=? and c.user_id=?::character varying group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id,decoded.id]}).then((summary) => {
                 if (summary != null && summary.length > 0) {
                     data = summary[0];
+                    if(data.sharable_link=="0" || data.sharable_link=="" || data.sharable_link==null){
+                        // Generate 50 character String random unique id and make entry for Report_Sharable link
+                const stringUniqueId=(length)=> {
+                    var result = '';
+                    var characters  = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                    var charactersLength = characters.length;
+                    for ( var i = 0; i < length; i++ ) {
+                       result += characters.charAt(Math.floor(Math.random() * charactersLength));
+                    }
+                    return result;
+                 }
+                  const uniqueId=stringUniqueId(50);
+                  data.sharable_link = uniqueId;
+                  const reportData={user_check_id:req.params.id,tiny_url:uniqueId};
+                    ReportSharableLink.create(reportData).then(()=>{
+                   //res.status(200).send('OK');
+                   console.log("report Sharable link created");
+                 }).catch((err) => {
+                  console.log(err);
+                  //res.status(400).send(err);
+                });
+                    }
                     sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
                     round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
                     round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
@@ -496,6 +527,67 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                 }
             });
         });
+    } catch (error) {
+        return res.status(500).send(error);
+    }
+  }
+   function ShowUserReport(req, res) {
+    try {
+
+            let data = {};
+            sequelize.query(`SELECT distinct c.*, u.company_name,count(distinct i.id) as participants, 
+            round((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100,2)::numeric  completed, count(tbl.*),
+            round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
+            round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
+            round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc,
+            round((SuM(case tbl.choosen_option WHEN 'Not answered' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionna FROM user_checks c  inner join  
+            (SELECT a.*,t.user_check_id FROM user_check_topics_answers a 
+            inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
+            left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
+            on c.id=tbl.user_check_id 
+            inner join users u on c.user_id::integer=u.id inner join report_sharable_links d on d.user_check_id =tbl.user_check_id   WHERE d.tiny_url=? group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((summary) => {
+                if (summary != null && summary.length > 0) {
+                    data = summary[0];
+                    
+                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
+                    round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
+                    round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
+                    round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc,
+                    round((SuM(case tbl.choosen_option WHEN 'Not answered' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionna FROM user_check_topics c
+                    inner join 
+                    (SELECT a.* FROM user_check_topics_answers a 
+                    inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
+                    WHERE c.user_check_id=?   group by c.id order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [data.id]}).then((topics) => {
+                        
+                        if (topics.length > 0) {
+                            
+                            const topicsId = topics.map((item) => {
+                            return item.id;
+                            });
+                            TopicsAnswer.findAll({
+                                where: {
+                                    user_check_topic_id: {
+                                    [sequelize.Op.in]: topicsId
+                                }
+                                }
+                            }).then((comments) => {
+                                data.topics = topics.map((t) => {
+                                    const topic = t;
+                                    topic.comments = comments.filter((c) => {
+                                        return c.user_check_topic_id === t.id;
+                                    });
+                                    return topic;
+                                });
+                                res.status(200).send(data);
+                            }).catch((err) => {
+                                return res.status(500).send('Error while fetching comments');
+                            });
+                        }
+                    });
+                } else { 
+                    return res.status(404).send('Not Found');
+                }
+            });
     } catch (error) {
         return res.status(500).send(error);
     }
