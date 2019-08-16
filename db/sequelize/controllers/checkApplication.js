@@ -134,6 +134,7 @@ export function getTopics(req, res) {
           if(invitaiton!=null){
                 if(invitaiton.is_completed !== true){
                 data.invitation.current_topic = invitaiton.current_topic;
+                data.invitation.current_time = invitaiton.current_time;
                 data.invitation.email = invitaiton.email;
                 data.invitation.is_completed = invitaiton.is_completed;
               }
@@ -276,7 +277,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                         is_hilighted_answer: false
                     }).then((response) => {
                         UserCheckInvitation.update({
-                            current_topic: sequelize.literal('current_topic + 1')
+                            current_topic: sequelize.literal('current_topic + 1'),
+                            current_time: 0
                           }, {where: {uniqe_id: userId}}).then((result) => {
 
                           });
