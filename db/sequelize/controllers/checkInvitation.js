@@ -5,6 +5,7 @@ import { Models, sequelize } from '../models';
 import * as config from '../constants';
 import {privateLocalAddress, hostName} from '../../../config/app';
 import Axios from 'axios';
+import checkApplication from './checkApplication';
 const uuidv4 = require('uuid/v4');
 
 const UserCheckInvitation = Models.UserCheckInvitation;
@@ -119,10 +120,23 @@ export function allInvitedUsers(req, res) {
   }
 }
 
+export function updateCheckInvitation(req, res) {
+  try{
+  const {email,uniqe_id,current_time}=req.body;
+  UserCheckInvitation.update({current_time:sequelize.literal('"current_time" + '+current_time)},{ where: {email:email,uniqe_id:uniqe_id}}).then(() => {
+      res.status(200).send({successMessage:'Updated successfully',statusCode:200});
+    }).catch((err) => {
+      console.log(err);
+      res.status(500).send({errorMessage:'We failed to save for some reason'});
+    });
+}catch(error){
+  return res.status(500).send(error);
+}
+}
 
 
 export default {
-  sendInvitation, allInvitedUsers
+  sendInvitation, allInvitedUsers,updateCheckInvitation
     // update
     // remove
   };
