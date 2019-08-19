@@ -1,12 +1,12 @@
 import _ from 'lodash';
 import jwt from 'jsonwebtoken';
-import axios from 'axios';
-import Axios from 'axios';
+var log4js = require('log4js');
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
 import moment from 'moment';
 import {message} from '../../../config/constants';
 const uuidv1 = require('uuid/v1');
+const logger = log4js.getLogger('custom'); 
 
 const UserCheckTopic = Models.UserCheckTopics;
 const UserMaster = Models.User;
@@ -125,7 +125,7 @@ const ReportSharableLink=Models.ReportSharableLinkModel;
  */
 export function getTopics(req, res) {
   try {
-      console.log('getTopics Called');
+    
       const { checkUniqueId, userId } = req.body;
       let data = {};
       let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A'};
@@ -215,32 +215,37 @@ export function getTopics(req, res) {
                                 errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
                                 errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
                             }
-                            throw Error('Data Error');
+                            throw Error(errorData.message);
                          }).catch( (es)=>{
+                             logger.error(es.stack);
                             return res.status(200).send({error:errorData,dt:new Date()});
                          });
                         
                     }).catch( (err)=>{
-                        console.log(err);
+                        logger.error(err.stack);
                         return res.status(200).send({error:errorData,dt:new Date()});
                     });
                     
                 }
               }).catch((err) => {
                 res.statusMessage = err.message;
+                logger.error(err.stack);
                return res.status(200).send({error:{msg:err.message},dt:new Date()});
             });
           }).catch((err) => {
             res.statusMessage = err.message;
+            logger.error(err.stack);
             return res.status(200).send({error:{msg:err.message},dt:new Date()});
           });
       }).catch((err) => {
         res.statusMessage = err.message;
+        logger.error(err.stack);
         return res.status(200).send({error:{msg:err.message},dt:new Date()});
     });
       
   } catch (error) {
     res.statusMessage = error.message;
+    logger.error(error.stack);
     return res.status(200).send({error:{msg:error.message},dt:new Date()});
   }
 }
@@ -288,11 +293,12 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                     });
                 }
             }).catch((err) => {
-                console.log(err);
+                logger.error(err.stack);
                 res.status(500).send(err);
             });
         });
     } catch (error) {
+        logger.error(error.stack);
       return res.status(500).send(error);
     }
   }
@@ -485,7 +491,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                    //res.status(200).send('OK');
                    console.log("report Sharable link created");
                  }).catch((err) => {
-                  console.log(err);
+                    logger.error(err.stack);
                   //res.status(400).send(err);
                 });
                     }
@@ -520,6 +526,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                                 });
                                 res.status(200).send(data);
                             }).catch((err) => {
+                                logger.error(err.stack);
                                 return res.status(500).send('Error while fetching comments');
                             });
                         }
@@ -530,6 +537,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             });
         });
     } catch (error) {
+        logger.error(error.stack);
         return res.status(500).send(error);
     }
   }
@@ -582,6 +590,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                                 });
                                 res.status(200).send(data);
                             }).catch((err) => {
+                                logger.error(err.stack);
                                 return res.status(500).send('Error while fetching comments');
                             });
                         }
@@ -591,6 +600,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                 }
             });
     } catch (error) {
+        logger.error(error.stack);
         return res.status(500).send(error);
     }
   }
