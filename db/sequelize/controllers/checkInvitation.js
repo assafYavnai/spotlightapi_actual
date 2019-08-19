@@ -123,8 +123,16 @@ export function allInvitedUsers(req, res) {
 export function updateCheckInvitation(req, res) {
   try{
   const {email,uniqe_id,current_time}=req.body;
-  UserCheckInvitation.update({current_time:sequelize.literal('"current_time" + '+current_time)},{ where: {email:email,uniqe_id:uniqe_id}}).then(() => {
+  console.log(uniqe_id);
+  UserCheckInvitation.update({current_time:sequelize.literal('COALESCE("current_time",0) + '+current_time)},{ where: {email:email,uniqe_id:uniqe_id}}).then((u) => {
+    console.log(u);
+    if(u!=null && u[0]>0 ){
+
       res.status(200).send({successMessage:'Updated successfully',statusCode:200});
+    }
+    else {
+      res.status(500).send({successMessage:'Error While update',statusCode:500});
+    }
     }).catch((err) => {
       console.log(err);
       res.status(500).send({errorMessage:'We failed to save for some reason'});
