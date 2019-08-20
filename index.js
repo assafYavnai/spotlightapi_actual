@@ -133,12 +133,6 @@ initFileOperation(app);
  * HTML
  */
 //app.get('*', renderMiddleware);
-var access = fs.createWriteStream('logs/node.access.log', { flags: 'a' });
-  var error = fs.createWriteStream('logs/node.error.log', { flags: 'a' });
-  // redirect stdout / stderr
-  process.stdout.pipe(access);
-  process.stderr.pipe(error);
-
 app.listen(app.get('port'));
 
 

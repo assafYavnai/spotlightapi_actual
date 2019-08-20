@@ -226,6 +226,9 @@ app.post('/api/sendForgetOTP', (req, res) => {
   console.log(db);
   const {email,language,subject,content} = req.body;
  User.findOne({ where: { email } }).then((existingUser) => {
+   if(existingUser === null) {
+   return res.status(200).send({errorMessage: 'This email does not exists in our database', status: 500,dt: new Date()});  
+   }
   // console.log("what:"+existingUser);
   var fullName=existingUser.first_name;
   if (existingUser) {
