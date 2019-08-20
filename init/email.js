@@ -1,13 +1,14 @@
  const mailer = require('express-mailer');
-
-
 const envVars = require('../config/env');
  import path from 'path';
  import { Models, sequelize } from '../db/sequelize/models';
+ var log4js = require('log4js');
+ const logger = log4js.getLogger('custom');
 // mailer = require('express-mailer');
 const OTPSchema = Models.OTPSchema;
 const User = Models.User;
   module.exports = (app, db) => {
+    try{
     if(envVars.SMTP_USERNAME==''){
       mailer.extend(app, {
         from: envVars.SMTP_FROM,
@@ -36,6 +37,7 @@ app.set('views', path.dirname('../') + '/views');
 app.set('view engine', 'jade');
 
 app.post('/api/sendEmail', (req, res, next) => {
+  try{
   console.log(req.body.to);
     app.mailer.send('email', {
     to: req.body.to,
@@ -48,6 +50,10 @@ app.post('/api/sendEmail', (req, res, next) => {
     }
     res.send({successMessage:'Email has been sent',status:200});
   });
+}catch(err){
+  logger.error(err.stack);
+  console.log(err);
+}
 });
 
 /**
@@ -93,12 +99,14 @@ app.post('/api/sendOTP', (req, res) => {
       });
     })
   }).catch((error) => {
+      logger.error(error.stack);
       res.status(500).send('Exception throwing' + error);
   });
 });
 
 // send verification mail...
 app.post('/api/SendEmailVerfication', (req, res) => {
+  try{
     const {name, link} = req.body;
     app.mailer.send('emailVerification', {
 
@@ -113,11 +121,16 @@ app.post('/api/SendEmailVerfication', (req, res) => {
         }
         res.send({successMessage: 'Email has been sent for Verification', status: 200});
     });
+  }catch(error){
+    logger.error(error.stack);
+    console.log(error);
+  }
 });
 
 
 // send success registration...
 app.post('/api/SuccessRegistraion', (req, res, next) => {
+  try{
     const name = req.body.name;
     app.mailer.send('registrationSuccess', {
         to: req.body.to,
@@ -132,6 +145,10 @@ app.post('/api/SuccessRegistraion', (req, res, next) => {
         }
         res.send({successMessage: 'Email has been sent for Verification', status: 200});
     });
+  }catch(error){
+    logger.error(error.stack);
+    console.log(error);
+  }
 });
 
 // send Invitation multiple users...
@@ -153,7 +170,7 @@ app.post('/api/sendInvitation', (req, res, next) => {
         return res.status(200).send({successMessage: 'Email has been sent for Verification', status: 200});
     });
   } catch(e){
-   
+    logger.error(e.stack);
     console.log(e);
   }
     
@@ -197,13 +214,15 @@ app.post('/api/sendEnquiry', (req, res, next) => {
         //res.status(200).send({successMessage: 'Email has been sent for Ask Pro Enquiry', status: 200});
     });
   } catch(e){
-    return res.send({errorMsg:e});
+    logger.error(e.stack);
     console.log(e);
+    return res.send({errorMsg:e});
   }
     
 });
 
 app.post('/api/sendForgetOTP', (req, res) => {
+   try{
   console.log(db);
   const {email,language,subject,content} = req.body;
  User.findOne({ where: { email } }).then((existingUser) => {
@@ -231,9 +250,20 @@ app.post('/api/sendForgetOTP', (req, res) => {
     return res.status(404).send({errorMessage: 'Sorry this user not exist',status: 404});
   } 
 }).catch((error) => {
+  logger.error(error.stack);
    res.status(500).send('Exception throwing' + error);
 });
+   }catch(error){
+    logger.error(error.stack);
+    console.log(error);
+   }
 });
+
+    }catch(error){
+      logger.error(error.stack);
+      console.log(error);
+
+    }
 };
 
 

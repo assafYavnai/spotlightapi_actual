@@ -5,6 +5,8 @@ import { Models, sequelize } from '../models';
 import Axios from 'axios';
 import {privateLocalAddress, hostName} from '../../../config/app';
 const askPro = Models.proEnquiryModel;
+var log4js = require('log4js');
+const logger = log4js.getLogger('custom');
 
 /**
  * Add record
@@ -20,14 +22,17 @@ export function add(req, res) {
         console.log('Sent Pro Enquiry email');
     }).catch((err) => {
         console.log('Error in sending Email'+err);
+        logger.error(err.stack);
         return  res.status(500).send({errorMesg:err});
     });
     
   }).catch((err) => {
     console.log(err);
+    logger.error(err.stack);
     return res.status(400).send(err);
   });
 }catch(error){
+  logger.error(error.stack);
   return res.status(500).send(error);
 }
 }

@@ -5,6 +5,8 @@ const ThemeCategory = Models.ThemeCategory;
 const Theme = Models.ThemeMaster;
 const Topics = Models.TopicsMaster;
 const TopicCategoryMaster= Models.TopicCategoryMaster;
+var log4js = require('log4js');
+const logger = log4js.getLogger('custom');
 
 /**
  * @api {get} /api/themes Request Theme information including category and topics.
@@ -158,19 +160,23 @@ const TopicCategoryMaster= Models.TopicCategoryMaster;
 
   res.json(categories1);
   }).catch((err) => {
+    logger.error(err.stack);
     console.log(err);
     res.status(500).send('Error in first query');
   });
 });
    // console.log(categories1);
   }).catch((err) => {
+    logger.error(err.stack);
     console.log(err);
   });
    }).catch((error) => {
+    logger.error(error.stack);
      console.log(error);
    });
 
   }catch(error){
+    logger.error(error.stack);
     return res.status(500).send(error);
   }
 }
@@ -182,10 +188,12 @@ const TopicCategoryMaster= Models.TopicCategoryMaster;
           statusMess: 'OK'
         });
     }).catch((err) => {
+      logger.error(err.stack);
       console.log(err);
       res.status(400).send(err);
     });
   }catch(error){
+    logger.error(error.stack);
     return res.status(500).send(error);
   }
 }

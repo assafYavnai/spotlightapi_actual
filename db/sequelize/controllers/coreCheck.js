@@ -3,6 +3,8 @@ import jwt from 'jsonwebtoken';
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
 import checkInvitation from './checkInvitation';
+var log4js = require('log4js');
+const logger = log4js.getLogger('custom');
 
 const uuidv1 = require('uuid/v1');
 
@@ -52,11 +54,13 @@ export function pending(req, res) {
         return res.status(200).send(d);
       }).catch((error) => {
         console.debug('error while fetching pending checks');
+        logger.error(error.stack);
         console.debug(error);
         return res.status(500).send(error);
       });
     });
   } catch (error) {
+    logger.error(error.stack);
     return res.status(500).send(error);
   }
 }
@@ -88,11 +92,13 @@ export function remove(req, res) {
           return res.status(500).send({success: false});
       }).catch((error) => {
         console.debug('error while fetching pending checks');
+        logger.error(error.stack);
         console.debug(error);
         return res.status(500).send(error);
       });
     });
   } catch (error) {
+    logger.error(error.stack);
     return res.status(500).send(error);
   }
 }
@@ -140,6 +146,7 @@ export function all(req, res) {
             return res.status(200).send(d);
           }).catch((error) => {
             console.debug('error while fetching users check');
+            logger.error(error.stack);
             console.debug(error);
             return res.status(500).send(error);
           });
@@ -200,6 +207,7 @@ order: [
                 });
                 return res.status(200).send(data);
           }).catch( (err) => {
+            logger.error(err.stack);
             return res.status(500).send(error);
           });
              
@@ -207,6 +215,7 @@ order: [
           }).catch((error) => {
             console.debug('error while fetching users check');
             console.debug(error);
+            logger.error(error.stack);
             return res.status(500).send(error);
           });
         }
@@ -214,6 +223,7 @@ order: [
     });
   } catch (err) {
     console.log(err);
+    logger.error(err.stack);
     return res.status(500).send(err);
   }
 }
@@ -287,6 +297,7 @@ export function CreateOrUpdate(req, res) {
                         }).catch((e) => {
                             console.debug('Error occured while saving user check topics');
                             console.debug(e);
+                            logger.error(e.stack);
                             return res.status(500).send(e);
                         });
                     } else {
@@ -295,6 +306,7 @@ export function CreateOrUpdate(req, res) {
                 });
                 });
             }).catch((error) => {
+               logger.error(error.stack);
                return res.status(500).send('Something went wrong.' + error);
             });
           } else { // go to create new check
@@ -351,6 +363,7 @@ export function CreateOrUpdate(req, res) {
                         }).catch((e) => {
                             console.debug('Error occured while saving user check topics');
                             console.debug(e);
+                            logger.error(e.stack);
                             return res.status(500).send(e);
                         });
                     } else {
@@ -358,11 +371,13 @@ export function CreateOrUpdate(req, res) {
                   }
                 });
             }).catch((error) => {
+                logger.error(error.stack);
                 return res.status(500).send('Something went wrong.' + error);
             });
           }
         });
       } catch (error) {
+        logger.error(error.stack);
         return res.status(500).send(error);
       }
 }
@@ -393,6 +408,7 @@ export function updateCheck(req, res) {
           UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
               return res.status(200).send(uc);
           }).catch((error) => {
+             logger.error(error.stack);
              return res.status(500).send('Something went wrong.' + error);
           });
         } else { // go to create new check
@@ -400,6 +416,7 @@ export function updateCheck(req, res) {
         }
       });
     } catch (error) {
+      logger.error(error.stack);
       return res.status(500).send(error);
     }
 }
@@ -448,14 +465,17 @@ export function addGroup(req, res) {
                       });
                     }
                   }).catch((error) => {
+                    logger.error(error.stack);
                     return res.status(500).send('Something went wrong.' + error);
                   });
                 });
               }
             }).catch((error) => {
+              logger.error(error.stack);
               return res.status(500).send('Something went wrong.' + error);
             });
           }).catch((error) => {
+            logger.error(error.stack);
             return res.status(500).send('Something went wrong.' + error);
           });
         } else { // go to create new group
@@ -484,14 +504,17 @@ export function addGroup(req, res) {
                       return res.status(200).send([{group: uc, emailList: groupList}]);
                     }
                   }).catch((error) => {
+                    logger.error(error.stack);
                     return res.status(500).send('Something went wrong.' + error);
                   });
                 });
               }
           }).catch((error) => {
+              logger.error(error.stack);
               return res.status(500).send('Something went wrong.' + error);
           });
           }).catch((error) => {
+            logger.error(error.stack);
             return res.status(500).send('Something went wrong.' + error);
         });
         }
@@ -522,17 +545,20 @@ export function getUserGroup(req, res) {
                 }).then((d) => {
               res.status(200).send({groups, emails: d});
             }).catch((error) => {
+              logger.error(error.stack);
               return res.status(500).send('Something went wrong.' + error);
             });
         } else {
           return res.status(404).send('Email groups not created yet.');
         }
       }).catch((error) => {
+        logger.error(error.stack);
         return res.status(500).send('Something went wrong.' + error);
       });
     });
   } catch (err) {
     console.log(err);
+    logger.error(err.stack);
     return res.status(500).send(err);
   }
 }
@@ -557,12 +583,14 @@ export function removeGroup(req, res) {
             return res.status(500).send({success: false});
           }).catch((error) => {
             console.debug('error while fetching group list');
+            logger.error(error.stack);
             console.debug(error);
             return res.status(500).send(error);
           });
         }
       }).catch((error) => {
         console.debug('error while fetching pending checks');
+        logger.error(error.stack);
         console.debug(error);
         return res.status(500).send(error);
       });

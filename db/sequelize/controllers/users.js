@@ -11,6 +11,8 @@ const OTPSchema = Models.OTPSchema;
 import Promise from 'bluebird';
 import bcryptNode from 'bcrypt-nodejs';
 const bcrypt = Promise.promisifyAll(bcryptNode);
+var log4js = require('log4js');
+const logger = log4js.getLogger('custom');
 /**
  * POST /login
  */
@@ -33,6 +35,7 @@ export function login(req, res, next) {
     });
   })(req, res, next);
 }catch(error){
+  logger.error(error.stack);
   return res.status(500).send(error);
 }
 }
@@ -45,6 +48,7 @@ export function logout(req, res) {
   req.logout();
   res.sendStatus(200);
   }catch(error){
+    logger.error(error.stack);
     return res.status(500).send(error);
   }
 }
@@ -99,6 +103,7 @@ user_name, email, password, name, last_name, is_active,
     });
   }).catch(err => next(err));
 }catch(error){
+  logger.error(error.stack);
   return res.status(500).send(error);
 }
 }
@@ -134,9 +139,11 @@ export function verifyOTP(req, res) {
       }
       return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
     }).catch((err) => {
+      logger.error(err.stack);
       return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
     });
   } catch (e) {
+    logger.error(e.stack);
     console.log(e);
     return res.status(500).send({
       message: 'Unable to process request.Plese try again after some time', data: e
@@ -163,10 +170,12 @@ export function recoveryPasswordVerifyOTP(req, res) {
       }
       return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
     }).catch((err) => {
+      logger.error(err.stack);
       return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
     });
   } catch (e) {
     console.log(e);
+    logger.error(e.stack);
     return res.status(500).send({
       message: 'Unable to process request.Plese try again after some time', data: e
     });
@@ -188,6 +197,7 @@ export function changePassword(req, res) {
                 User.update(data,{where: {id:existingUser.id}}).then((uc) => {
                    return res.status(200).send({successMessage: 'Password has been changed', status: 200});
                 }).catch((err) => {
+                  logger.error(err.stack);
                   return res.status(404).send({errorMessage: err.message, status: 404});
                 });
             }));
@@ -196,10 +206,12 @@ export function changePassword(req, res) {
             return res.status(404).send({errorMessage: 'User not found', status: 404});
           }
         }).catch((err) => {
+          logger.error(err.stack);
           return res.status(404).send({errorMessage: err.message, status: 404});
         });
   } catch (e) {
     console.log(e);
+    logger.error(e.stack);
     return res.status(500).send({
       message: 'Unable to process request.Plese try again after some time', data: e
     });
@@ -234,6 +246,7 @@ export function validateToken(req, res) {
         return res.status(200).send({auth:true,message:'Token is valid',dt: new Date()});
       }});
   } catch (error) {
+    logger.error(error.stack);
     return res.status(500).send(error);
   }
 }
@@ -247,9 +260,11 @@ export function validateToken(req, res) {
     UserLog.create(obj).then( (p)=>{
       res.status(200).send("OK");
     }).catch( (err)=>{
+      logger.error(err.stack);
       res.status(500).send("Error");
     });
   } catch (error) {
+    logger.error(error.stack);
     res.status(500).send(error);
   }
   

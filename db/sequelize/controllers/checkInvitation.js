@@ -7,6 +7,8 @@ import {privateLocalAddress, hostName} from '../../../config/app';
 import Axios from 'axios';
 import checkApplication from './checkApplication';
 const uuidv4 = require('uuid/v4');
+var log4js = require('log4js');
+const logger = log4js.getLogger('custom'); 
 
 const UserCheckInvitation = Models.UserCheckInvitation;
 const UserCheckMaster = Models.UserCheck;
@@ -65,6 +67,7 @@ const UserCheckMaster = Models.UserCheck;
                 console.log('Sent Invitation email');
                 //return resolve(true);
               }).catch((err) => {
+                logger.error(err.stack);
                 console.log('Error in sending Email');
                 //console.log(err);
                 //return resolve(true);
@@ -77,6 +80,7 @@ const UserCheckMaster = Models.UserCheck;
             return res.status(200).send('OK');
           }).catch((err) => {
             console.debug('error while sending invitation');
+            logger.error(err.stack);
             return res.status(500).send(err);
           });
         } else {
@@ -85,6 +89,7 @@ const UserCheckMaster = Models.UserCheck;
       });
     });
   } catch (error) {
+    logger.error(error.stack);
     return res.status(500).send(error);
   }
 };
@@ -116,6 +121,7 @@ export function allInvitedUsers(req, res) {
       });
     });
   } catch (error) {
+    logger.error(error.stack);
     return res.status(500).send(error);
   }
 }
@@ -135,9 +141,11 @@ export function updateCheckInvitation(req, res) {
     }
     }).catch((err) => {
       console.log(err);
+      logger.error(err.stack);
       res.status(500).send({errorMessage:'We failed to save for some reason'});
     });
 }catch(error){
+  logger.error(error.stack);
   return res.status(500).send(error);
 }
 }
