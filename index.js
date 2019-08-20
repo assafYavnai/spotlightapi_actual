@@ -1,5 +1,6 @@
 import express from 'express';
 import expressWinston from 'express-winston';
+import fs from 'fs';
 var winston = require('winston');
 require('winston-loggly-bulk');
 import errorHandler from  'express-error-handler';
@@ -10,11 +11,19 @@ import initPassport from './init/passport';
 import initExpress from './init/express';
 import initRoutes from './init/routes';
 import initFileOperation from './init/fileOperation';
-
+var log4js = require('log4js');
 var enableWs =require('express-ws');
 const app = express();
 enableWs(app);
-
+log4js.configure({
+  appenders: {
+    console: { type: 'console' },
+    customerror: { type: 'file', filename: 'logs/customerror.log'}
+  },categories: {
+    error: { appenders: ['customerror'], level: 'error' },
+    default: { appenders: ['console', 'customerror'], level: 'trace' }
+  }
+});
 //expressWs(app);
 app.use(errorHandler({ dumpExceptions: true, showStack: true })); 
 
@@ -124,7 +133,11 @@ initFileOperation(app);
  * HTML
  */
 //app.get('*', renderMiddleware);
-
+var access = fs.createWriteStream('logs/node.access.log', { flags: 'a' });
+  var error = fs.createWriteStream('logs/node.error.log', { flags: 'a' });
+  // redirect stdout / stderr
+  process.stdout.pipe(access);
+  process.stderr.pipe(error);
 
 app.listen(app.get('port'));
 

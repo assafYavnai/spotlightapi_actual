@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     is_accepted: DataTypes.BOOLEAN,
     is_completed: DataTypes.BOOLEAN,
     current_topic: DataTypes.INTEGER,
+    current_time: DataTypes.INTEGER,
     invited_on: DataTypes.DATE
   }, {});
   user_check_invitation.associate = function(models) {
