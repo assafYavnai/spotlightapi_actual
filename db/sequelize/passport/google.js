@@ -1,9 +1,11 @@
 import { Models, sequelize } from '../models';
-
+var log4js = require('log4js');
+const logger = log4js.getLogger('custom'); 
 const User = Models.User;
 
 /* eslint-disable no-param-reassign */
 function attachGoogleAccount(user, profile, accessToken, done) {
+  try{
   user.google = profile.id;
   user.name = user.name || profile.displayName;
   user.gender = user.gender || profile._json.gender;
@@ -19,10 +21,16 @@ function attachGoogleAccount(user, profile, accessToken, done) {
   ).then(() =>
     done(null, user, { message: 'Google account has been linked.' })
   );
+
+    }catch(error){
+      logger.error(error.stack);
+      console.log(error);
+    }
 }
 /* eslint-enable no-param-reassign */
 
 function createUserWithToken(profile, accessToken, done) {
+  try{
   return sequelize.transaction(transaction =>
     User.create({
       email: profile._json.emails[0].value,
@@ -39,6 +47,11 @@ function createUserWithToken(profile, accessToken, done) {
       )
     )
   );
+
+    }catch(error){
+      logger.error(error.stack);
+      console.log(error);
+    }
 }
 
 const existingGoogleAccountMessage = [
@@ -76,5 +89,6 @@ export default (req, accessToken, refreshToken, profile, done) =>
     });
   }).catch((err) => {
     console.log(err);
+    logger.error(err.stack);
     return done(null, false, { message: 'Something went wrong trying to authenticate' });
   });

@@ -1,6 +1,8 @@
 import fs from 'fs';
 const fileUpload = require('express-fileupload');
 const { spawn } = require('child_process');
+var log4js = require('log4js');
+const logger = log4js.getLogger('custom');
 
 // import multer from 'multer';
 // var storage = multer.diskStorage({
@@ -15,10 +17,11 @@ const { spawn } = require('child_process');
 // var upload = multer({ storage: storage });
 const envVars = require('../config/env');
  module.exports = (app, db) => {
-   
+   try{
 app.use(fileUpload());
 
 app.post('/api/uploadconfig', (req, res) => {
+    try{
     const {lang,lang1} = req.body;
     console.log(lang);
     if (req.files==null || Object.keys(req.files).length == 0) {
@@ -41,9 +44,13 @@ app.post('/api/uploadconfig', (req, res) => {
         });
         
   
-   
+    }catch(error){
+        logger.error(error.stack);
+        console.log(error);
+    }
 });
 app.post('/api/startapp', (req, res) => {
+    try{
     const {lang,lang1} = req.body;
     var ls = spawn(require.resolve('../spotlight.sh'));
     ls.stdout.on('data', function (data) {
@@ -65,7 +72,16 @@ app.post('/api/startapp', (req, res) => {
         }
         
     });
+}catch(error){
+    logger.error(error.stack);
+    console.log(error);
+}
 });
+
+   }catch(error){
+    logger.error(error.stack);
+   }
+
 };
 
 

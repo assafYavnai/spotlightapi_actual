@@ -2,6 +2,8 @@ import _ from 'lodash';
 import jwt from 'jsonwebtoken';
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
+var log4js = require('log4js');
+const logger = log4js.getLogger('custom'); 
 
 const Topic = Models.Topic;
 
@@ -24,11 +26,13 @@ export function all(req, res) {
           return res.status(200).send(topics);
         }).catch((err) => {
           console.log(err);
+          logger.error(err.stack);
           return res.status(500).send('Error in first query');
         });
       });
 
     }catch(error){
+      logger.error(error.stack);
       return res.status(500).send(error);
     }
 }
@@ -42,9 +46,11 @@ export function add(req, res) {
     res.status(200).send('OK');
   }).catch((err) => {
     console.log(err);
+    logger.error(err.stack);
     res.status(400).send(err);
   });
 }catch(error){
+  logger.error(error.stack);
   return res.status(500).send(error);
 }
 }
@@ -65,6 +71,7 @@ export function update(req, res) {
       res.status(200).send('Updated successfully');
     }).catch((err) => {
       console.log(err);
+      logger.error(err.stack);
       res.status(500).send('We failed to save for some reason');
     });
   } else {
@@ -75,11 +82,13 @@ export function update(req, res) {
       res.status(200).send('Updated successfully');
     }).catch((err) => {
       console.log(err);
+      logger.error(err.stack);
       // Not sure if server status is the correct status to return
       res.status(500).send('We failed to save for some reason');
     });
   }
 }catch(error){
+  logger.error(error.stack);
   return res.status(500).send(error);
 }
 }
@@ -93,9 +102,11 @@ export function remove(req, res) {
     res.status(200).send('Removed Successfully');
   }).catch((err) => {
     console.log(err);
+    logger.error(err.stack);
     res.status(500).send('We failed to delete for some reason');
   });
 }catch(error){
+  logger.error(error.stack);
   return res.status(500).send(error);
 }
 }
