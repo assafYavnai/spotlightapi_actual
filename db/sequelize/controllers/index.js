@@ -5,6 +5,7 @@ import coreCheck from './coreCheck';
 import checkInvitation from './checkInvitation';
 import checkApplication from './checkApplication';
 import proEnquiry from './proEnquiry';
+import cmsPage from './cmsPage';
 export default {
   topics,
   users,
@@ -12,5 +13,6 @@ export default {
   coreCheck,
   checkInvitation,
   checkApplication,
-  proEnquiry
+  proEnquiry,
+  cmsPage
 };

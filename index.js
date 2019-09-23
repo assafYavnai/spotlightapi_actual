@@ -7,10 +7,12 @@ import errorHandler from  'express-error-handler';
 import { isDebug } from './config/app';
 import { connect } from './db';
 import cors  from 'cors';
+const bodyParser=require('body-parser');
 import initPassport from './init/passport';
 import initExpress from './init/express';
 import initRoutes from './init/routes';
 import initFileOperation from './init/fileOperation';
+
 var log4js = require('log4js');
 var enableWs =require('express-ws');
 const app = express();
@@ -45,8 +47,9 @@ initPassport();
 /*
  * Bootstrap application settings
  */
-initExpress(app);
 
+app.use(bodyParser.json({extended:true,limit: '50mb'}));
+initExpress(app);
 app.use(expressWinston.logger({
     transports: [
       new winston.transports.Console({

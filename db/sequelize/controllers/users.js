@@ -40,6 +40,37 @@ export function login(req, res, next) {
 }
 }
 
+// admin Login
+export function adminLogin(req, res, next) {
+  try{
+  let token = null;
+  // Do email and password validation for the server
+  passport.authenticate('local', (authErr, user, info) => {
+    if (authErr) return next(authErr);
+    if (!user) {
+      return res.sendStatus(401);
+    }
+    // Passport exposes a login() function on req (also aliased as
+    // logIn()) that can be used to establish a login session
+    return req.logIn(user, (loginErr) => {
+      //console.log("what coming:"+users.isadmin);
+      if (loginErr) return res.sendStatus(401);
+          token = jwt.sign({ id: user.id }, tokenSecret, { expiresIn: 86400 });
+         if(user.isadmin===true){
+          return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name,isadmin:user.isadmin, access_token: token});
+         }else{
+           return res.status(404).send({errorMsg:"Sorry this userId not a Admin",status:404})
+         }
+          // return res.sendStatus(200);
+    });
+  })(req, res, next);
+}catch(error){
+  logger.error(error.stack);
+  return res.status(500).send(error);
+}
+}
+
+
 /**
  * POST /logout
  */
@@ -279,5 +310,6 @@ export default {
   changePassword,
   recoveryPasswordVerifyOTP,
   validateToken,
-  logUserInfo
+  logUserInfo,
+  adminLogin
 };
