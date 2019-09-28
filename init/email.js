@@ -72,12 +72,12 @@ app.post('/api/sendEmail', (req, res, next) => {
  *  HTTP/1.1 404 NotFound
  */
 app.post('/api/sendOTP', (req, res) => {
-    
     const {email,name,language,subject,content} = req.body;
     User.findOne({ where: { email } }).then((existingUser) => {
      // var fullName=existingUser.first_name;
       if (existingUser) {
-        return res.status(409).send({errorMessage: 'Sorry this user already exist',status: 409});
+        //return res.status(409).send({errorMessage: 'Sorry this user already exist',status: 409});
+        return res.status(409).send({errorMessage: 'Sorry this user already exist',errorCode:'USER_ALREADY_EXISTS'});
       }
     
     const otp  = Math.floor(100000 + Math.random() * 900000);
@@ -100,7 +100,8 @@ app.post('/api/sendOTP', (req, res) => {
     })
   }).catch((error) => {
       logger.error(error.stack);
-      res.status(500).send('Exception throwing' + error);
+      //res.status(500).send('Exception throwing' + error);
+      res.status(500).send({errorMessage:error.message,errorCode:'UNEXPECTED',dt:new Date()});
   });
 });
 
@@ -227,7 +228,7 @@ app.post('/api/sendForgetOTP', (req, res) => {
   const {email,language,subject,content} = req.body;
  User.findOne({ where: { email } }).then((existingUser) => {
    if(existingUser === null) {
-   return res.status(200).send({errorMessage: 'This email does not exists in our database', status: 500,dt: new Date()});  
+   return res.status(500).send({errorMessage: 'This email does not exists in our database',errorCode:'EMAIL_NOT_EXISTS', status: 500,dt: new Date(),});  
    }
   // console.log("what:"+existingUser);
   var fullName=existingUser.first_name;
@@ -259,6 +260,7 @@ app.post('/api/sendForgetOTP', (req, res) => {
    }catch(error){
     logger.error(error.stack);
     console.log(error);
+    res.status(500).send({errorMessage:error.message,errorCode:'UNEXPECTED',dt:new Date()});
    }
 });
 

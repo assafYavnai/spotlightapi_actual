@@ -69,7 +69,7 @@ user_name, email, password, name, last_name, is_active,
     // find the user if exist then can not be signup..
   User.findOne({ where: { email } }).then((existingUser) => {
     if (existingUser) {
-      return res.status(409).send({errorMessage: 'Sorry this user already exist'});
+      return res.status(409).send({errorMessage: 'Sorry this user already exist',errorCode:'USER_ALREADY_EXISTS'});
     }
 
     const user = User.build({
@@ -104,7 +104,7 @@ user_name, email, password, name, last_name, is_active,
   }).catch(err => next(err));
 }catch(error){
   logger.error(error.stack);
-  return res.status(500).send(error);
+  return res.status(500).send({errorMessage:error.message,errorCode:'UNEXPECTED'});
 }
 }
 /**
@@ -135,19 +135,17 @@ export function verifyOTP(req, res) {
       }
     }).then((d) => {
       if (d.count > 0) {
-        return res.status(200).send({successMessage: 'OTP confirmed', status: 200});
+        return res.status(200).send({successMessage: 'OTP confirmed', status: 200,successCode:'CONFIRM_OTP'});
       }
-      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404,errorCode:'INVALID_OTP'});
     }).catch((err) => {
       logger.error(err.stack);
-      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404,errorCode:'INVALID_OTP'});
     });
   } catch (e) {
     logger.error(e.stack);
     console.log(e);
-    return res.status(500).send({
-      message: 'Unable to process request.Plese try again after some time', data: e
-    });
+    res.status(500).send({errorMessage:e,errorCode:'UNEXPECTED',dt:new Date()});
   }
 }
 
@@ -168,17 +166,15 @@ export function recoveryPasswordVerifyOTP(req, res) {
       if (d.count > 0) {
         return res.status(200).send({successMessage: 'OTP confirmed', status: 200});
       }
-      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404,errorCode:'INVALID_OTP'});
     }).catch((err) => {
       logger.error(err.stack);
-      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404,errorCode:'INVALID_OTP'});
     });
   } catch (e) {
     console.log(e);
     logger.error(e.stack);
-    return res.status(500).send({
-      message: 'Unable to process request.Plese try again after some time', data: e
-    });
+    res.status(500).send({errorMessage:e,errorCode:'UNEXPECTED',dt:new Date()});
   }
 }
 
