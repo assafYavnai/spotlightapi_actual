@@ -3,6 +3,7 @@ module.exports = {
     username: process.env.PGUSER || 'postgres',
     password: '123456',
     database: 'new_spotlight',
+   //database: 'spoptlight_dev',
     host: '192.168.1.101',
     dialect: 'postgres'
   },
@@ -17,10 +18,9 @@ module.exports = {
   production: {
     use_env_variable: 'POSTGRES_DB_URL',
     username: process.env.PGUSER || 'postgres',
-    password: '123456',
-    database: 'new_spotlight',
-   // database: 'spoptlight_dev',
-    host: '192.168.1.101',
+    password: 'Psd@spotlight',
+    database: 'spotlight',
+    host: 'thespotlightsystem.com',
     dialect: 'postgres'
   }
 };
