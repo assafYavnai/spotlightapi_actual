@@ -62,7 +62,7 @@ app.post('/api/saveconfig', (req, res) => {
             
                 fs.writeFile(`${location}.js`,'export default '+req.body[lang],function(err){
                     cnt=cnt+1;
-                    if(cnt==langArr) {
+                    if(cnt==langArr.length) {
                         if(err) {
                             return  res.status(500).send({'status':'Error','message':err});
                         }
