@@ -4,6 +4,7 @@
   "description": "API created to use in spotlight project which will use postgresql database",
   "main": "index.js",
   "scripts": {
+    "sequelize": "sequelize",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "SET NODE_ENV = development && SET PORT=5000 && nodemon --exec babel-node index.js",
     "start": "SET NODE_ENV = production && SET PORT=5001 && nodemon --exec babel-node index.js"
@@ -49,6 +50,7 @@
     "moment": "^2.24.0",
     "mongoose": "^5.6.2",
     "morgan": "^1.9.1",
+    "multer": "^1.4.2",
     "passport": "^0.4.0",
     "passport-google-oauth": "^2.0.0",
     "passport-local": "^1.0.0",
@@ -66,6 +68,7 @@
     "@babel/preset-env": "^7.4.5",
     "babel-preset-env": "^1.7.0",
     "babel-register": "^6.26.0",
-    "nodemon": "^1.19.1"
+    "nodemon": "^1.19.1",
+    "sequelize-cli": "^5.5.0"
   }
 }
