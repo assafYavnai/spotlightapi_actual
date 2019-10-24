@@ -6,6 +6,7 @@ import { tokenSecret } from '../constants';
 import moment from 'moment';
 import { throws } from 'assert';
 const User = Models.User;
+const subscribedUser=Models.subscriber;
 const UserLog = Models.UserLog;
 const OTPSchema = Models.OTPSchema;
 import Promise from 'bluebird';
@@ -28,9 +29,18 @@ export function login(req, res, next) {
     // Passport exposes a login() function on req (also aliased as
     // logIn()) that can be used to establish a login session
     return req.logIn(user, (loginErr) => {
+      var isSubscribed=false;
       if (loginErr) return res.sendStatus(401);
           token = jwt.sign({ id: user.id }, tokenSecret, { expiresIn: 86400 });
-          return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token });
+          subscribedUser.findOne({ where: { email:user.email } }).then((existingUser) => {
+           if(existingUser){
+              isSubscribed=true;
+              console.log("Exist this Email");
+              return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed });
+             }
+             return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed });
+          });
+         
          // return res.sendStatus(200);
     });
   })(req, res, next);

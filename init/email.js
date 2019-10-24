@@ -129,6 +129,33 @@ app.post('/api/SendEmailVerfication', (req, res) => {
 });
 
 
+// send subscriptions...
+app.post('/api/userSubscription', (req, res) => {
+  try{
+    const {email,language,subject} = req.body;
+    //console.log(email)
+    app.mailer.send('subscriber_'+language, {
+      to: email,
+      subject: subject,
+      //greet: 'Hi!,' + email + '',
+      body:email,
+     
+     }, (error) => {
+        if (error) {
+            res.send({errorMessage: 'There was an error sending the email', erorInfo: error});
+            console.log(error);
+        }
+        res.send({successMessage: 'Email has been sent for subscription', status: 200});
+    });
+  }catch(error){
+    logger.error(error.stack);
+    console.log(error);
+  }
+});
+
+
+
+
 // send success registration...
 app.post('/api/SuccessRegistraion', (req, res, next) => {
   try{

@@ -18,6 +18,7 @@ import UserGroupsEmailsModel from './user_groups_email';
 import proEnquiryModel from './pro_enquiry';
 import cmsPageModel from './cms_pages';
 import UserLogModel from './user_log';
+import UsersubscriberModel from './subscriber';  
 import ReportSharableLinkModel from './report_sharable_link';
 const config = ENV ==='production'? sequelizeConfig.production : sequelizeConfig.development;
 
@@ -43,6 +44,7 @@ db.UserGroupsEmail=sequelize.import('UserGroupsEmail',UserGroupsEmailsModel);
 db.proEnquiryModel=sequelize.import('ProEnquiry',proEnquiryModel);
 db.cmsPageModel=sequelize.import('CmsPageModel',cmsPageModel);
 db.UserLog=sequelize.import('userLog',UserLogModel);
+db.subscriber=sequelize.import('subscriber',UsersubscriberModel);
 db.ReportSharableLinkModel=sequelize.import('ReportSharableLink',ReportSharableLinkModel);
 Object.keys(db).forEach((key) => {
   const model = db[key];
