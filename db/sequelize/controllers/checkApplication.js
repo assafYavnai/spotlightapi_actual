@@ -520,7 +520,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                                 data.topics = topics.map((t) => {
                                     const topic = t;
                                     topic.comments = comments.filter((c) => {
-                                        return c.user_check_topic_id === t.id;
+                                        return c.user_check_topic_id === t.id && c.answer!="";
                                     });
                                     return topic;
                                 });

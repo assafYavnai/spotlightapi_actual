@@ -49,6 +49,38 @@ app.post('/api/uploadconfig', (req, res) => {
         console.log(error);
     }
 });
+app.post('/api/saveconfig', (req, res) => {
+    try{
+       const langArr=['en_US','iw_IL']; 
+    const {en_US,iw_IL} = req.body;
+   let cnt=0;
+    langArr.forEach(lang=>{
+        const location =  `${envVars.config_dir}/${lang}/translations`;
+        fs.rename(`${location}.js`,`${location}_${(new Date()).getTime()}.js`, function(err) {
+            //if ( err ) return res.status(500).send({'status':'Error','messagerenmame':err});
+            if ( err ) console.log(err);
+            
+                fs.writeFile(`${location}.js`,'export default '+req.body[lang],function(err){
+                    cnt=cnt+1;
+                    if(cnt==langArr.length) {
+                        if(err) {
+                            return  res.status(500).send({'status':'Error','message':err});
+                        }
+                       return res.status(200).send({'status':'Completed'});
+                    }
+                });
+           
+            
+        });
+    });
+        
+        
+  
+    }catch(error){
+        logger.error(error.stack);
+        console.log(error);
+    }
+});
 app.post('/api/startapp', (req, res) => {
     try{
     const {lang,lang1} = req.body;
@@ -75,6 +107,7 @@ app.post('/api/startapp', (req, res) => {
 }catch(error){
     logger.error(error.stack);
     console.log(error);
+    return  res.status(500).send({'message':'There are some problem while restarting application'});  
 }
 });
 

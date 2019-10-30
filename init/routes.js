@@ -14,7 +14,8 @@ const coreCheckController = controllers && controllers.coreCheck;
 const checkInvitation = controllers && controllers.checkInvitation;
 const checkApplication = controllers && controllers.checkApplication;
 const askproEnquiry = controllers && controllers.proEnquiry;
-//const cmsPageController=controllers && controllers.cmsPage;
+const cmsPageController=controllers && controllers.cmsPage;
+const subscriberController = controllers && controllers.subscriber;
 
 export default (app) => {
   app.get('/api', (req, res, next) => {
@@ -28,20 +29,27 @@ if(askproEnquiry){
   console.warn(unsupportedMessage('users routes'));
 }
 
+//User subscriber route
+if(subscriberController){
+  app.post('/api/userSubscribe/add',subscriberController.add);
+}
+
 //cmsPage 
-// if(cmsPageController){
-//   app.get('/api/cmsPage/all',cmsPageController.all);
-//   app.get('/api/cmsPage/getById/:id',cmsPageController.getById);
-//   app.post('/api/cmsPage/add',cmsPageController.add);
-//   app.put('/api/cmsPage/update/:id',cmsPageController.update);
-//   app.delete('/api/cmsPage/remove/:id',cmsPageController.remove);
-// }else{
-//   console.warn(unsupportedMessage('users routes'));
-// }
+if(cmsPageController){      
+  app.get('/api/cmsPage/all',cmsPageController.all);
+  app.get('/api/cmsPage/getById/:id',cmsPageController.getById);
+  app.get('/api/cmsPage/getbyUrlName/pages/:page_title_url',cmsPageController.getByUrlName);
+  app.post('/api/cmsPage/add',cmsPageController.add);
+  app.put('/api/cmsPage/update/:id',cmsPageController.update);
+  app.delete('/api/cmsPage/remove/:id',cmsPageController.remove);
+}else{
+  console.warn(unsupportedMessage('users routes'));
+}
 
   // user routes
   if (usersController) {
     app.post('/api/sessions', usersController.login);
+    app.post('/api/adminSessions', usersController.adminLogin);
     app.post('/api/users', usersController.signUp);
     app.post('/api/user/logUserInfo', usersController.logUserInfo);
     
@@ -121,4 +129,8 @@ if(askproEnquiry){
     app.post('/api/checkapp/saveAnswer', checkApplication.saveAnswer);
     app.get('/api/checkapp/report/:id', checkApplication.viewReport);
   }
+
 };
+
+
+

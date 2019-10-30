@@ -6,6 +6,7 @@ import { tokenSecret } from '../constants';
 import moment from 'moment';
 import { throws } from 'assert';
 const User = Models.User;
+const subscribedUser=Models.subscriber;
 const UserLog = Models.UserLog;
 const OTPSchema = Models.OTPSchema;
 import Promise from 'bluebird';
@@ -28,9 +29,18 @@ export function login(req, res, next) {
     // Passport exposes a login() function on req (also aliased as
     // logIn()) that can be used to establish a login session
     return req.logIn(user, (loginErr) => {
+      var isSubscribed=false;
       if (loginErr) return res.sendStatus(401);
           token = jwt.sign({ id: user.id }, tokenSecret, { expiresIn: 86400 });
-          return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token });
+          subscribedUser.findOne({ where: { email:user.email } }).then((existingUser) => {
+           if(existingUser){
+              isSubscribed=true;
+              console.log("Exist this Email");
+              return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed });
+             }
+             return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed });
+          });
+         
          // return res.sendStatus(200);
     });
   })(req, res, next);
@@ -39,6 +49,37 @@ export function login(req, res, next) {
   return res.status(500).send(error);
 }
 }
+
+// admin Login
+export function adminLogin(req, res, next) {
+  try{
+  let token = null;
+  // Do email and password validation for the server
+  passport.authenticate('local', (authErr, user, info) => {
+    if (authErr) return next(authErr);
+    if (!user) {
+      return res.sendStatus(401);
+    }
+    // Passport exposes a login() function on req (also aliased as
+    // logIn()) that can be used to establish a login session
+    return req.logIn(user, (loginErr) => {
+      //console.log("what coming:"+users.isadmin);
+      if (loginErr) return res.sendStatus(401);
+          token = jwt.sign({ id: user.id }, tokenSecret, { expiresIn: 86400 });
+         if(user.isadmin===true){
+          return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name,isadmin:user.isadmin, access_token: token});
+         }else{
+           return res.status(404).send({errorMsg:"Sorry this userId not a Admin",status:404})
+         }
+          // return res.sendStatus(200);
+    });
+  })(req, res, next);
+}catch(error){
+  logger.error(error.stack);
+  return res.status(500).send(error);
+}
+}
+
 
 /**
  * POST /logout
@@ -69,7 +110,7 @@ user_name, email, password, name, last_name, is_active,
     // find the user if exist then can not be signup..
   User.findOne({ where: { email } }).then((existingUser) => {
     if (existingUser) {
-      return res.status(409).send({errorMessage: 'Sorry this user already exist'});
+      return res.status(409).send({errorMessage: 'Sorry this user already exist',errorCode:'USER_ALREADY_EXISTS'});
     }
 
     const user = User.build({
@@ -104,7 +145,7 @@ user_name, email, password, name, last_name, is_active,
   }).catch(err => next(err));
 }catch(error){
   logger.error(error.stack);
-  return res.status(500).send(error);
+  return res.status(500).send({errorMessage:error.message,errorCode:'UNEXPECTED'});
 }
 }
 /**
@@ -135,19 +176,17 @@ export function verifyOTP(req, res) {
       }
     }).then((d) => {
       if (d.count > 0) {
-        return res.status(200).send({successMessage: 'OTP confirmed', status: 200});
+        return res.status(200).send({successMessage: 'OTP confirmed', status: 200,successCode:'CONFIRM_OTP'});
       }
-      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404,errorCode:'INVALID_OTP'});
     }).catch((err) => {
       logger.error(err.stack);
-      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404,errorCode:'INVALID_OTP'});
     });
   } catch (e) {
     logger.error(e.stack);
     console.log(e);
-    return res.status(500).send({
-      message: 'Unable to process request.Plese try again after some time', data: e
-    });
+    res.status(500).send({errorMessage:e,errorCode:'UNEXPECTED',dt:new Date()});
   }
 }
 
@@ -168,17 +207,15 @@ export function recoveryPasswordVerifyOTP(req, res) {
       if (d.count > 0) {
         return res.status(200).send({successMessage: 'OTP confirmed', status: 200});
       }
-      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404,errorCode:'INVALID_OTP'});
     }).catch((err) => {
       logger.error(err.stack);
-      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404});
+      return res.status(404).send({errorMessage: 'Invalid code provided', status: 404,errorCode:'INVALID_OTP'});
     });
   } catch (e) {
     console.log(e);
     logger.error(e.stack);
-    return res.status(500).send({
-      message: 'Unable to process request.Plese try again after some time', data: e
-    });
+    res.status(500).send({errorMessage:e,errorCode:'UNEXPECTED',dt:new Date()});
   }
 }
 
@@ -279,5 +316,6 @@ export default {
   changePassword,
   recoveryPasswordVerifyOTP,
   validateToken,
-  logUserInfo
+  logUserInfo,
+  adminLogin
 };

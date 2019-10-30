@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     created_on: DataTypes.DATE,
     updated_on: DataTypes.DATE,
     conclusion: DataTypes.STRING,
+    language: DataTypes.STRING,
     is_pro_report_ready: DataTypes.BOOLEAN
   }, {});
   user_check.associate = function(models) {

@@ -5,7 +5,8 @@ module.exports = (sequelize, DataTypes) => {
     title_he: DataTypes.STRING,
     content_en: DataTypes.STRING,
     content_he: DataTypes.STRING,
-    is_active: DataTypes.BOOLEAN
+    is_active: DataTypes.BOOLEAN,
+    page_title_url: DataTypes.STRING,
   }, {});
   cms_pages.associate = function(models) {
     // associations can be defined here
