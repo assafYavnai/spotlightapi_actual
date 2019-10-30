@@ -7,7 +7,8 @@
     "sequelize": "sequelize",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "SET NODE_ENV = development && SET PORT=5000 && nodemon --exec babel-node index.js",
-    "start": "SET NODE_ENV = production && SET PORT=5001 && nodemon --exec babel-node index.js"
+    "start": "NODE_ENV=production PORT=7881 nodemon --exec babel-node index.js",
+    "start:window": "SET NODE_ENV =production&& SET PORT=5001 && nodemon --exec babel-node index.js"
   },
   "repository": {
     "type": "git",
