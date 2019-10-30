@@ -135,7 +135,7 @@ app.post('/api/userSubscription', (req, res) => {
     const {email,language,subject} = req.body;
     //console.log(email)
     app.mailer.send('subscriber_'+language, {
-      to: email,
+      to: envVars.CONTACT_SMTP_FROM,
       subject: subject,
       //greet: 'Hi!,' + email + '',
       body:email,
