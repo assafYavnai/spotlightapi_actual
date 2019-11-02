@@ -49,7 +49,7 @@ if(cmsPageController){
   // user routes
   if (usersController) {
     app.post('/api/sessions', usersController.login);
-    app.post('/api/adminSessions', usersController.adminLogin);
+    //app.post('/api/adminSessions', usersController.adminLogin);
     app.post('/api/users', usersController.signUp);
     app.post('/api/user/logUserInfo', usersController.logUserInfo);
     
