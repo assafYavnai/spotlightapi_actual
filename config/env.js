@@ -14,3 +14,5 @@ export const PRO_ENQUIRY_BccEmail = envVars.PRO_ENQUIRY_BccEmail;
 export const SMTP_SECURE = envVars.SMTP_SECURE;
 export const config_dir = envVars.config_dir;
 export const postgres =envVars.postgres;
+export const hostName = envVars.hostName;
+export const privateLocalAddress =envVars.privateLocalAddress;

@@ -12,3 +12,5 @@ export const PRO_ENQUIRY_BccEmail = 'surinderdhanjufss@gmail.com,surinderdhanju0
 export const SMTP_SECURE = true;
 export const config_dir = 'C:/Munna/projects/spotlight/config';
 export const postgres = {username:'postgres',server:'192.168.1.101',password:'123456',database:'spotlight'};
+export const hostName ="http://122.160.166.186:5000";
+export const privateLocalAddress ="http://192.168.1.101:5001";
