@@ -6,7 +6,9 @@
   "scripts": {
     "sequelize": "sequelize",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec babel-node index.js"
+    "dev": "SET NODE_ENV=development&& SET PORT=5000 && nodemon --exec babel-node index.js",
+    "start": "NODE_ENV=production PORT=7881 nodemon --exec babel-node index.js",
+    "start:window": "SET NODE_ENV=staging&& SET PORT=5001 && nodemon --exec babel-node index.js"
   },
   "repository": {
     "type": "git",
@@ -48,6 +50,7 @@
     "method-override": "^3.0.0",
     "moment": "^2.24.0",
     "mongoose": "^5.6.2",
+    "morgan": "^1.9.1",
     "multer": "^1.4.2",
     "passport": "^0.4.0",
     "passport-google-oauth": "^2.0.0",
