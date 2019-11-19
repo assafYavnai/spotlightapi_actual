@@ -141,18 +141,10 @@ export function all(req, res) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
       UserMaster.findById(decoded.id).then((user) => {
-        if (user.isadmin) {
-          UserCheck.findAll().then((d) => {
-            return res.status(200).send(d);
-          }).catch((error) => {
-            console.debug('error while fetching users check');
-            logger.error(error.stack);
-            console.debug(error);
-            return res.status(500).send(error);
-          });
-        } else {
+        
           UserCheck.findAll({
-where: {user_id: decoded.id.toString()},
+            //where: (user.isadmin?{}:{user_id: decoded.id.toString()}),
+            where: ({user_id: decoded.id.toString()}),
 order: [
             ['id', 'DESC'],
         ]
@@ -185,9 +177,9 @@ order: [
                 d.forEach((item) => {
                   const obj = item.toJSON();
                   obj.completed = parseFloat((i.filter((t) => {
-                    return t.is_completed === true && t.user_check_id === obj.id;
+                    return t!=undefined && t.is_completed === true && t.user_check_id === obj.id;
                   }).length) / (i.filter((t) => {
-                    return t.user_check_id === obj.id;
+                    return t!=undefined && t.user_check_id === obj.id;
                   }).length)) * 100;
                   const completed_arr = t.filter((s)=>{
                     return (s.user_check_id === obj.id);
@@ -218,7 +210,7 @@ order: [
             logger.error(error.stack);
             return res.status(500).send(error);
           });
-        }
+        
       });
     });
   } catch (err) {
