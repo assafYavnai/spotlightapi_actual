@@ -12,3 +12,5 @@ export const PRO_ENQUIRY_BccEmail = 'joabkr@gmail.com,sufinoon@gmail.com';
 export const SMTP_SECURE = false;
 export const config_dir = '/usr/src/spotlight/config';
 export const postgres = {username:'postgres',server:'thespotlightsystem.com',password:'Psd@spotlight',database:'spotlight'};
+export const hostName ="http://thespotlightsystem.com";
+export const privateLocalAddress ="http://localhost:7881";
