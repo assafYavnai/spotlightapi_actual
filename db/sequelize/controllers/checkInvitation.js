@@ -81,7 +81,8 @@ const UserCheckMaster = Models.UserCheck;
           }).catch((err) => {
             console.debug('error while sending invitation');
             logger.error(err.stack);
-            return res.status(500).send(err);
+            // return res.status(500).send(err);
+            return res.status(500).send({error:'sqlExp',msg:err});
           });
         } else {
           return res.status(500).send('Emails are empty. Please provide proper emails');
