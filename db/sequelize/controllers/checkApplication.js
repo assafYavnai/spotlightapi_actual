@@ -191,6 +191,7 @@ export function getTopics(req, res) {
                         var dt=new Date();
                         var sdt= new Date(p.start_date);
                         var edt= new Date(p.end_date);
+                        var language=p.language;
                        UserMaster.findOne({where:{id:uid}}).then((u)=>{
                             if(u!=null){
                                 errorData.company_name=u.company_name;
@@ -218,12 +219,12 @@ export function getTopics(req, res) {
                             throw Error(errorData.message);
                          }).catch( (es)=>{
                              logger.error(es.stack);
-                            return res.status(200).send({error:errorData,dt:new Date()});
+                            return res.status(200).send({error:errorData,dt:new Date(),language:language});
                          });
                         
                     }).catch( (err)=>{
                         logger.error(err.stack);
-                        return res.status(200).send({error:errorData,dt:new Date()});
+                        return res.status(200).send({error:errorData,dt:new Date(),language:language});
                     });
                     
                 }
