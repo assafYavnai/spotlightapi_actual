@@ -1,7 +1,7 @@
 ﻿
 ---Alter table Add a "parent_id" column
 alter table topics_category_masters
-add column parent_id int
+add column parent_id int;
  
 -- Insert sub_category of
 
@@ -23,9 +23,9 @@ insert into topics_category_masters(name_en,name_he,is_active,"createdAt","updat
 
 --topics_masters table insertion
 
-alter table topics_masters add column check_type varchar
+alter table topics_masters add column check_type varchar;
 
-alter table topics_masters add column child_category_id int
+alter table topics_masters add column child_category_id int;
 
 -- Add new column "check_type"  Insert Value "CUSTOM"
 
