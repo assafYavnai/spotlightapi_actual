@@ -16,7 +16,7 @@ const checkApplication = controllers && controllers.checkApplication;
 const askproEnquiry = controllers && controllers.proEnquiry;
 const cmsPageController=controllers && controllers.cmsPage;
 const subscriberController = controllers && controllers.subscriber;
-const customCheckController = controllers && controllers.customCheck;
+
 export default (app) => {
   app.get('/api', (req, res, next) => {
     res.status(200).send("OK");
@@ -110,15 +110,11 @@ if(cmsPageController){
     app.get('/api/checks', coreCheckController.all);
     app.get('/api/checks/pending', coreCheckController.pending);
     app.post('/api/checks/core/add', coreCheckController.CreateOrUpdate);
-    app.post('/api/checks/custom/add', coreCheckController.CreateOrUpdateCheckCustom);
     app.delete('/api/checks/remove', coreCheckController.remove);
     app.post('/api/checks/update', coreCheckController.updateCheck);
     app.post('/api/checks/addGroup', coreCheckController.addGroup);
     app.get('/api/checks/getUserGroup', coreCheckController.getUserGroup);
     app.delete('/api/checks/removeGroup', coreCheckController.removeGroup);
-  }
-  if(customCheckController){
-    app.get('/api/checks/topicspool',customCheckController.fetchTopicsPool);
   }
   if (checkInvitation) {
     app.post('/api/check/inviteusers', checkInvitation.sendInvitation);

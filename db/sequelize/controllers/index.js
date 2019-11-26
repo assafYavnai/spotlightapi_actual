@@ -7,7 +7,6 @@ import checkApplication from './checkApplication';
 import proEnquiry from './proEnquiry';
 import subscriber from './subscriber';
 import cmsPage from './cmsPage';
-import customCheck from './customcheck';
 export default {
   topics,
   users,
@@ -17,6 +16,5 @@ export default {
   checkApplication,
   proEnquiry,
   cmsPage,
-  subscriber,
-  customCheck
+  subscriber
 };
