@@ -1,0 +1,1 @@
+alter table user_check_topics add column child_category_id integer;
