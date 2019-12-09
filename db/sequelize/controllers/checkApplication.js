@@ -273,23 +273,30 @@ checkUniqueId, topicId, userId, answer, option, takenTime
         UserCheckMaster.findOne({where: {tiny_url: checkUniqueId}}).then((check) => {
             UserCheckInvitation.findAndCount({where: {uniqe_id: userId, user_check_id: check.id}}).then((u) => {
                 if (u.count > 0) {
-                    TopicsAnswer.create({
-                        user_check_topic_id: topicId,
-                        user_id: userId,
-                        answer,
-                        choosen_option: option,
-                        taken_time: takenTime,
-                        is_hilighted_answer: false
-                    }).then((response) => {
-                        UserCheckInvitation.update({
-                            current_topic: sequelize.literal('current_topic + 1'),
-                            current_time: 0
-                          }, {where: {uniqe_id: userId}}).then((result) => {
-
-                          });
-                        res.status(200).send('OK');
-                    }).catch((error) => {
-                        res.status(500).send(error);
+                    TopicsAnswer.findAndCount({where:{user_check_topic_id:topicId,user_id: userId}}).then((ans)=>{
+                        if (ans.count > 0){
+                            res.status(500).send({errorMessage:'You have already provided answer for this topics',errorCode:'ANSWER_ALREADY_EXISTS_BY_USER'});
+                        }
+                        else{
+                            TopicsAnswer.create({
+                                user_check_topic_id: topicId,
+                                user_id: userId,
+                                answer,
+                                choosen_option: option,
+                                taken_time: takenTime,
+                               is_hilighted_answer: false
+                            }).then((response) => {
+                                UserCheckInvitation.update({
+                                    current_topic: sequelize.literal('current_topic + 1'),
+                                    current_time: 0
+                                  }, {where: {uniqe_id: userId}}).then((result) => {
+        
+                                 });
+                                res.status(200).send('OK');
+                            }).catch((error) => {
+                                res.status(500).send(error);
+                            });
+                        }
                     });
                 }
             }).catch((err) => {
