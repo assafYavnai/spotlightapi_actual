@@ -110,9 +110,9 @@ if(cmsPageController){
   // TopicsMaster
   if(topicsMasterController){
     app.get('/api/getTopicMaster',topicsMasterController.getTopicsMaster);
-    app.get('/api/addTopics',topicsMasterController.addTopics);
-    app.get('/api/editTopics',topicsMasterController.editTopics);
-    app.get('/api/deleteTopics/:id',topicsMasterController.deleteTopics);
+    app.post('/api/addTopics',topicsMasterController.addTopics);
+    app.post('/api/editTopics',topicsMasterController.editTopics);
+    app.delete('/api/deleteTopics/:id',topicsMasterController.deleteTopics);
   }
 
   if (coreCheckController) {
