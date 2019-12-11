@@ -10,7 +10,8 @@ module.exports = (sequelize, DataTypes) => {
     is_active: DataTypes.BOOLEAN,
     estimated_time: DataTypes.INTEGER,
     sequence:DataTypes.INTEGER,
-    child_category_id: DataTypes.INTEGER
+    child_category_id: DataTypes.INTEGER,
+    check_type:DataTypes.STRING
   }, {});
   topics_master.associate = function(models) {
     // associations can be defined here
