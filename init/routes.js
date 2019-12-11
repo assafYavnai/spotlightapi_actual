@@ -102,7 +102,8 @@ if(cmsPageController){
   if (themeCategoryController) {
     app.get('/api/themes', themeCategoryController.all);
     app.post('/api/themes/add', themeCategoryController.add);
-    // app.post('/api/editThemecategory/:id',themeCategoryController.update);
+    app.get('/api/getTopicMaster',themeCategoryController.getTopicsMaster);
+
   } else {
     console.warn(unsupportedMessage('topics routes'));
   }

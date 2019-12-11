@@ -180,6 +180,36 @@ const logger = log4js.getLogger('custom');
     return res.status(500).send(error);
   }
 }
+
+function getTopicsMaster(req, res) {
+  try{
+  let topicList=[];
+  TopicCategoryMaster.findAll().then((tcm)=>{
+    Topics.findAll().then((tm)=>{
+      const topicData=tm.map((tp)=>{
+      let obj={};
+      obj=tp.toJSON();
+      const filterCategoryMaster=tcm.filter((it)=>{
+         return it.id==tp.topic_category_id;
+      });
+      obj.cateName_en=filterCategoryMaster[0].name_en,
+      obj.cateName_he=filterCategoryMaster[0].name_he;
+      topicList.push(obj)
+      });
+      
+      return res.json(topicList);
+    }) 
+ }).catch((err) => {
+   logger.error(err.stack);
+   console.log(err);
+   res.status(500).send('Error in first query');
+ })
+ }catch(error){
+   logger.error(error.stack);
+   return res.status(500).send(error);
+ }
+}
+
    function add(req, res) {
      try{
     ThemeCategory.create(req.body).then(() => {
@@ -204,6 +234,7 @@ const logger = log4js.getLogger('custom');
 export default {
     all,
     add,
+    getTopicsMaster
     // update
     // remove
   };
