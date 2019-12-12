@@ -17,6 +17,7 @@ const askproEnquiry = controllers && controllers.proEnquiry;
 const cmsPageController=controllers && controllers.cmsPage;
 const subscriberController = controllers && controllers.subscriber;
 const customCheckController = controllers && controllers.customCheck;
+const topicsMasterController = controllers && controllers.topicsMaster;
 export default (app) => {
   app.get('/api', (req, res, next) => {
     res.status(200).send("OK");
@@ -102,10 +103,19 @@ if(cmsPageController){
   if (themeCategoryController) {
     app.get('/api/themes', themeCategoryController.all);
     app.post('/api/themes/add', themeCategoryController.add);
-    // app.post('/api/editThemecategory/:id',themeCategoryController.update);
   } else {
     console.warn(unsupportedMessage('topics routes'));
   }
+
+  // TopicsMaster
+  if(topicsMasterController){
+    app.get('/api/getTopicMaster',topicsMasterController.getTopicsMaster);
+    app.get('/api/getTopicCategoryList',topicsMasterController.topicsCategoryList);
+    app.post('/api/addTopics',topicsMasterController.addTopics);
+    app.put('/api/editTopics',topicsMasterController.editTopics);
+    app.delete('/api/deleteTopics/:id',topicsMasterController.deleteTopics);
+  }
+
   if (coreCheckController) {
     app.get('/api/checks', coreCheckController.all);
     app.get('/api/checks/pending', coreCheckController.pending);

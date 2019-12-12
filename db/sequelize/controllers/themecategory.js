@@ -180,6 +180,7 @@ const logger = log4js.getLogger('custom');
     return res.status(500).send(error);
   }
 }
+
    function add(req, res) {
      try{
     ThemeCategory.create(req.body).then(() => {
@@ -198,12 +199,8 @@ const logger = log4js.getLogger('custom');
   }
 }
 
-//
-
-
 export default {
     all,
-    add,
-    // update
-    // remove
+    add
+    
   };
