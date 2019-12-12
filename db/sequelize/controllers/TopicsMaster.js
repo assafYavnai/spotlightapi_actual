@@ -9,6 +9,7 @@ function getTopicsMaster(req, res) {
     try{
     let topicList=[];
     TopicCategoryMaster.findAll().then((tcm)=>{
+      console.log(tcm);
       Topics.findAll().then((tm)=>{
         const topicData=tm.map((tp)=>{
         let obj={};
@@ -16,8 +17,24 @@ function getTopicsMaster(req, res) {
         const filterCategoryMaster=tcm.filter((it)=>{
            return it.id==tp.topic_category_id;
         });
+        const filterSubCategoryMaster=tcm.filter((a)=>{
+          if(a.parent_id!=null){
+            return a.id==tp.child_category_id;  
+          }
+          // return a.id==tp.child_category_id;
+       });
+       if(filterSubCategoryMaster[0]!=undefined){
+        obj.subCatName_en=filterSubCategoryMaster[0].name_en;
+        obj.subCatName_he=filterSubCategoryMaster[0].name_he;
+       }
+       else{
+        obj.subCatName_en=null;
+        obj.subCatName_he=null;
+       }
         obj.cateName_en=filterCategoryMaster[0].name_en,
         obj.cateName_he=filterCategoryMaster[0].name_he;
+        //obj.subCatName_en=filterSubCategoryMaster[0].name_en;
+        //obj.subCatName_he=filterSubCategoryMaster[0].name_he;
         topicList.push(obj)
         });
         
