@@ -26,29 +26,32 @@ function getTopicsMaster(req, res) {
    }).catch((err) => {
      logger.error(err.stack);
      console.log(err);
-     res.status(500).send('Error in first query');
+     res.status(500).send({errorMessage:err,errorCode:'UNEXPECTED'});
    })
    }catch(error){
      logger.error(error.stack);
-     return res.status(500).send(error);
+     return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
    }
   }
   
   //Edit topics....
   
   function editTopics(req,res){
-    const {topicsName_en,topicName_he,topicId,topic_cate_id,child_Cat_Id}=req.body;
-    const topicData={topic_category_id:topic_cate_id,name_en:topicsName_en,name_he:topicName_he,"createdAt":new Date(),"updatedAt":new Date(),child_category_id:child_Cat_Id};
     try {
-      Topics.update(topicData,{where:topicId}).then((result)=>{
+      const {topicsName_en,topicName_he,topicId,topic_cate_id,child_Cat_Id}=req.body;
+      const topicData={topic_category_id:topic_cate_id,name_en:topicsName_en,name_he:topicName_he,"createdAt":new Date(),"updatedAt":new Date(),child_category_id:child_Cat_Id};
+      //console.log(topicData);
+      Topics.update(topicData,{where:{id:topicId}}).then((result)=>{
         if(result){
-          return res.status(200).send({successMessage:'OK',status:200});
+          return res.status(200).send({successMessage:'OK',statusCode:200});
         }
       }).catch((error)=>{
-        return res.status(500).send({errorMessage:error});
+        return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
       })
     } catch (error) {
-      return res.status(500).send({errorMessage:error});
+      logger.error(error.stack);
+      console.log(error);
+      return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
     }
   }
   
@@ -58,15 +61,17 @@ function getTopicsMaster(req, res) {
     try {
       const {topicsName_en,topicName_he,topic_cate_id,child_Cat_Id}=req.body;
     const topicData={topic_category_id:topic_cate_id,name_en:topicsName_en,name_he:topicName_he,"createdAt":new Date(),"updatedAt":new Date(),child_category_id:child_Cat_Id};
-      TopicCategoryMaster.create(topicData).then((rs)=>{
+      Topics.create(topicData).then((rs)=>{
         if(rs){
-          return res.status(200).send({successMessage:'OK',status:200});
+          return res.status(200).send({successMessage:'OK',statusCode:200});
         }
       }).catch((error)=>{
-        return res.status(500).send({errorMessage:error});
+        return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
       })
     } catch (error) {
-      return res.status(500).send({errorMessage:error,exp:'something went wrong'});
+      logger.error(error.stack);
+     console.log(error);
+      return res.status(500).send({errorMessage:error,exp:'something went wrong',errorCode:'UNEXPECTED'});
     }
   }
   
@@ -75,12 +80,14 @@ function getTopicsMaster(req, res) {
    try {
     const ID={id:req.params.id};
     Topics.destroy({where:ID}).then((result)=>{
-      return res.status({successMessage:'OK',status:200});
+      return res.status({successMessage:'OK',statusCode:200});
     }).catch((error)=>{
-      return res.status(500).send({errorMessage:error});
+      return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
     })
    } catch (error) {
-    return res.status(500).send({errorMessage:error});
+    logger.error(error.stack);
+    console.log(error);
+    return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
    }
   }
   
