@@ -50,7 +50,26 @@ function getTopicsMaster(req, res) {
      return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
    }
   }
-  
+  //get topicCategory List
+ function topicsCategoryList(req,res){
+   try {
+     TopicCategoryMaster.findAll().then((categoryList)=>{
+       if(categoryList!=null){
+          let topicsCatList=categoryList;
+          return res.json(topicsCatList);
+       }else{
+        return res.status(404).send({errorMessage:'Sorry data not found',errorCode:'UNEXPECTED'});
+       }
+     }).catch((error)=>{
+      logger.error(error.stack);
+      return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});   
+     })
+   } catch (error) {
+    logger.error(error.stack);
+    return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
+   }
+ }
+
   //Edit topics....
   
   function editTopics(req,res){
@@ -113,6 +132,7 @@ function getTopicsMaster(req, res) {
   
   export default {
     getTopicsMaster,
+    topicsCategoryList,
     addTopics,
     editTopics,
     deleteTopics

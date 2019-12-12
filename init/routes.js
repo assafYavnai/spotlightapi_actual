@@ -110,6 +110,7 @@ if(cmsPageController){
   // TopicsMaster
   if(topicsMasterController){
     app.get('/api/getTopicMaster',topicsMasterController.getTopicsMaster);
+    app.get('/api/getTopicCategoryList',topicsMasterController.topicsCategoryList);
     app.post('/api/addTopics',topicsMasterController.addTopics);
     app.put('/api/editTopics',topicsMasterController.editTopics);
     app.delete('/api/deleteTopics/:id',topicsMasterController.deleteTopics);
