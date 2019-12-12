@@ -97,7 +97,9 @@ function getTopicsMaster(req, res) {
    try {
     const ID={id:req.params.id};
     Topics.destroy({where:ID}).then((result)=>{
-      return res.status({successMessage:'OK',statusCode:200});
+      if (result > 0) {
+        return res.status(200).send({successMessage: 'OK',statusCode:200});
+      }
     }).catch((error)=>{
       return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
     })
