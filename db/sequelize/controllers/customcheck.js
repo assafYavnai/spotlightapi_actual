@@ -46,9 +46,9 @@ const ReportSharableLink=Models.ReportSharableLinkModel;
 export function fetchTopicsPool(req, res) {
   try {
       let results={category:[],topics:[]};
-      TopicCategoryMaster.findAll({where: {parent_id:null}}).then( (pCategory) =>{
+      TopicCategoryMaster.findAll({where: {parent_id:null},order:['sequence']}).then( (pCategory) =>{
         pCategory.forEach( (c) => {
-          let dtoCategory={id:c.id,name_en:c.name_en,name_he:c.name_he,sub_category: []};
+          let dtoCategory={id:c.id,name_en:c.name_en,name_he:c.name_he,check_type:c.check_type,sequence:c.sequence,sub_category: []};
           TopicCategoryMaster.findAll({where: {parent_id:c.id}}).then( (cCategory) =>{
             if(cCategory.length>0){
               cCategory.forEach( (c) => {
