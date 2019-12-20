@@ -200,8 +200,11 @@ export function getTopics(req, res) {
                             if(p==null) {
                                 errorData.status='invalid';
                                 errorData.message = message.CHECK_INVALID;
-                            } else if(  (new Date(p.start_date))> dt){
+                            } else if(  (new Date(p.start_date))>=dt){
+                                console.log("==================What coming?=======================")
+                                console.log(new Date(p.start_date));
                                 errorData.status='not Started';
+                                errorData.current_Date=new Date();
                                 errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(sdt).format('DD/MM/YYYY HH:mm:ss'));
                             } else if(  (new Date(p.end_date)) <dt){
                                 errorData.status='expired';
@@ -215,6 +218,7 @@ export function getTopics(req, res) {
                                 errorData.name = p.name_en || p.name_he;
                                 errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
                                 errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
+
                             }
                             throw Error(errorData.message);
                          }).catch( (es)=>{
