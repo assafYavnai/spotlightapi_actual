@@ -443,8 +443,8 @@ export function CreateOrUpdateCheckCustom(req, res) {
                         user_id: data.user_id,
                         topic_category_id: tm.main_category,
                         child_category_id: tm.sub_category,
-                        text_en: tm.text,
-                        text_he: tm.text,
+                        text_en: tm.name_en,
+                        text_he: tm.name_he,
                         is_active: true,
                         estimated_time: tm.estimated_time
                       });
@@ -483,8 +483,8 @@ export function CreateOrUpdateCheckCustom(req, res) {
                               user_id: data.user_id,
                               topic_category_id: tm.main_category,
                               child_category_id: tm.sub_category,
-                              text_en: tm.text,
-                              text_he: tm.text,
+                              text_en: tm.name_en,
+                              text_he: tm.name_he,
                               is_active: true,
                               estimated_time: tm.estimated_time
                             });
