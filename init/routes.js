@@ -121,6 +121,7 @@ if(cmsPageController){
     app.get('/api/checks/pending', coreCheckController.pending);
     app.post('/api/checks/core/add', coreCheckController.CreateOrUpdate);
     app.post('/api/checks/custom/add', coreCheckController.CreateOrUpdateCheckCustom);
+    app.post('/api/checks/quick/add', coreCheckController.CreateOrUpdateCheckQuick);
     app.delete('/api/checks/remove', coreCheckController.remove);
     app.post('/api/checks/update', coreCheckController.updateCheck);
     app.post('/api/checks/addGroup', coreCheckController.addGroup);
