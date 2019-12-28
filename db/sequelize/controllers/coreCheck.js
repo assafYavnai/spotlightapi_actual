@@ -730,10 +730,113 @@ export function removeGroup(req, res) {
     });
 }
 
+/// Quick Check Add Function
+export function CreateOrUpdateCheckQuick(req, res) {
+  try {
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+
+    jwt.verify(token, config.tokenSecret, (err, decoded) => {
+          if (err) {
+            return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+          }
+          const data = req.body;
+          if(data.topics==undefined || data.topics.length==0){
+            throw new Error("topics parameter is missing.");
+          }
+          data.user_id = decoded.id;
+          if (data.id > 0) { // go for update
+            delete data.tiny_url;
+            UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
+                UserCheckTopics.destroy({where: {user_check_id: data.id}}).then((deleted) => {
+                  console.log('deleted topics from check');
+                  console.log(deleted);
+                   const topics = [];
+                    data.topics.forEach((tm) => {
+                      topics.push({
+                        user_check_id: data.id,
+                        user_id: data.user_id,
+                        topic_category_id: tm.main_category,
+                        child_category_id: tm.sub_category,
+                        text_en: tm.name_en,
+                        text_he: tm.name_he,
+                        is_active: true,
+                        estimated_time: tm.estimated_time
+                      });
+                    });
+                    if (topics.length > 0) {
+                        UserCheckTopics.bulkCreate(topics).then((t) => {
+                            return res.status(200).send(uc);
+                        }).catch((e) => {
+                            console.debug('Error occured while saving user check topics');
+                            console.debug(e);
+                            logger.error(e.stack);
+                            return res.status(500).send(e);
+                        });
+                    } else {
+                      return res.status(500).send('topics not available for selected theme');
+                    }
+                
+                });
+            }).catch((error) => {
+               logger.error(error.stack);
+               return res.status(500).send('Something went wrong.' + error);
+            });
+          } else { // go to create new check
+            data.tiny_url = uuidv1();
+            UserCheck.create(data).then((uc) => {
+               const user_checkId=uc.id;
+              console.debug('New check created');
+                // delete topics if already exists
+                UserCheckTopics.destroy({where: {user_check_id: uc.id}});
+                // find all topics for selected theme and insert to userchecktopics
+               
+                    const topics = [];
+                    data.topics.forEach((tm) => {
+                        topics.push({
+                              user_check_id: uc.id,
+                              user_id: data.user_id,
+                              topic_category_id: tm.main_category,
+                              child_category_id: tm.sub_category,
+                              text_en: tm.name_en,
+                              text_he: tm.name_he,
+                              is_active: true,
+                              estimated_time: tm.estimated_time
+                            });
+                    });
+                    if (topics.length > 0) {
+                        UserCheckTopics.bulkCreate(topics).then((t) => {
+                            
+                            return res.status(200).send(uc);
+                        }).catch((e) => {
+                            console.debug('Error occured while saving user check topics');
+                            console.debug(e);
+                            logger.error(e.stack);
+                            return res.status(500).send(e);
+                        });
+                    } else {
+                    return res.status(500).send('topics not available for selected theme');
+                  }
+                
+            }).catch((error) => {
+                logger.error(error.stack);
+                return res.status(500).send('Something went wrong.' + error);
+            });
+          }
+        });
+      } catch (error) {
+        logger.error(error.stack);
+        return res.status(500).send(error);
+      }
+}
+
 export default {
   pending,
   CreateOrUpdate,
   CreateOrUpdateCheckCustom,
+  CreateOrUpdateCheckQuick,
   all,
   remove,
   updateCheck,
