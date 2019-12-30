@@ -5,10 +5,13 @@ import { Models, sequelize } from '../models';
 import { tokenSecret } from '../constants';
 import moment from 'moment';
 import { throws } from 'assert';
-const User = Models.User;
-const subscribedUser=Models.subscriber;
-const UserLog = Models.UserLog;
-const OTPSchema = Models.OTPSchema;
+// const User = Models.User;
+ const subscribedUser=Models.subscriber;
+// const UserLog = Models.UserLog;
+// const OTPSchema = Models.OTPSchema;
+const {
+  User,UserLog,OTPSchema,UserCheck, UserCheckTopics
+  } = Models;
 import Promise from 'bluebird';
 import bcryptNode from 'bcrypt-nodejs';
 const bcrypt = Promise.promisifyAll(bcryptNode);
@@ -40,8 +43,7 @@ export function login(req, res, next) {
             }
             return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed,isadmin:user.isadmin });
           });
-         
-         // return res.sendStatus(200);
+          // return res.sendStatus(200);
     });
   })(req, res, next);
 }catch(error){
@@ -302,9 +304,79 @@ export function validateToken(req, res) {
     logger.error(error.stack);
     res.status(500).send(error);
   }
-  
+}
 
+function getUserList(req, res) {
+  try{
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+  let topicList=[];
+  jwt.verify(token, config.tokenSecret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+    }
+      User.findAll({where: ({isadmin: false}),
+                order: [
+                  ['id', 'DESC'],
+              ]}).then((u)=>{
+        UserCheck.findAll().then((uc)=>{
+          const userData=u.map((tp)=>{
+            let obj={};
+            obj=tp.toJSON();
+            const filterUserChecks=uc.filter((a)=>{
+              return a.user_id==tp.id && a.is_active==true;
+            });  
+            if(filterUserChecks!=undefined && filterUserChecks!=null && filterUserChecks.length>0){
+              obj.activeCheck=filterUserChecks.length;
+            }
+            topicList.push(obj)
+          });
+          return res.json(topicList);
+        }) 
+      }).catch((err) => {
+        logger.error(err.stack);
+        console.log(err);
+        res.status(500).send({errorMessage:err,errorCode:'UNEXPECTED'});
+      });
+  });
+ }catch(error){
+   logger.error(error.stack);
+   return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
  }
+}
+
+function remove(req, res) {
+  try {
+    console.log("Call User delete API");
+  const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+
+    jwt.verify(token, config.tokenSecret, (err, decoded) => {
+      if (err) {
+        return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      User.destroy({where: {id: req.body.id}}).then((d) => {
+        if (d > 0) {
+          return res.status(200).send({success: true});
+        }
+          res.statusMessage = 'Unable to delete. Please try again';
+          return res.status(500).send({success: false});
+      }).catch((error) => {
+        console.debug('error while fetching pending checks');
+        logger.error(error.stack);
+        console.debug(error);
+        return res.status(500).send(error);
+      });
+    });
+  } catch (error) {
+    logger.error(error.stack);
+    return res.status(500).send(error);
+  }
+}
 
 export default {
   login,
@@ -315,5 +387,7 @@ export default {
   recoveryPasswordVerifyOTP,
   validateToken,
   logUserInfo,
-  Adminlogin
+  Adminlogin,
+  getUserList,
+  remove
 };
