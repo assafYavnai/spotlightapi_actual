@@ -10,7 +10,7 @@ import { throws } from 'assert';
 // const UserLog = Models.UserLog;
 // const OTPSchema = Models.OTPSchema;
 const {
-  User,UserLog,OTPSchema,UserCheck, UserCheckTopics
+  User,UserLog,OTPSchema,UserCheck, UserCheckTopics,UserCheckInvitation
   } = Models;
 import Promise from 'bluebird';
 import bcryptNode from 'bcrypt-nodejs';
@@ -350,7 +350,7 @@ function getUserList(req, res) {
 function remove(req, res) {
   try {
     console.log("Call User delete API");
-  const token = req.headers['x-access-token'];
+    const token = req.headers['x-access-token'];
     if (!token) {
       return res.status(401).send({ auth: false, message: 'No token provided.' });
     }
@@ -359,17 +359,36 @@ function remove(req, res) {
       if (err) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
-      User.destroy({where: {id: req.body.id}}).then((d) => {
-        if (d > 0) {
-          return res.status(200).send({success: true});
-        }
-          res.statusMessage = 'Unable to delete. Please try again';
-          return res.status(500).send({success: false});
-      }).catch((error) => {
-        console.debug('error while fetching pending checks');
-        logger.error(error.stack);
-        console.debug(error);
-        return res.status(500).send(error);
+      UserCheck.findAll({where:{user_id:req.body.id.toString()}}).then((uc)=>{
+        const checks = uc.map((p) => {
+          return p.id;
+        });
+        console.log(checks);
+        UserCheckInvitation.destroy({where: {
+          user_check_id: {
+            [sequelize.Op.in]: checks
+          }
+        }}).then((d)=>{
+          if(d>0){
+            console.log("Delete from user check invitation success");
+            UserCheckTopics.destroy({where: {user_id:req.body.id.toString()}}).then((c)=>{
+                if(c>0){
+                  console.log("Delete from user check topics success");
+                  UserCheck.destroy({where: {user_id:req.body.id.toString()}}).then((b)=>{
+                    if(b>0){
+                      console.log("Delete from user_checks success");
+                      User.destroy({where: {id: req.body.id}}).then((a) => {
+                        if (a > 0) {
+                          console.log("Delete from users success");
+                          return res.status(200).send({success: true});
+                        }
+                      });
+                    }
+                  });
+                }
+            });
+          }
+        })
       });
     });
   } catch (error) {

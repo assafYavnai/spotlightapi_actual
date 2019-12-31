@@ -119,7 +119,7 @@ if(cmsPageController){
   }
 
   if (coreCheckController) {
-    app.get('/api/checks', coreCheckController.all);
+    app.post('/api/checks', coreCheckController.all);
     app.get('/api/checks/pending', coreCheckController.pending);
     app.post('/api/checks/core/add', coreCheckController.CreateOrUpdate);
     app.post('/api/checks/custom/add', coreCheckController.CreateOrUpdateCheckCustom);

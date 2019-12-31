@@ -140,15 +140,21 @@ export function all(req, res) {
       if (err) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
-      UserMaster.findById(decoded.id).then((user) => {
+      let userid=req.body.id;
+      console.log(req.body);
+      console.log("User id :" + req.body.id);
+      if(userid==0){
+        userid=decoded.id;
+      }
+      UserMaster.findById(userid).then((user) => {
         
           UserCheck.findAll({
             //where: (user.isadmin?{}:{user_id: decoded.id.toString()}),
-            where: ({user_id: decoded.id.toString()}),
-order: [
-            ['id', 'DESC'],
-        ]
-}).then((d) => {
+            where: ({user_id: userid.toString()}),
+            order: [
+                        ['id', 'DESC'],
+                    ]
+            }).then((d) => {
             
             if(d==null || d.length==0){
               return res.status(404).send({ message: 'Check not exist.' });
