@@ -62,7 +62,7 @@ export function fetchTopicsPool(req, res) {
                     if(d.length>0){
                       d.forEach(item=>{
                         const obj={name_he:item.name_he,name_en:item.name_en,category:item.topic_category_id,
-                          sub_category:item.child_category_id};
+                          sub_category:item.child_category_id,topic_id:item.id};
                         results.topics.push(obj);
                       });
                     }
