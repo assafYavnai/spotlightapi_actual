@@ -33,7 +33,8 @@ export default (sequelize, DataTypes) => {
     reset_password_token: DataTypes.STRING,
     reset_password_expires: DataTypes.DATE,
     isadmin: DataTypes.BOOLEAN,
-    company_name: DataTypes.STRING
+    company_name: DataTypes.STRING,
+    last_login:DataTypes.DATE
   }, {
   });
 
