@@ -35,14 +35,18 @@ export function login(req, res, next) {
       var isSubscribed=false;
       if (loginErr) return res.sendStatus(401);
           token = jwt.sign({ id: user.id }, tokenSecret, { expiresIn: 86400 });
-          subscribedUser.findOne({ where: { email:user.email } }).then((existingUser) => {
-            if(existingUser){
-              isSubscribed=true;
-              console.log("Exist this Email");
-              return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed });
+          User.update({last_login:new Date()},{ where: {email:user.email}}).then((u) => {
+            if(u!=null && u[0]>0 ){
+              subscribedUser.findOne({ where: { email:user.email } }).then((existingUser) => {
+                if(existingUser){
+                  isSubscribed=true;
+                  console.log("Exist this Email");
+                  return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed });
+                }
+                return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed,isadmin:user.isadmin });
+              });    
             }
-            return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed,isadmin:user.isadmin });
-          });
+          })
           // return res.sendStatus(200);
     });
   })(req, res, next);
@@ -369,25 +373,19 @@ function remove(req, res) {
             [sequelize.Op.in]: checks
           }
         }}).then((d)=>{
-          if(d>0){
             console.log("Delete from user check invitation success");
             UserCheckTopics.destroy({where: {user_id:req.body.id.toString()}}).then((c)=>{
-                if(c>0){
-                  console.log("Delete from user check topics success");
-                  UserCheck.destroy({where: {user_id:req.body.id.toString()}}).then((b)=>{
-                    if(b>0){
-                      console.log("Delete from user_checks success");
-                      User.destroy({where: {id: req.body.id}}).then((a) => {
-                        if (a > 0) {
-                          console.log("Delete from users success");
-                          return res.status(200).send({success: true});
-                        }
-                      });
+              console.log("Delete from user check topics success");
+              UserCheck.destroy({where: {user_id:req.body.id.toString()}}).then((b)=>{
+                console.log("Delete from user_checks success");
+                  User.destroy({where: {id: req.body.id}}).then((a) => {
+                    if (a > 0) {
+                      console.log("Delete from users success");
+                      return res.status(200).send({success: true});
                     }
                   });
-                }
+              });
             });
-          }
         })
       });
     });
