@@ -5,7 +5,12 @@ module.exports = (sequelize, DataTypes) => {
     description_en: DataTypes.STRING,
     name_he: DataTypes.STRING,
     description_he: DataTypes.STRING,
-    is_active: DataTypes.BOOLEAN
+    is_active: DataTypes.BOOLEAN,
+    parent_id: DataTypes.INTEGER,
+    check_type:DataTypes.STRING,
+    sequence:DataTypes.INTEGER
+
+
   }, {});
   topics_category_master.associate = function(models) {
     // associations can be defined here

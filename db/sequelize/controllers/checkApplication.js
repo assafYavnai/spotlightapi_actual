@@ -191,6 +191,7 @@ export function getTopics(req, res) {
                         var dt=new Date();
                         var sdt= new Date(p.start_date);
                         var edt= new Date(p.end_date);
+                        var language=p.language;
                        UserMaster.findOne({where:{id:uid}}).then((u)=>{
                             if(u!=null){
                                 errorData.company_name=u.company_name;
@@ -199,8 +200,11 @@ export function getTopics(req, res) {
                             if(p==null) {
                                 errorData.status='invalid';
                                 errorData.message = message.CHECK_INVALID;
-                            } else if(  (new Date(p.start_date))> dt){
+                            } else if(  (new Date(p.start_date))>=dt){
+                                console.log("==================What coming?=======================")
+                                console.log(new Date(p.start_date));
                                 errorData.status='not Started';
+                                errorData.current_Date=new Date();
                                 errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(sdt).format('DD/MM/YYYY HH:mm:ss'));
                             } else if(  (new Date(p.end_date)) <dt){
                                 errorData.status='expired';
@@ -214,16 +218,17 @@ export function getTopics(req, res) {
                                 errorData.name = p.name_en || p.name_he;
                                 errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
                                 errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
+
                             }
                             throw Error(errorData.message);
                          }).catch( (es)=>{
                              logger.error(es.stack);
-                            return res.status(200).send({error:errorData,dt:new Date()});
+                            return res.status(200).send({error:errorData,dt:new Date(),language:language});
                          });
                         
                     }).catch( (err)=>{
                         logger.error(err.stack);
-                        return res.status(200).send({error:errorData,dt:new Date()});
+                        return res.status(200).send({error:errorData,dt:new Date(),language:language});
                     });
                     
                 }

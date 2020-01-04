@@ -140,15 +140,21 @@ export function all(req, res) {
       if (err) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
-      UserMaster.findById(decoded.id).then((user) => {
+      let userid=req.body.id;
+      console.log(req.body);
+      console.log("User id :" + req.body.id);
+      if(userid==0){
+        userid=decoded.id;
+      }
+      UserMaster.findById(userid).then((user) => {
         
           UserCheck.findAll({
             //where: (user.isadmin?{}:{user_id: decoded.id.toString()}),
-            where: ({user_id: decoded.id.toString()}),
-order: [
-            ['id', 'DESC'],
-        ]
-}).then((d) => {
+            where: ({user_id: userid.toString()}),
+            order: [
+                        ['id', 'DESC'],
+                    ]
+            }).then((d) => {
             
             if(d==null || d.length==0){
               return res.status(404).send({ message: 'Check not exist.' });
@@ -362,6 +368,147 @@ export function CreateOrUpdate(req, res) {
                     return res.status(500).send('topics not available for selected theme');
                   }
                 });
+            }).catch((error) => {
+                logger.error(error.stack);
+                return res.status(500).send('Something went wrong.' + error);
+            });
+          }
+        });
+      } catch (error) {
+        logger.error(error.stack);
+        return res.status(500).send(error);
+      }
+}
+/**
+ * @api {post} /api/checks/custom/add Create or Update Check.
+ * @apiName CreateOrUpdateCheckCustom
+ * @apiGroup Check
+ * @apiHeader {String} x-access-token require latest acces token.
+ *  @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+          "id": 5,
+          "check_master_code": "CORE",
+          "theme_id": 2,
+          "name_en": "first core check updaed",
+          "description_en": null,
+          "name_he": null,
+          "description_he": null,
+          "is_active": null,
+          "payment_completed": false,
+          "start_date": "2019-12-11T18:30:00.000Z",
+          "end_date": "2019-12-11T18:30:00.000Z",
+          "tiny_url": null,
+          "phone": "9268310732",
+          "email": "munna@ferventsoft.com",
+          "created_on": null,
+          "updated_on": null,
+          "conclusion": null,
+          "is_pro_report_ready": false,
+          "createdAt": "2019-06-03T07:16:00.464Z",
+          "updatedAt": "2019-06-03T07:16:00.464Z",
+          "topics": [{
+                        main_category:1,
+                        sub_category:2,
+                        text: 'new topics',
+                        estimated_time: tm.estimated_time
+                      },{
+                        main_category:1,
+                        sub_category:2,
+                        text: 'new topics',
+                        estimated_time: tm.estimated_time
+                      },]
+        }
+ */
+export function CreateOrUpdateCheckCustom(req, res) {
+  try {
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+
+    jwt.verify(token, config.tokenSecret, (err, decoded) => {
+          if (err) {
+            return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+          }
+          const data = req.body;
+          if(data.topics==undefined || data.topics.length==0){
+            throw new Error("topics parameter is missing.");
+          }
+          data.user_id = decoded.id;
+          if (data.id > 0) { // go for update
+            delete data.tiny_url;
+            UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
+                UserCheckTopics.destroy({where: {user_check_id: data.id}}).then((deleted) => {
+                  console.log('deleted topics from check');
+                  console.log(deleted);
+                   const topics = [];
+                    data.topics.forEach((tm) => {
+                      topics.push({
+                        user_check_id: data.id,
+                        user_id: data.user_id,
+                        topic_category_id: tm.main_category,
+                        child_category_id: tm.sub_category,
+                        text_en: tm.name_en,
+                        text_he: tm.name_he,
+                        is_active: true,
+                        estimated_time: tm.estimated_time
+                      });
+                    });
+                    if (topics.length > 0) {
+                        UserCheckTopics.bulkCreate(topics).then((t) => {
+                            return res.status(200).send(uc);
+                        }).catch((e) => {
+                            console.debug('Error occured while saving user check topics');
+                            console.debug(e);
+                            logger.error(e.stack);
+                            return res.status(500).send(e);
+                        });
+                    } else {
+                      return res.status(500).send('topics not available for selected theme');
+                    }
+                
+                });
+            }).catch((error) => {
+               logger.error(error.stack);
+               return res.status(500).send('Something went wrong.' + error);
+            });
+          } else { // go to create new check
+            data.tiny_url = uuidv1();
+            UserCheck.create(data).then((uc) => {
+               const user_checkId=uc.id;
+              console.debug('New check created');
+                // delete topics if already exists
+                UserCheckTopics.destroy({where: {user_check_id: uc.id}});
+                // find all topics for selected theme and insert to userchecktopics
+               
+                    const topics = [];
+                    data.topics.forEach((tm) => {
+                        topics.push({
+                              user_check_id: uc.id,
+                              user_id: data.user_id,
+                              topic_category_id: tm.main_category,
+                              child_category_id: tm.sub_category,
+                              text_en: tm.name_en,
+                              text_he: tm.name_he,
+                              is_active: true,
+                              estimated_time: tm.estimated_time
+                            });
+                    });
+                    if (topics.length > 0) {
+                        UserCheckTopics.bulkCreate(topics).then((t) => {
+                            
+                            return res.status(200).send(uc);
+                        }).catch((e) => {
+                            console.debug('Error occured while saving user check topics');
+                            console.debug(e);
+                            logger.error(e.stack);
+                            return res.status(500).send(e);
+                        });
+                    } else {
+                    return res.status(500).send('topics not available for selected theme');
+                  }
+                
             }).catch((error) => {
                 logger.error(error.stack);
                 return res.status(500).send('Something went wrong.' + error);
@@ -589,9 +736,113 @@ export function removeGroup(req, res) {
     });
 }
 
+/// Quick Check Add Function
+export function CreateOrUpdateCheckQuick(req, res) {
+  try {
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+
+    jwt.verify(token, config.tokenSecret, (err, decoded) => {
+          if (err) {
+            return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+          }
+          const data = req.body;
+          if(data.topics==undefined || data.topics.length==0){
+            throw new Error("topics parameter is missing.");
+          }
+          data.user_id = decoded.id;
+          if (data.id > 0) { // go for update
+            delete data.tiny_url;
+            UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
+                UserCheckTopics.destroy({where: {user_check_id: data.id}}).then((deleted) => {
+                  console.log('deleted topics from check');
+                  console.log(deleted);
+                   const topics = [];
+                    data.topics.forEach((tm) => {
+                      topics.push({
+                        user_check_id: data.id,
+                        user_id: data.user_id,
+                        topic_category_id: tm.main_category,
+                        child_category_id: tm.sub_category,
+                        text_en: tm.name_en,
+                        text_he: tm.name_he,
+                        is_active: true,
+                        estimated_time: tm.estimated_time
+                      });
+                    });
+                    if (topics.length > 0) {
+                        UserCheckTopics.bulkCreate(topics).then((t) => {
+                            return res.status(200).send(uc);
+                        }).catch((e) => {
+                            console.debug('Error occured while saving user check topics');
+                            console.debug(e);
+                            logger.error(e.stack);
+                            return res.status(500).send(e);
+                        });
+                    } else {
+                      return res.status(500).send('topics not available for selected theme');
+                    }
+                
+                });
+            }).catch((error) => {
+               logger.error(error.stack);
+               return res.status(500).send('Something went wrong.' + error);
+            });
+          } else { // go to create new check
+            data.tiny_url = uuidv1();
+            UserCheck.create(data).then((uc) => {
+               const user_checkId=uc.id;
+              console.debug('New check created');
+                // delete topics if already exists
+                UserCheckTopics.destroy({where: {user_check_id: uc.id}});
+                // find all topics for selected theme and insert to userchecktopics
+               
+                    const topics = [];
+                    data.topics.forEach((tm) => {
+                        topics.push({
+                              user_check_id: uc.id,
+                              user_id: data.user_id,
+                              topic_category_id: tm.main_category,
+                              child_category_id: tm.sub_category,
+                              text_en: tm.name_en,
+                              text_he: tm.name_he,
+                              is_active: true,
+                              estimated_time: tm.estimated_time
+                            });
+                    });
+                    if (topics.length > 0) {
+                        UserCheckTopics.bulkCreate(topics).then((t) => {
+                            
+                            return res.status(200).send(uc);
+                        }).catch((e) => {
+                            console.debug('Error occured while saving user check topics');
+                            console.debug(e);
+                            logger.error(e.stack);
+                            return res.status(500).send(e);
+                        });
+                    } else {
+                    return res.status(500).send('topics not available for selected theme');
+                  }
+                
+            }).catch((error) => {
+                logger.error(error.stack);
+                return res.status(500).send('Something went wrong.' + error);
+            });
+          }
+        });
+      } catch (error) {
+        logger.error(error.stack);
+        return res.status(500).send(error);
+      }
+}
+
 export default {
   pending,
   CreateOrUpdate,
+  CreateOrUpdateCheckCustom,
+  CreateOrUpdateCheckQuick,
   all,
   remove,
   updateCheck,
