@@ -507,7 +507,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                   //res.status(400).send(err);
                 });
                     }
-                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
+                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,tc.name_en ,tc.name_he ,
                     round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
                     round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
                     round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc,
@@ -515,7 +515,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                     inner join 
                     (SELECT a.* FROM user_check_topics_answers a 
                     inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
-                    WHERE c.user_check_id=?   group by c.id order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
+                    inner join topics_category_masters tc on c.topic_category_id=tc.id 
+                    WHERE c.user_check_id=?   group by c.id,tc.name_en ,tc.name_he order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
                         
                         if (topics.length > 0) {
                             
@@ -571,7 +572,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                 if (summary != null && summary.length > 0) {
                     data = summary[0];
                     
-                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
+                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,tc.name_en ,tc.name_he ,
                     round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
                     round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
                     round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc,
@@ -579,7 +580,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                     inner join 
                     (SELECT a.* FROM user_check_topics_answers a 
                     inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
-                    WHERE c.user_check_id=?   group by c.id order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [data.id]}).then((topics) => {
+                    inner join topics_category_masters tc on c.topic_category_id=tc.id 
+                    WHERE c.user_check_id=?   group by c.id,tc.name_en ,tc.name_he order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [data.id]}).then((topics) => {
                         
                         if (topics.length > 0) {
                             
