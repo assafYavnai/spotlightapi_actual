@@ -59,8 +59,12 @@ if(cmsPageController){
     app.post('/api/user/changePassword', usersController.changePassword);
     app.post('/api/user/recoveryPasswordVerifyOTP', usersController.recoveryPasswordVerifyOTP);
     app.get('/api/user/validateToken',usersController.validateToken);
-    app.get('/api/user/getUserList',usersController.getUserList);
     app.delete('/api/user/remove', usersController.remove);
+
+    app.get('/api/user/getUserList',usersController.getUserList);
+    app.get('/api/user/getUserCurrentActiveChecksList',usersController.getUserByActiveChecks);
+    app.get('/api/user/getUserByRecentlyCompleted',usersController.getUserByRecentlyCompleted);
+    
     //app.get('/api/proEnquiry',proEnquiry.Add);
   } else {
     console.warn(unsupportedMessage('users routes'));

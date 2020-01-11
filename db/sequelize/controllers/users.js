@@ -333,7 +333,7 @@ function getUserList(req, res) {
               return a.user_id==tp.id && a.is_active==true;
             });  
             if(filterUserChecks!=undefined && filterUserChecks!=null && filterUserChecks.length>0){
-              obj.activeCheck=filterUserChecks.length;
+              obj.activecheck=filterUserChecks.length;
             }
             topicList.push(obj)
           });
@@ -395,6 +395,62 @@ function remove(req, res) {
   }
 }
 
+function getUserByActiveChecks(req, res) {
+  try{
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+  let topicList=[];
+  jwt.verify(token, config.tokenSecret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+    }
+    sequelize.query(`SELECT tbl.activeCheck as activeCheck,tbl.created_on,u.* FROM users u inner join (SELECT user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("createdAt")
+    as created_on FROM user_checks group by user_id ) tbl on u.id =tbl.user_id::integer
+    order by tbl.created_on desc,tbl.activeCheck desc`).then((users) => {
+      return res.json(users[0]);
+    }).catch((err) => {
+      logger.error(err.stack);
+      return res.status(500).send('Error while fetching comments');
+    });
+  });
+ }catch(error){
+   logger.error(error.stack);
+   return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
+ }
+}
+
+function getUserByRecentlyCompleted(req, res) {
+  try{
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+  let topicList=[];
+  jwt.verify(token, config.tokenSecret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+    }
+    sequelize.query(`SELECT tbl2.end_date,tbl2.completed,tbl.activecheck,u.* FROM users u inner join (SELECT user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activecheck,max("createdAt")
+    as created_on FROM user_checks group by user_id ) tbl on u.id =tbl.user_id::integer
+    inner join  (SELECT c.user_id,max(c.end_date) as end_date,
+   sum(CASE WHEN i.is_completed =true then 1 else 0 end)/count(i.id) as completed FROM  user_checks c left join user_check_invitations i 
+   on i.user_check_id=c.id and i.user_check_id is not null and end_date< current_timestamp 
+   group by c.user_id having count(i.is_completed) <>0 ) tbl2 on tbl.user_id =tbl2.user_id and tbl2.end_date<current_timestamp
+   order by tbl2.end_date desc,tbl2.completed desc `).then((users) => {
+      return res.json(users[0]);
+    }).catch((err) => {
+      logger.error(err.stack);
+      return res.status(500).send('Error while fetching comments');
+    });
+  });
+ }catch(error){
+   logger.error(error.stack);
+   return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
+ }
+}
+
 export default {
   login,
   logout,
@@ -406,5 +462,7 @@ export default {
   logUserInfo,
   Adminlogin,
   getUserList,
-  remove
+  remove,
+  getUserByActiveChecks,
+  getUserByRecentlyCompleted
 };
