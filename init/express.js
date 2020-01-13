@@ -10,16 +10,12 @@ import gzip from 'compression';
 import helmet from 'helmet';
 import unsupportedMessage from '../db/unsupportedMessage';
 import { sessionSecret, sessionId } from '../config/secrets';
-import { DB_TYPE, ENV } from '../config/env';
+import { DB_TYPE, ENV, OnlineUsers, OnlineSockets } from '../config/env';
 import { session as dbSession } from '../db';
-
-
 
 export default (app) => {
   app.set('port', (process.env.PORT || 5000));
   var expressWs = require('express-ws')(app);
-  //expressWs = expressWs(express());
-  //expressWs(app);
   if (ENV === 'production') {
     app.use(gzip());
     // Secure your Express apps by setting various HTTP headers. Documentation: https://github.com/helmetjs/helmet
@@ -32,15 +28,49 @@ export default (app) => {
   app.use(cookieParser());
 
   app.use(express.static(path.join(process.cwd(), 'public')));
+  
   var aWss = expressWs.getWss('/');
-app.ws('/', function(ws, req) {
-console.log('Socket Connected');
+app.ws('/', function(ws,req) {
+  const uid = req.query.email;
+  if( uid!=undefined && OnlineUsers.indexOf(uid)>0){
+    OnlineSockets[OnlineUsers.indexOf(uid)]=ws;
+  }
+  if(uid != undefined && OnlineUsers.indexOf(uid)<0){
+    OnlineUsers.push(uid);
+    OnlineSockets.push(ws); 
+    aWss.clients.forEach(function (client) {
+      client.send('refreshUser');
+  });
+  }
+  
+ws.onclose=function(msg,req){
 
-ws.onmessage = function(msg) {
+  console.log(OnlineSockets.indexOf(msg.target));
+  console.log('disconnect');
+  let uindex = OnlineSockets.indexOf(msg.target);
+  if(uindex>-1){
+    OnlineUsers.splice(uindex,1);
+    OnlineSockets.splice(uindex,1);
+    aWss.clients.forEach(function (client) {
+      client.send('refreshUser');
+  });
+  }
+};
+ws.onmessage = function(msg,req) {
     console.log(msg.data);
-    // aWss.clients.forEach(function (client) {
-    //   client.send(msg.data);
-    // });
+    if(msg.data=='disconnect'){
+      const uid = req.cookies["uuid"];
+      if(uid != undefined && OnlineUsers.indexOf(uid)>-1){
+       const index =OnlineUsers.indexOf(uid);
+       OnlineUsers.splice(index,1)
+      }
+    }
+    
+    aWss.clients.forEach(function (client) {
+      //console.log(client);
+      client.send(msg.data);
+    });
+    
 };
 });
 app.get('/api/dashboardUpdate',function(req,res,next){
@@ -49,6 +79,11 @@ aWss.clients.forEach(function (client) {
 });
 return res.status(200).send("Notiifcaiton Sent");
 });
+
+app.get('/api/user/refreshUser',function(req,res,next){
+  return res.status(200).send({data:OnlineUsers});
+  });
+
 
   app.use('/apidoc', express.static(path.join(process.cwd(), 'apidoc')));
 
