@@ -47,6 +47,7 @@ ws.onclose=function(msg,req){
 
   console.log(OnlineSockets.indexOf(msg.target));
   console.log('disconnect');
+  console.log(msg.target);
   let uindex = OnlineSockets.indexOf(msg.target);
   if(uindex>-1){
     OnlineUsers.splice(uindex,1);
@@ -55,21 +56,46 @@ ws.onclose=function(msg,req){
       client.send('refreshUser');
   });
   }
+  try {
+    msg.target.terminate();  
+  } catch(e) {
+    console.log("Error While termiate in onClose");
+  }
+  
 };
-ws.onmessage = function(msg,req) {
+ws.onmessage = function(msg) {
     console.log(msg.data);
-    if(msg.data=='disconnect'){
-      const uid = req.cookies["uuid"];
+    if(msg.data.indexOf('disconnect')>-1){
+      const uid = msg.data.split('-')[1];
       if(uid != undefined && OnlineUsers.indexOf(uid)>-1){
        const index =OnlineUsers.indexOf(uid);
        OnlineUsers.splice(index,1)
+       
+       try {
+        aWss.clients.forEach(function (client) {
+          //console.log(client);
+          client.send('refreshUser');
+        });
+        OnlineSockets[index].terminate();
+       } catch(e){
+        console.log("Error While termiate in onMessage -Array");
+       }
+       
       }
+      try {
+        msg.target.terminate();
+      } catch(e) {
+        console.log("Error While termiate in onMessage");
+      }
+      
+    } else {
+      aWss.clients.forEach(function (client) {
+        //console.log(client);
+        client.send(msg.data);
+      });
     }
     
-    aWss.clients.forEach(function (client) {
-      //console.log(client);
-      client.send(msg.data);
-    });
+    
     
 };
 });
