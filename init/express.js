@@ -31,7 +31,8 @@ export default (app) => {
   
   var aWss = expressWs.getWss('/');
 app.ws('/', function(ws,req) {
-  const uid = req.query.email;
+  let  uid = req.query.email;
+  uid=uid.replace(" ","+");
   if( uid!=undefined && OnlineUsers.indexOf(uid)>0){
     OnlineSockets[OnlineUsers.indexOf(uid)]=ws;
   }
@@ -41,7 +42,7 @@ app.ws('/', function(ws,req) {
     aWss.clients.forEach(function (client) {
       client.send('refreshUser');
   });
-  }
+}
   
 ws.onclose=function(msg,req){
 

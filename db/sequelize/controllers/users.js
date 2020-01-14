@@ -321,7 +321,7 @@ function getUserList(req, res) {
     if (err) {
       return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
     }
-      User.findAll({where: ({isadmin: false}),
+      User.findAll({
                 order: [
                   ['id', 'DESC'],
               ]}).then((u)=>{
