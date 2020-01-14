@@ -321,7 +321,7 @@ function getUserList(req, res) {
     if (err) {
       return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
     }
-      User.findAll({
+      User.findAll({attributes: ['id', 'email','first_name','company_name','last_login'],
                 order: [
                   ['id', 'DESC'],
               ]}).then((u)=>{
@@ -409,10 +409,10 @@ function getUserByActiveChecks(req, res) {
     if (err) {
       return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
     }
-    sequelize.query(`SELECT tbl.activeCheck as activeCheck,tbl.created_at,u.* FROM users u inner join (SELECT user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("createdAt")
+    sequelize.query(`SELECT tbl.activeCheck as activeCheck,tbl.created_at,u.id,u.email,u.first_name,u.company_name,u.last_login FROM users u inner join (SELECT user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("createdAt")
     as created_at FROM user_checks group by user_id ) tbl on u.id =tbl.user_id::integer
     union
-    select 0 as activeCheck,(u."createdAt") as created_at,u.* from users u where id not in (
+    select 0 as activeCheck,(u."createdAt") as created_at,u.id,u.email,u.first_name,u.company_name,u.last_login from users u where id not in (
     SELECT u.id FROM users u inner join (SELECT user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("createdAt")
     as created_at FROM user_checks group by user_id ) tbl on u.id =tbl.user_id::integer
    )
@@ -440,14 +440,14 @@ function getUserByRecentlyCompleted(req, res) {
     if (err) {
       return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
     }
-    sequelize.query(`SELECT tbl.activeCheck as activeCheck,tbl.end_date,u.* FROM users u inner join (select user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("end_date")
+    sequelize.query(`SELECT tbl.activeCheck as activeCheck,tbl.end_date,u.id,u.email,u.first_name,u.company_name,u.last_login FROM users u inner join (select user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("end_date")
     as end_date from  (select * from user_checks where id in (select user_check_id from (select  sum(CASE WHEN is_completed =true then 1 else 0 end)/count(id) as completed,user_check_id  from user_check_invitations 
    where user_check_id is not null group by user_check_id) tbl where completed=1)
    union
    select * from user_checks where id not in (select user_check_id from (select  sum(CASE WHEN is_completed =true then 1 else 0 end)/count(id) as completed,user_check_id  from user_check_invitations 
    where user_check_id is not null group by user_check_id) tbl where completed=1) and end_date < current_timestamp) tbl2 group by user_id) tbl on u.id =tbl.user_id::integer
    union 
-   select 0 as activeCheck,(u."createdAt") as end_date,u.* from users u where id not in (
+   select 0 as activeCheck,(u."createdAt") as end_date,u.id,u.email,u.first_name,u.company_name,u.last_login from users u where id not in (
     SELECT u.id FROM users u inner join (select user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("end_date")
     as end_date from  (select * from user_checks where id in (select user_check_id from (select  sum(CASE WHEN is_completed =true then 1 else 0 end)/count(id) as completed,user_check_id  from user_check_invitations 
     where user_check_id is not null group by user_check_id) tbl where completed=1)
