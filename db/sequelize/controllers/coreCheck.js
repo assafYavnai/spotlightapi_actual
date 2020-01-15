@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
 import checkInvitation from './checkInvitation';
+import {logActiveUserInfo} from '../activeusers';
 var log4js = require('log4js');
 const logger = log4js.getLogger('custom');
 
@@ -50,6 +51,9 @@ export function pending(req, res) {
       if (err) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
+      let userid=decoded.id;
+      let obj={url:"Change Password",user_id:userid};
+      logActiveUserInfo(obj);
       UserCheck.findOne({where: {payment_completed: false}}).then((d) => {
         return res.status(200).send(d);
       }).catch((error) => {
@@ -84,6 +88,9 @@ export function remove(req, res) {
       if (err) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
+      let userid=decoded.id;
+      let obj={url:"Remove Topic",user_id:userid};
+      logActiveUserInfo(obj);
       UserCheck.destroy({where: {id: req.body.id}}).then((d) => {
         if (d > 0) {
           return res.status(200).send({success: true});
@@ -146,6 +153,8 @@ export function all(req, res) {
       if(userid==0){
         userid=decoded.id;
       }
+      let obj={url:"Get All Checks",user_id:userid};
+      logActiveUserInfo(obj);
       UserMaster.findById(userid).then((user) => {
         
           UserCheck.findAll({
@@ -181,6 +190,8 @@ export function all(req, res) {
                tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
                
                 d.forEach((item) => {
+                  console.log("Active item");
+                  console.log(item);
                   const obj = item.toJSON();
                   obj.completed = parseFloat((i.filter((t) => {
                     return t!=undefined && t.is_completed === true && t.user_check_id === obj.id;
@@ -225,6 +236,106 @@ export function all(req, res) {
     return res.status(500).send(err);
   }
 }
+
+
+export function completed(req, res) {
+  try {
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+    jwt.verify(token, config.tokenSecret, (err, decoded) => {
+      if (err) {
+        return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+      }
+      let userid=req.body.id;
+      console.log(req.body);
+      console.log("User id :" + req.body.id);
+      if(userid==0){
+        userid=decoded.id;
+      }
+      let obj={url:"get Completed Checks",user_id:userid};
+      logActiveUserInfo(obj);
+      UserMaster.findById(userid).then((user) => {
+        
+        sequelize.query(`  select uc.* from user_checks uc inner join (select  sum(CASE WHEN is_completed =true then 1 else 0 end)/count(id) as checkcompleted,user_check_id  from user_check_invitations 
+        where user_check_id is not null group by user_check_id) tbl on uc.id=tbl.user_check_id where uc.user_id='${userid}' order by checkcompleted desc,end_date desc`, 
+        { type: sequelize.QueryTypes.SELECT }).then((d) => {
+            
+            if(d==null || d.length==0){
+              return res.status(404).send({ message: 'Check not exist.' });
+            }
+            const data = [];
+            const checks = d.map((p) => {
+              return p.id;
+            });
+            console.log(checks);
+            UserCheckInvitation.findAll({
+              where: {
+                  user_check_id: {
+                  [sequelize.Op.in]: checks
+                }
+              }
+            }).then((i) => {
+            // if(i==null || i.length==0){
+            //   return res.status(404).send({ message: 'Check Invitation not exist.' });
+            // }
+              sequelize.query(`SELECT *,round((tbl.answered::numeric/total::numeric)*100,0) as topics_completed FROM (SELECT a.user_check_id,count(b.id) as answered ,(SELECT count(*) from user_check_invitations ci 
+              inner join user_check_topics ct on ct.user_check_id=ci.user_check_id  where ci.user_check_id=a.user_check_id) as total    
+              FROM user_check_topics a
+              left join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id)
+               tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
+               
+                d.forEach((item) => {
+                  console.log("completed item");
+                  console.log(item);
+                  const obj = item;
+                  obj.completed = parseFloat((i.filter((t) => {
+                    return t!=undefined && t.is_completed === true && t.user_check_id === obj.id;
+                  }).length) / (i.filter((t) => {
+                    return t!=undefined && t.user_check_id === obj.id;
+                  }).length)) * 100;
+                  const completed_arr = t.filter((s)=>{
+                    return (s.user_check_id === obj.id);
+                  });
+                  obj.topics_completed=0;
+                  obj.answered=0;
+                    obj.total=0;
+                  obj.totalParticipant=i.filter((k)=>{
+                    return k.user_check_id === obj.id;
+                  }).length;
+                  if(completed_arr.length>0){
+                    obj.topics_completed=parseInt(completed_arr[0].topics_completed);
+                    obj.answered=completed_arr[0].answered;
+                    obj.total=completed_arr[0].total;
+                  }
+                  data.push(obj);
+                });
+                return res.status(200).send(data);
+          }).catch( (err) => {
+            logger.error(err.stack);
+            return res.status(500).send(error);
+          });
+             
+            });
+          }).catch((error) => {
+            console.debug('error while fetching users check');
+            console.debug(error);
+            logger.error(error.stack);
+            return res.status(500).send(error);
+          });
+        
+      });
+    });
+  } catch (err) {
+    console.log(err);
+    logger.error(err.stack);
+    return res.status(500).send(err);
+  }
+}
+
+
+
 /**
  * @api {post} /api/checks/core/add Create or Update Check.
  * @apiName CreateOrUpdateCheck
@@ -268,6 +379,9 @@ export function CreateOrUpdate(req, res) {
           }
           const data = req.body;
           data.user_id = decoded.id;
+          let userid=decoded.id;
+          let obj={url:"Create update check",user_id:userid};
+          logActiveUserInfo(obj);
           if (data.id > 0) { // go for update
             delete data.tiny_url;
             UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
@@ -431,6 +545,9 @@ export function CreateOrUpdateCheckCustom(req, res) {
           if (err) {
             return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
           }
+          let userid=decoded.id;
+          let obj={url:"create update custom check",user_id:userid};
+          logActiveUserInfo(obj);
           const data = req.body;
           if(data.topics==undefined || data.topics.length==0){
             throw new Error("topics parameter is missing.");
@@ -542,6 +659,9 @@ export function updateCheck(req, res) {
         }
         const data = req.body;
         data.user_id = decoded.id;
+        let userid=decoded.id;
+        let obj={url:"update check",user_id:userid};
+        logActiveUserInfo(obj);
         if (data.id > 0) { // go for update
           delete data.tiny_url;
           UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
@@ -749,10 +869,14 @@ export function CreateOrUpdateCheckQuick(req, res) {
             return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
           }
           const data = req.body;
+          let userid=decoded.id;
+          let obj={url:"create quick check",user_id:userid};
+          logActiveUserInfo(obj);
           if(data.topics==undefined || data.topics.length==0){
             throw new Error("topics parameter is missing.");
           }
           data.user_id = decoded.id;
+          
           if (data.id > 0) { // go for update
             delete data.tiny_url;
             UserCheck.update(data, {where: { id: data.id}}).then((uc) => {
@@ -848,7 +972,8 @@ export default {
   updateCheck,
   addGroup,
   getUserGroup,
-  removeGroup
+  removeGroup,
+  completed
     // update
     // remove
 };

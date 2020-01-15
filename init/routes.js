@@ -64,6 +64,7 @@ if(cmsPageController){
     app.get('/api/user/getUserList',usersController.getUserList);
     app.get('/api/user/getUserCurrentActiveChecksList',usersController.getUserByActiveChecks);
     app.get('/api/user/getUserByRecentlyCompleted',usersController.getUserByRecentlyCompleted);
+    app.get('/api/user/getCurrentlyActiveUsers',usersController.getCurrentlyActiveUsers);
     
     //app.get('/api/proEnquiry',proEnquiry.Add);
   } else {
@@ -124,6 +125,7 @@ if(cmsPageController){
 
   if (coreCheckController) {
     app.post('/api/checks', coreCheckController.all);
+    app.post('/api/checks/completed', coreCheckController.completed);
     app.get('/api/checks/pending', coreCheckController.pending);
     app.post('/api/checks/core/add', coreCheckController.CreateOrUpdate);
     app.post('/api/checks/custom/add', coreCheckController.CreateOrUpdateCheckCustom);

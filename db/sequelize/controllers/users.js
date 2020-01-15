@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import * as config from '../constants';
 import { Models, sequelize } from '../models';
 import { tokenSecret } from '../constants';
+import {logActiveUserInfo} from '../activeusers';
 import moment, { now } from 'moment';
 import { throws } from 'assert';
 // const User = Models.User;
@@ -10,7 +11,7 @@ import { throws } from 'assert';
 // const UserLog = Models.UserLog;
 // const OTPSchema = Models.OTPSchema;
 const {
-  User,UserLog,OTPSchema,UserCheck, UserCheckTopics,UserCheckInvitation
+  User,UserLog,OTPSchema,UserCheck, UserCheckTopics,UserCheckInvitation,UserActiveLogsModel
   } = Models;
 import Promise from 'bluebird';
 import bcryptNode from 'bcrypt-nodejs';
@@ -35,6 +36,8 @@ export function login(req, res, next) {
       var isSubscribed=false;
       if (loginErr) return res.sendStatus(401);
           token = jwt.sign({ id: user.id }, tokenSecret, { expiresIn: 86400 });
+          let obj={url:"login",user_id:user.id};
+          logActiveUserInfo(obj);
           User.update({last_login:new Date()},{ where: {email:user.email}}).then((u) => {
             if(u!=null && u[0]>0 ){
               subscribedUser.findOne({ where: { email:user.email } }).then((existingUser) => {
@@ -43,6 +46,7 @@ export function login(req, res, next) {
                   console.log("Exist this Email");
                   return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed });
                 }
+                
                 return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token,isSubscribedUser:isSubscribed,isadmin:user.isadmin });
               });    
             }
@@ -71,6 +75,8 @@ export function Adminlogin(req, res, next) {
     return req.logIn(user, (loginErr) => {
       
       if (loginErr) return res.sendStatus(401);
+      let obj={url:"login",user_id:user.id};
+      logActiveUserInfo(obj);
           token = jwt.sign({ id: user.id }, tokenSecret, { expiresIn: 86400 });
            return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token });
             
@@ -143,6 +149,8 @@ user_name, email, password, name, last_name, is_active,
         if (err) return res.sendStatus(401);
           console.log(user);
           token = jwt.sign({ id: user.id }, tokenSecret, { expiresIn: 86400 });
+          let obj={url:"signup",user_id:user.id};
+          logActiveUserInfo(obj);
          return res.status(200).send({ auth: true, email: user.email, name: user.first_name, company_name: user.company_name, access_token: token });
       });
     });
@@ -232,6 +240,8 @@ export function changePassword(req, res) {
         User.findOne({ where: { email:data.email }}).then((existingUser) => {
           if (existingUser) {
             //existingUser.set('passsword',data.password);
+            let obj={url:"Change Password",user_id:existingUser.id};
+            logActiveUserInfo(obj);
             bcrypt.genSaltAsync(5).then(salt =>
               bcrypt.hashAsync(data.password, salt, null).then((hash) => {
                 data.password = hash;
@@ -292,7 +302,7 @@ export function validateToken(req, res) {
   }
 }
  
- export function logUserInfo(req, res) {
+export function logUserInfo(req, res) {
   try {
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     let data = req.body;
@@ -321,6 +331,9 @@ function getUserList(req, res) {
     if (err) {
       return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
     }
+      let userid=decoded.id;
+      let obj={url:"admin-dashboard",user_id:userid};
+      logActiveUserInfo(obj);
       User.findAll({attributes: ['id', 'email','first_name','company_name','last_login'],
                 order: [
                   ['id', 'DESC'],
@@ -340,6 +353,7 @@ function getUserList(req, res) {
             }
             topicList.push(obj)
           });
+
           return res.json(topicList);
         }) 
       }).catch((err) => {
@@ -366,6 +380,9 @@ function remove(req, res) {
       if (err) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
+      let userid=decoded.id;
+      let obj={url:"admin-dashboard",user_id:userid};
+      logActiveUserInfo(obj);
       UserCheck.findAll({where:{user_id:req.body.id.toString()}}).then((uc)=>{
         const checks = uc.map((p) => {
           return p.id;
@@ -409,6 +426,9 @@ function getUserByActiveChecks(req, res) {
     if (err) {
       return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
     }
+    let userid=decoded.id;
+      let obj={url:"admin-dashboard",user_id:userid};
+      logActiveUserInfo(obj);
     sequelize.query(`SELECT tbl.activeCheck as activeCheck,tbl.created_at,u.id,u.email,u.first_name,u.company_name,u.last_login FROM users u inner join (SELECT user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("createdAt")
     as created_at FROM user_checks group by user_id ) tbl on u.id =tbl.user_id::integer
     union
@@ -440,6 +460,9 @@ function getUserByRecentlyCompleted(req, res) {
     if (err) {
       return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
     }
+    let userid=decoded.id;
+      let obj={url:"admin-dashboard",user_id:userid};
+      logActiveUserInfo(obj);
     sequelize.query(`SELECT tbl.activeCheck as activeCheck,tbl.end_date,u.id,u.email,u.first_name,u.company_name,u.last_login FROM users u inner join (select user_id, sum(case when (current_timestamp between start_date and end_date) then 1 else 0 end) as activeCheck,max("end_date")
     as end_date from  (select * from user_checks where id in (select user_check_id from (select  sum(CASE WHEN is_completed =true then 1 else 0 end)/count(id) as completed,user_check_id  from user_check_invitations 
    where user_check_id is not null group by user_check_id) tbl where completed=1)
@@ -469,6 +492,34 @@ function getUserByRecentlyCompleted(req, res) {
  }
 }
 
+function getCurrentlyActiveUsers(req, res){
+  try{
+    const token = req.headers['x-access-token'];
+    if (!token) {
+      return res.status(401).send({ auth: false, message: 'No token provided.' });
+    }
+  let topicList=[];
+  jwt.verify(token, config.tokenSecret, (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
+    }
+    let userid=decoded.id;
+      let obj={url:"admin-dashboard",user_id:userid};
+      logActiveUserInfo(obj);
+    sequelize.query(`select user_id from user_active_logs where "createdAt" >= NOW() - INTERVAL '10 minutes' group by user_id; `).then((users) => {
+      let user={activeUsers:users.length};
+      return res.json(user);
+    }).catch((err) => {
+      logger.error(err.stack);
+      return res.status(500).send('Error while fetching comments');
+    });
+  });
+ }catch(error){
+   logger.error(error.stack);
+   return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
+ }
+}
+
 export default {
   login,
   logout,
@@ -482,5 +533,6 @@ export default {
   getUserList,
   remove,
   getUserByActiveChecks,
-  getUserByRecentlyCompleted
+  getUserByRecentlyCompleted,
+  getCurrentlyActiveUsers
 };
