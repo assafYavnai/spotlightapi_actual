@@ -10,7 +10,9 @@ function getTopicsMaster(req, res) {
     let topicList=[];
     TopicCategoryMaster.findAll().then((tcm)=>{
       console.log(tcm);
-      Topics.findAll().then((tm)=>{
+      Topics.findAll({order: [
+        ['sequence', 'ASC'],
+      ]}).then((tm)=>{
         const topicData=tm.map((tp)=>{
         let obj={};
         obj=tp.toJSON();
@@ -18,10 +20,10 @@ function getTopicsMaster(req, res) {
            return it.id==tp.topic_category_id;
         });
         const filterSubCategoryMaster=tcm.filter((a)=>{
-          if(a.parent_id!=null){
-            return a.id==tp.child_category_id;  
-          }
-          // return a.id==tp.child_category_id;
+          // if(a.parent_id!=null){
+          //   return a.id==tp.child_category_id;  
+          // }
+          return a.id==tp.child_category_id;
        });
        if(filterSubCategoryMaster[0]!=undefined){
         obj.subCatName_en=filterSubCategoryMaster[0].name_en;

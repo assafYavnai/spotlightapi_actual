@@ -507,7 +507,7 @@ function getCurrentlyActiveUsers(req, res){
       let obj={url:"admin-dashboard",user_id:userid};
       logActiveUserInfo(obj);
     sequelize.query(`select user_id from user_active_logs where "createdAt" >= NOW() - INTERVAL '10 minutes' group by user_id; `).then((users) => {
-      let user={activeUsers:users.length};
+      let user={activeUsers:users[0].length};
       return res.json(user);
     }).catch((err) => {
       logger.error(err.stack);
