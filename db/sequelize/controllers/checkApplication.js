@@ -489,7 +489,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
             left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
             on c.id=tbl.user_check_id 
-            inner join users u on c.user_id::integer=u.id left join report_sharable_links d on d.user_check_id=tbl.user_check_id   WHERE c.id=? and c.user_id=?::character varying group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id,decoded.id]}).then((summary) => {
+            inner join users u on c.user_id::integer=u.id left join report_sharable_links d on d.user_check_id=tbl.user_check_id   WHERE c.id=?  group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((summary) => {
                 if (summary != null && summary.length > 0) {
                     data = summary[0];
                     if(data.sharable_link=="0" || data.sharable_link=="" || data.sharable_link==null){
@@ -563,7 +563,6 @@ checkUniqueId, topicId, userId, answer, option, takenTime
   }
    function ShowUserReport(req, res) {
     try {
-
             let obj={url:"Get Topics",user_id:req.params.id};
             logActiveUserInfo(obj);
             let data = {};
