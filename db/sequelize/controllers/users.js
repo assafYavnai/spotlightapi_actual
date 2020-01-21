@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import * as config from '../constants';
 import { Models, sequelize } from '../models';
 import { tokenSecret } from '../constants';
-import {logActiveUserInfo} from '../activeusers';
+import {logActiveUserInfo,removeLogActiveUserInfo} from '../activeusers';
 import moment, { now } from 'moment';
 import { throws } from 'assert';
 // const User = Models.User;
@@ -96,8 +96,10 @@ export function Adminlogin(req, res, next) {
  */
 export function logout(req, res) {
   try{
-  req.logout();
-  res.sendStatus(200);
+    const email=req.params.id;
+    req.logout();
+    removeLogActiveUserInfo(email);
+    res.sendStatus(200);
   }catch(error){
     logger.error(error.stack);
     return res.status(500).send(error);

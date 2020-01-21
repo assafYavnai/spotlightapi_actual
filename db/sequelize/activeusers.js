@@ -1,5 +1,5 @@
 import { Models, sequelize } from './models';
-const { UserActiveLogsModel } = Models;
+const { UserActiveLogsModel,User } = Models;
 import Promise from 'bluebird';
 import bcryptNode from 'bcrypt-nodejs';
 const bcrypt = Promise.promisifyAll(bcryptNode);
@@ -21,4 +21,24 @@ export function logActiveUserInfo(req) {
       logger.error(error.stack);
       // res.status(500).send(error);
     }
+}
+
+export function removeLogActiveUserInfo(email) {
+  try {
+    console.log("call Remove Active user function");
+    User.findOne({ where: { email } }).then((user) => {
+      UserActiveLogsModel.destroy({where:{user_id:user.id}}).then((result)=>{
+      if (result > 0) {
+        console.log(result);
+      }
+      }).catch((error)=>{
+        return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
+      })
+    }).catch( (err)=>{
+      logger.error(err.stack);
+    });
+  } catch (error) {
+    logger.error(error.stack);
+    // res.status(500).send(error);
+  }
 }

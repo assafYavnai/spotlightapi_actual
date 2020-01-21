@@ -54,7 +54,7 @@ if(cmsPageController){
     app.post('/api/users', usersController.signUp);
     app.post('/api/user/logUserInfo', usersController.logUserInfo);
     
-    app.delete('/api/sessions', usersController.logout);
+    app.delete('/api/sessions/:id', usersController.logout);
     app.post('/api/user/verifyotp', usersController.verifyOTP);
     app.post('/api/user/changePassword', usersController.changePassword);
     app.post('/api/user/recoveryPasswordVerifyOTP', usersController.recoveryPasswordVerifyOTP);
