@@ -58,7 +58,9 @@ export function fetchTopicsPool(req, res) {
             }
             results.category.push(dtoCategory);
             if(pCategory.indexOf(c)==pCategory.length-1 ){
-                TopicsMaster.findAll({where:{check_type:'CUSTOM'}}).then( (d)=>{
+                TopicsMaster.findAll({where:{check_type:'CUSTOM'},order: [
+                  ['sequence', 'ASC'],
+                ]}).then( (d)=>{
                     if(d.length>0){
                       d.forEach(item=>{
                         const obj={name_he:item.name_he,name_en:item.name_en,category:item.topic_category_id,
