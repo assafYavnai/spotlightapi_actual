@@ -54,13 +54,18 @@ if(cmsPageController){
     app.post('/api/users', usersController.signUp);
     app.post('/api/user/logUserInfo', usersController.logUserInfo);
     
-    app.delete('/api/sessions', usersController.logout);
+    app.delete('/api/sessions/:id', usersController.logout);
     app.post('/api/user/verifyotp', usersController.verifyOTP);
     app.post('/api/user/changePassword', usersController.changePassword);
     app.post('/api/user/recoveryPasswordVerifyOTP', usersController.recoveryPasswordVerifyOTP);
     app.get('/api/user/validateToken',usersController.validateToken);
-    app.get('/api/user/getUserList',usersController.getUserList);
     app.delete('/api/user/remove', usersController.remove);
+
+    app.get('/api/user/getUserList',usersController.getUserList);
+    app.get('/api/user/getUserCurrentActiveChecksList',usersController.getUserByActiveChecks);
+    app.get('/api/user/getUserByRecentlyCompleted',usersController.getUserByRecentlyCompleted);
+    app.get('/api/user/getCurrentlyActiveUsers',usersController.getCurrentlyActiveUsers);
+    
     //app.get('/api/proEnquiry',proEnquiry.Add);
   } else {
     console.warn(unsupportedMessage('users routes'));
@@ -120,6 +125,7 @@ if(cmsPageController){
 
   if (coreCheckController) {
     app.post('/api/checks', coreCheckController.all);
+    app.post('/api/checks/completed', coreCheckController.completed);
     app.get('/api/checks/pending', coreCheckController.pending);
     app.post('/api/checks/core/add', coreCheckController.CreateOrUpdate);
     app.post('/api/checks/custom/add', coreCheckController.CreateOrUpdateCheckCustom);

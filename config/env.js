@@ -1,6 +1,7 @@
 const envoirnment = process.env.NODE_ENV || 'development';
 const envVars =require(`./env.${envoirnment}.js`);
-
+export let OnlineUsers = [];
+export let OnlineSockets = [];
 export const ENV = envVars.ENV;
 export const DB_TYPE = envVars.DB_TYPE;
 export const GOOGLE_ANALYTICS_ID = envVars.GOOGLE_ANALYTICS_ID;

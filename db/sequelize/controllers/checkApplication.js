@@ -2,6 +2,7 @@ import _ from 'lodash';
 import jwt from 'jsonwebtoken';
 var log4js = require('log4js');
 import { Models, sequelize } from '../models';
+import {logActiveUserInfo} from '../activeusers';
 import * as config from '../constants';
 import moment from 'moment';
 import {message} from '../../../config/constants';
@@ -129,6 +130,8 @@ export function getTopics(req, res) {
       const { checkUniqueId, userId } = req.body;
       let data = {};
       let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A'};
+      let obj={url:"Get Topics",user_id:userId};
+      logActiveUserInfo(obj);
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
           data.invitation = {};
           if(invitaiton!=null){
@@ -275,6 +278,8 @@ export function saveAnswer(req, res,next) {
         const {
 checkUniqueId, topicId, userId, answer, option, takenTime
 } = req.body;
+        let obj={url:"save answer",user_id:userId};
+        logActiveUserInfo(obj);
         UserCheckMaster.findOne({where: {tiny_url: checkUniqueId}}).then((check) => {
             UserCheckInvitation.findAndCount({where: {uniqe_id: userId, user_check_id: check.id}}).then((u) => {
                 if (u.count > 0) {
@@ -470,6 +475,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             if (err) {
                 return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
             }
+            let obj={url:"view admin report",user_id:decoded.id};
+            logActiveUserInfo(obj);
             console.log(req.params);
             let data = {};
             sequelize.query(`SELECT distinct c.*,min(d.tiny_url) as sharable_link,u.company_name,count(distinct i.id) as participants, 
@@ -482,7 +489,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
             left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
             on c.id=tbl.user_check_id 
-            inner join users u on c.user_id::integer=u.id left join report_sharable_links d on d.user_check_id=tbl.user_check_id   WHERE c.id=? and c.user_id=?::character varying group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id,decoded.id]}).then((summary) => {
+            inner join users u on c.user_id::integer=u.id left join report_sharable_links d on d.user_check_id=tbl.user_check_id   WHERE c.id=?  group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((summary) => {
                 if (summary != null && summary.length > 0) {
                     data = summary[0];
                     if(data.sharable_link=="0" || data.sharable_link=="" || data.sharable_link==null){
@@ -507,7 +514,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                   //res.status(400).send(err);
                 });
                     }
-                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
+                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,tc.name_en ,tc.name_he ,
                     round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
                     round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
                     round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc,
@@ -515,7 +522,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                     inner join 
                     (SELECT a.* FROM user_check_topics_answers a 
                     inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
-                    WHERE c.user_check_id=?   group by c.id order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
+                    inner join topics_category_masters tc on c.topic_category_id=tc.id 
+                    WHERE c.user_check_id=?   group by c.id,tc.name_en ,tc.name_he order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((topics) => {
                         
                         if (topics.length > 0) {
                             
@@ -555,7 +563,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
   }
    function ShowUserReport(req, res) {
     try {
-
+            let obj={url:"Get Topics",user_id:req.params.id};
+            logActiveUserInfo(obj);
             let data = {};
             sequelize.query(`SELECT distinct c.*, u.company_name,count(distinct i.id) as participants, 
             round((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100,2)::numeric  completed, count(tbl.*),
@@ -571,7 +580,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                 if (summary != null && summary.length > 0) {
                     data = summary[0];
                     
-                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,
+                    sequelize.query(`SELECT distinct c.*, count(tbl.*) as total_answer,tc.name_en ,tc.name_he ,
                     round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
                     round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
                     round((SuM(case tbl.choosen_option WHEN 'C' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionc,
@@ -579,7 +588,8 @@ checkUniqueId, topicId, userId, answer, option, takenTime
                     inner join 
                     (SELECT a.* FROM user_check_topics_answers a 
                     inner join user_check_topics t on a.user_check_topic_id=t.id) tbl on tbl.user_check_topic_id=c.id 
-                    WHERE c.user_check_id=?   group by c.id order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [data.id]}).then((topics) => {
+                    inner join topics_category_masters tc on c.topic_category_id=tc.id 
+                    WHERE c.user_check_id=?   group by c.id,tc.name_en ,tc.name_he order by c.id`, { type: sequelize.QueryTypes.SELECT, replacements: [data.id]}).then((topics) => {
                         
                         if (topics.length > 0) {
                             

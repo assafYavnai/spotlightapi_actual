@@ -4,6 +4,7 @@ import axios from 'axios';
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
 import {privateLocalAddress, hostName} from '../../../config/app';
+import {logActiveUserInfo} from '../activeusers';
 import Axios from 'axios';
 import checkApplication from './checkApplication';
 const uuidv4 = require('uuid/v4');
@@ -38,6 +39,8 @@ const UserCheckMaster = Models.UserCheck;
       if (e) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
+      let obj={url:"send invitation",user_id:decoded.id};
+      logActiveUserInfo(obj);
       const { emails, check_id, customMessage,checkName,firstName,lastName,participant,dueDate,language,subject } = req.body;
       const data = [];
       UserCheckMaster.findById(check_id).then((check) =>{
@@ -116,6 +119,8 @@ export function allInvitedUsers(req, res) {
       if (e) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
+      let obj={url:"Get All invited user",user_id:decoded.id};
+      logActiveUserInfo(obj);
       const { check_id } = req.params;
       UserCheckInvitation.findAll({where: {user_check_id: check_id}}).then((d) => {
         return res.status(200).send(d);

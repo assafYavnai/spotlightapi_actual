@@ -20,6 +20,7 @@ import cmsPageModel from './cms_pages';
 import UserLogModel from './user_log';
 import UsersubscriberModel from './subscriber';  
 import ReportSharableLinkModel from './report_sharable_link';
+import UserActiveLogsModel from './user_active_logs';
 const config = ENV ==='production'? sequelizeConfig.production : sequelizeConfig.development;
 
 const db = {};
@@ -46,6 +47,7 @@ db.cmsPageModel=sequelize.import('CmsPageModel',cmsPageModel);
 db.UserLog=sequelize.import('userLog',UserLogModel);
 db.subscriber=sequelize.import('subscriber',UsersubscriberModel);
 db.ReportSharableLinkModel=sequelize.import('ReportSharableLink',ReportSharableLinkModel);
+db.UserActiveLogsModel=sequelize.import('UserActiveLogs',UserActiveLogsModel);
 Object.keys(db).forEach((key) => {
   const model = db[key];
   if (model.associate) {
