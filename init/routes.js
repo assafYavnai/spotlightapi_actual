@@ -18,6 +18,7 @@ const cmsPageController=controllers && controllers.cmsPage;
 const subscriberController = controllers && controllers.subscriber;
 const customCheckController = controllers && controllers.customCheck;
 const topicsMasterController = controllers && controllers.topicsMaster;
+const customerController = controllers && controllers.customer;
 export default (app) => {
   app.get('/api', (req, res, next) => {
     res.status(200).send("OK");
@@ -151,6 +152,13 @@ if(cmsPageController){
     app.post('/api/checkapp/getTopics', checkApplication.getTopics);
     app.post('/api/checkapp/saveAnswer', checkApplication.saveAnswer);
     app.get('/api/checkapp/report/:id', checkApplication.viewReport);
+  }
+
+  // Customer
+  if(customerController){
+      app.post('/api/addCustomer',customerController.addCustomer);
+      app.get('/api/getCustomer',customerController.getCustomer);
+      app.delete('/api/customer/remove/:id',customerController.remove);
   }
 
 };
