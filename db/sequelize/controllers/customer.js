@@ -33,7 +33,8 @@ const TestnomialModel= Models.TestnomialModel;
   function getCustomer(req,res){
     try {
         TestnomialModel.findAll({order: [
-          ['id', 'DESC'],
+          ['is_testnomial', 'desc'],
+          ['id', 'desc'],
         ]}).then((customerList)=>{
           if(customerList!=null){
              return res.json(customerList);
