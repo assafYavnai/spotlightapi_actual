@@ -5,6 +5,7 @@ import passport from 'passport';
 import unsupportedMessage from '../db/unsupportedMessage';
 import { controllers, passport as passportConfig } from '../db';
 import proEnquiry from '../db/sequelize/controllers/proEnquiry';
+var multer  = require('multer');
 //import mailsend from '../db/sequelize/controllers/sendingMail'
 
 const usersController = controllers && controllers.users;
@@ -19,6 +20,28 @@ const subscriberController = controllers && controllers.subscriber;
 const customCheckController = controllers && controllers.customCheck;
 const topicsMasterController = controllers && controllers.topicsMaster;
 const customerController = controllers && controllers.customer;
+
+var storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './public/images');
+  },
+  filename: (req, file, cb) => {
+    console.log(file);
+    var filetype = '';
+    if(file.mimetype === 'image/gif') {
+      filetype = 'gif';
+    }
+    if(file.mimetype === 'image/png') {
+      filetype = 'png';
+    }
+    if(file.mimetype === 'image/jpeg') {
+      filetype = 'jpg';
+    }
+    cb(null, 'image-' + Date.now() + '.' + filetype);
+  }
+});
+var upload = multer({storage: storage});
+
 export default (app) => {
   app.get('/api', (req, res, next) => {
     res.status(200).send("OK");
@@ -159,6 +182,8 @@ if(cmsPageController){
       app.post('/api/addCustomer',customerController.addCustomer);
       app.get('/api/getCustomer',customerController.getCustomer);
       app.delete('/api/customer/remove/:id',customerController.remove);
+      app.put('/api/editCustomer',customerController.editCustomer);
+      app.post('/api/customer/upload/:id',upload.single('file'), customerController.changePhoto);
   }
 
 };
