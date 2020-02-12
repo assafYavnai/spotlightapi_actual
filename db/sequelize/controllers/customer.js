@@ -10,7 +10,7 @@ const TestnomialModel= Models.TestnomialModel;
   function addCustomer(req,res){
     try {
         console.log("Call Add customer API");
-        const {company_name,recommande_name,recommande_title,testnomial_en,testnomial_he,is_testnomial,image}=req.body;
+        const {company_name,recommande_name,recommande_title,company_name_he,recommande_name_he,recommande_title_he,testnomial_en,testnomial_he,is_testnomial,image}=req.body;
         console.log("CompanyName "+req.body.company_name);
         //console.log("File Name "+req.file.filename);
         TestnomialModel.create(req.body).then((rs)=>{
@@ -71,9 +71,9 @@ const TestnomialModel= Models.TestnomialModel;
   function editCustomer(req,res){
     try {
       console.log("Call Update API");
-      const {customerId,company_name,recommande_name,recommande_title,testnomial_en,testnomial_he,is_testnomial,image}=req.body;
+      const {customerId,company_name,recommande_name,recommande_title,company_name_he,recommande_name_he,recommande_title_he,testnomial_en,testnomial_he,is_testnomial,image}=req.body;
       console.log(customerId);
-      const customerData={company_name:company_name,recommande_name:recommande_name,recommande_title:recommande_title,testnomial_en:testnomial_en,
+      const customerData={company_name:company_name,recommande_name:recommande_name,recommande_title:recommande_title,company_name_he:company_name_he,recommande_name_he:recommande_name_he,recommande_title_he:recommande_title_he,testnomial_en:testnomial_en,
         testnomial_he:testnomial_he,is_testnomial:is_testnomial,image:image,"updatedAt":new Date()};
       TestnomialModel.update(customerData,{where:{id:customerId}}).then((result)=>{
         if(result){

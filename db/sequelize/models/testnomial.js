@@ -7,7 +7,10 @@ module.exports = (sequelize, DataTypes) => {
     testnomial_en:DataTypes.STRING,
     testnomial_he:DataTypes.STRING,
     is_testnomial:DataTypes.BOOLEAN,
-    image:DataTypes.STRING
+    image:DataTypes.STRING,
+    company_name_he: DataTypes.STRING,
+    recommande_name_he: DataTypes.STRING,
+    recommande_title_he:DataTypes.STRING,
   }, {});
   testnomial.associate = function(models) {
     // associations can be defined here
