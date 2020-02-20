@@ -21,6 +21,7 @@ import UserLogModel from './user_log';
 import UsersubscriberModel from './subscriber';  
 import ReportSharableLinkModel from './report_sharable_link';
 import UserActiveLogsModel from './user_active_logs';
+import TestnomialModel from './testnomial';
 const config = ENV ==='production'? sequelizeConfig.production : sequelizeConfig.development;
 
 const db = {};
@@ -48,6 +49,7 @@ db.UserLog=sequelize.import('userLog',UserLogModel);
 db.subscriber=sequelize.import('subscriber',UsersubscriberModel);
 db.ReportSharableLinkModel=sequelize.import('ReportSharableLink',ReportSharableLinkModel);
 db.UserActiveLogsModel=sequelize.import('UserActiveLogs',UserActiveLogsModel);
+db.TestnomialModel=sequelize.import('Testnomial',TestnomialModel);
 Object.keys(db).forEach((key) => {
   const model = db[key];
   if (model.associate) {

@@ -9,6 +9,7 @@ import subscriber from './subscriber';
 import cmsPage from './cmsPage';
 import customCheck from './customcheck';
 import topicsMaster from './TopicsMaster';
+import customer from './customer';
 export default {
   topics,
   users,
@@ -20,5 +21,6 @@ export default {
   cmsPage,
   subscriber,
   customCheck,
-  topicsMaster
+  topicsMaster,
+  customer
 };

@@ -192,6 +192,10 @@ export function getTopics(req, res) {
                     }}).then( (p)=>{
                         var uid=p!=null?p.user_id:0;
                         var dt=new Date();
+                        var st_date_grace=new Date(dt);
+                        st_date_grace.getMinutes(dt.getMinutes()+30);
+                        // Add 30 min fast than current time
+                        
                         var sdt= new Date(p.start_date);
                         var edt= new Date(p.end_date);
                         var language=p.language;
@@ -203,8 +207,11 @@ export function getTopics(req, res) {
                             if(p==null) {
                                 errorData.status='invalid';
                                 errorData.message = message.CHECK_INVALID;
-                            } else if(  (new Date(p.start_date))>=dt){
+                            } 
+                              //else if((new Date(p.start_date))>=dt){
+                             else if((new Date(p.start_date))>=st_date_grace){
                                 console.log("==================What coming?=======================")
+                                console.log("Greater than Current Date/Time:"+st_date_grace)
                                 console.log(new Date(p.start_date));
                                 errorData.status='not Started';
                                 errorData.current_Date=new Date();
