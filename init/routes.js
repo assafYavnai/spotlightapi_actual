@@ -184,6 +184,7 @@ if(cmsPageController){
       app.delete('/api/customer/remove/:id',customerController.remove);
       app.put('/api/editCustomer',customerController.editCustomer);
       app.post('/api/customer/upload/:id',upload.single('file'), customerController.changePhoto);
+      app.put('/api/editCustomerState',customerController.editCustomerState);
   }
 
 };

@@ -89,6 +89,26 @@ const TestnomialModel= Models.TestnomialModel;
     }
   }
 
+  function editCustomerState(req,res){
+    try {
+      console.log("Call Update State API");
+      const {customerId,is_testnomial}=req.body;
+      console.log(customerId);
+      const customerData={is_testnomial:is_testnomial,"updatedAt":new Date()};
+      TestnomialModel.update(customerData,{where:{id:customerId}}).then((result)=>{
+        if(result){
+          return res.status(200).send({successMessage:'OK',statusCode:200});
+        }
+      }).catch((error)=>{
+        return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
+      })
+    } catch (error) {
+      logger.error(error.stack);
+      console.log(error);
+      return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
+    }
+  }
+
   function changePhoto(req, res) {
     const photo = req.file.filename
     let customerId=req.params.id;
@@ -151,5 +171,6 @@ const TestnomialModel= Models.TestnomialModel;
     getCustomer,
     remove,
     editCustomer,
-    changePhoto
+    changePhoto,
+    editCustomerState
   };  
