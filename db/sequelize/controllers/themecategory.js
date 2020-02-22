@@ -125,7 +125,9 @@ const logger = log4js.getLogger('custom');
 ]}).then((themes) => {
     themeList = themes;
     // topics
-   TopicCategoryMaster.findAll().then((tc)=>{
+  TopicCategoryMaster.findAll({order: [
+    ['sequence', 'ASC'],
+  ]}).then((tc)=>{
     TopicCategoryList=tc;
     
    Topics.findAll({order: [
