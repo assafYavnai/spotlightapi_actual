@@ -156,9 +156,44 @@ export function updateCheckInvitation(req, res) {
 }
 }
 
+export function sendemail(req, res) {
+  try{
+    const {url}=req.body;
+    console.log(url);
+    console.log("start Email");
+    let subject="Internet Explorer"
+    Axios.post(privateLocalAddress+'/api/sendEmailDetectInternetExplorer', {host: url,subject:subject}).then((response)=>{
+        console.log('Sent Invitation email');
+    }).catch((err) => {
+        logger.error(err.stack);
+        console.log('Error in sending Email');
+    });
+  }catch(error){
+    logger.error(error.stack);
+    return res.status(500).send(error);
+  }
+}
+
+//completecheckemail
+export function completecheckemail(req, res) {
+  try{
+    const {email,checkName,time,language}=req.body;
+    let subject="Complete check user information";
+    console.log("Customer Email : "+email);
+    Axios.post(privateLocalAddress+'/api/sendcompletecheckemail', {email:email,checkName:checkName,time:time,language:language,subject}).then((response)=>{
+        console.log('Sent Check Complete email');
+    }).catch((err) => {
+        logger.error(err.stack);
+        console.log('Error in sending Email');
+    });
+  }catch(error){
+    logger.error(error.stack);
+    return res.status(500).send(error);
+  }
+} 
 
 export default {
-  sendInvitation, allInvitedUsers,updateCheckInvitation
+  sendInvitation, allInvitedUsers,updateCheckInvitation,sendemail,completecheckemail
     // update
     // remove
   };

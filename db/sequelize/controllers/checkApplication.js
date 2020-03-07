@@ -163,8 +163,7 @@ export function getTopics(req, res) {
                 is_active: true,
                 start_date: { [sequelize.Op.lt]: sequelize.fn('NOW')},
                 end_date: { [sequelize.Op.gt]: sequelize.fn('NOW')},
-            }
-        }).then((item) => {
+            }}).then((item) => {
                 if (item !== null && item.id > 0 && Object.keys(data.invitation).length > 0 ) {
                  const check = item.toJSON();
                  data ={...data, check};
@@ -183,59 +182,101 @@ export function getTopics(req, res) {
                       return res.status(200).send(data);
                     });
                  });
-                 
                 } else {
+                    console.log("User check NUll");
                     UserCheckMaster.findOne({
                         where: {
                         tiny_url: checkUniqueId,
                         is_active: true
                     }}).then( (p)=>{
-                        var uid=p!=null?p.user_id:0;
-                        var dt=new Date();
-                        var st_date_grace=new Date(dt);
-                        st_date_grace.getMinutes(dt.getMinutes()+30);
-                        // Add 30 min fast than current time
-                        
-                        var sdt= new Date(p.start_date);
-                        var edt= new Date(p.end_date);
-                        var language=p.language;
-                       UserMaster.findOne({where:{id:uid}}).then((u)=>{
-                            if(u!=null){
-                                errorData.company_name=u.company_name;
-                                errorData.initiator= u.first_name;
-                            } 
-                            if(p==null) {
-                                errorData.status='invalid';
-                                errorData.message = message.CHECK_INVALID;
-                            } 
-                              //else if((new Date(p.start_date))>=dt){
-                             else if((new Date(p.start_date))>=st_date_grace){
-                                console.log("==================What coming?=======================")
-                                console.log("Greater than Current Date/Time:"+st_date_grace)
-                                console.log(new Date(p.start_date));
-                                errorData.status='not Started';
-                                errorData.current_Date=new Date();
-                                errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(sdt).format('DD/MM/YYYY HH:mm:ss'));
-                            } else if(  (new Date(p.end_date)) <dt){
-                                errorData.status='expired';
-                                errorData.message = message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(edt).format('DD/MM/YYYY HH:mm:ss'));
-                            } else if(p.is_active==false){
-                                errorData.status='canceled';
-                            } else{
-                               errorData.message = 'Something went wrong';
-                            }
-                            if(p!=null){
-                                errorData.name = p.name_en || p.name_he;
-                                errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
-                                errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
+                        if (p !== null && p.id > 0){
+                            console.log("User check not NUll");
+                            var uid=p!=null?p.user_id:0;
+                            var dt=new Date();
+                            var st_date_grace=new Date(dt);
+                            st_date_grace.getMinutes(dt.getMinutes()+30);
+                            // Add 30 min fast than current time
+                            
+                            var sdt= new Date(p.start_date);
+                            var edt= new Date(p.end_date);
+                            var language=p.language;
+                            UserMaster.findOne({where:{id:uid}}).then((u)=>{
+                                if(u!=null){
+                                    errorData.company_name=u.company_name;
+                                    errorData.initiator= u.first_name;
+                                }    
+                                if(p==null) {
+                                    errorData.status='invalid';
+                                    errorData.message = message.CHECK_INVALID;
+                                } 
+                                //else if((new Date(p.start_date))>=dt){
+                                else if((new Date(p.start_date))>=st_date_grace){
+                                    console.log("==================What coming?=======================")
+                                    console.log("Greater than Current Date/Time:"+st_date_grace)
+                                    console.log(new Date(p.start_date));
+                                    errorData.status='not Started';
+                                    errorData.current_Date=new Date();
+                                    errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(sdt).format('DD/MM/YYYY HH:mm:ss'));
+                                } else if(  (new Date(p.end_date)) <dt){
+                                    errorData.status='expired';
+                                    errorData.message = message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(edt).format('DD/MM/YYYY HH:mm:ss'));
+                                } else if(p.is_active==false){
+                                    errorData.status='canceled';
+                                } else{
+                                    errorData.message = 'Something went wrong';
+                                }
+                                if(p!=null){
+                                    errorData.name = p.name_en || p.name_he;
+                                    errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
+                                    errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
 
-                            }
-                            throw Error(errorData.message);
-                         }).catch( (es)=>{
-                             logger.error(es.stack);
-                            return res.status(200).send({error:errorData,dt:new Date(),language:language});
-                         });
-                        
+                                }
+                                throw Error(errorData.message);
+                            }).catch( (es)=>{
+                                logger.error(es.stack);
+                                return res.status(200).send({error:errorData,dt:new Date(),language:language});
+                            });
+                        }
+                        else{
+                            console.log("User check NUll");
+                            UserCheckMaster.findOne({
+                                where: {
+                                tiny_url: checkUniqueId,
+                                is_active: false
+                            }}).then( (p)=>{
+                                var uid=p!=null?p.user_id:0;
+                                var dt=new Date();
+                                var st_date_grace=new Date(dt);
+                                st_date_grace.getMinutes(dt.getMinutes()+30);
+                                var sdt= new Date(p.start_date);
+                                var edt= new Date(p.end_date);
+                                var language=p.language;
+                                UserMaster.findOne({where:{id:uid}}).then((u)=>{
+                                    if(u!=null){
+                                        errorData.company_name=u.company_name;
+                                        errorData.initiator= u.first_name;
+                                    }    
+                                    if(p.is_active==false){
+                                        errorData.status='canceled';
+                                    } else{
+                                        errorData.message = 'Something went wrong';
+                                    }
+                                    if(p!=null){
+                                        errorData.name = p.name_en || p.name_he;
+                                        errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
+                                        errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
+                                    }
+                                    throw Error(errorData.message);
+                                }).catch( (es)=>{
+                                    logger.error(es.stack);
+                                    return res.status(200).send({error:errorData,dt:new Date(),language:language});
+                                });
+                                
+                            }).catch( (err)=>{
+                                logger.error(err.stack);
+                                return res.status(200).send({error:errorData,dt:new Date(),language:language});
+                            });
+                        }
                     }).catch( (err)=>{
                         logger.error(err.stack);
                         return res.status(200).send({error:errorData,dt:new Date(),language:language});
@@ -286,7 +327,7 @@ export function saveAnswer(req, res,next) {
 checkUniqueId, topicId, userId, answer, option, takenTime
 } = req.body;
         let obj={url:"save answer",user_id:userId};
-        logActiveUserInfo(obj);
+        //logActiveUserInfo(obj);
         UserCheckMaster.findOne({where: {tiny_url: checkUniqueId}}).then((check) => {
             UserCheckInvitation.findAndCount({where: {uniqe_id: userId, user_check_id: check.id}}).then((u) => {
                 if (u.count > 0) {
