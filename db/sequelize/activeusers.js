@@ -10,7 +10,7 @@ export function logActiveUserInfo(req) {
     try {
       console.log("call Active user log function");
       console.log(req);
-      const obj={url:req.url, user_id: req.user_id};
+      const obj={url:req.url, user_id: String(req.user_id)};
       UserActiveLogsModel.create(obj).then( (p)=>{
         console.log(p);
       }).catch( (err)=>{
@@ -27,13 +27,15 @@ export function removeLogActiveUserInfo(email) {
   try {
     console.log("call Remove Active user function");
     User.findOne({ where: { email } }).then((user) => {
-      UserActiveLogsModel.destroy({where:{user_id:user.id}}).then((result)=>{
-      if (result > 0) {
-        console.log(result);
+      if(user!=null){
+        UserActiveLogsModel.destroy({where:{user_id:user.id}}).then((result)=>{
+          if (result > 0) {
+            console.log(result);
+          }
+          }).catch((error)=>{
+            return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
+          })
       }
-      }).catch((error)=>{
-        return res.status(500).send({errorMessage:error,errorCode:'UNEXPECTED'});
-      })
     }).catch( (err)=>{
       logger.error(err.stack);
     });

@@ -167,7 +167,8 @@ if(cmsPageController){
     app.post('/api/check/inviteusers', checkInvitation.sendInvitation);
     app.get('/api/check/users/:check_id', checkInvitation.allInvitedUsers);
     app.post('/api/check/updateTime', checkInvitation.updateCheckInvitation);
-    
+    app.post('/api/check/sendbrowseremail',checkInvitation.sendemail);
+    app.post('/api/check/completecheckuser',checkInvitation.completecheckemail);
   }
   console.log('checkApplication');
   console.log(checkApplication);
@@ -175,6 +176,7 @@ if(cmsPageController){
     app.post('/api/checkapp/getTopics', checkApplication.getTopics);
     app.post('/api/checkapp/saveAnswer', checkApplication.saveAnswer);
     app.get('/api/checkapp/report/:id', checkApplication.viewReport);
+    app.post('/api/checkapp/blankscreenemail',checkApplication.sendblankscreenemail);
   }
 
   // Customer

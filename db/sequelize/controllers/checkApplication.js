@@ -6,6 +6,8 @@ import {logActiveUserInfo} from '../activeusers';
 import * as config from '../constants';
 import moment from 'moment';
 import {message} from '../../../config/constants';
+import Axios from 'axios';
+import {privateLocalAddress, hostName} from '../../../config/app';
 const uuidv1 = require('uuid/v1');
 const logger = log4js.getLogger('custom'); 
 
@@ -133,38 +135,31 @@ export function getTopics(req, res) {
       let obj={url:"Get Topics",user_id:userId};
       logActiveUserInfo(obj);
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
-          data.invitation = {};
-          if(invitaiton!=null){
-                if(invitaiton.is_completed !== true){
+        data.invitation = {};
+        if(invitaiton!=null){
+            if(invitaiton.is_completed !== true){
                 data.invitation.current_topic = invitaiton.current_topic;
                 data.invitation.current_time = invitaiton.current_time;
                 data.invitation.email = invitaiton.email;
                 data.invitation.is_completed = invitaiton.is_completed;
-              }
-              else {
-              
-                errorData.status = 'finished';
-              
-                errorData.message = message.CHECK_COMPLETED;
-              }
-            
-          } else {
+            }
+            else {
+              errorData.status = 'finished';
+              errorData.message = message.CHECK_COMPLETED;
+            }
+        } else {
             errorData.status='not invited to you';
             errorData.message= message.INVALID_CHECK_INVITATION;
-         
-          }
-        
+        }
         UserCheckInvitation.update({
             is_accepted: true}, {where: {uniqe_id: userId}}).then((u) => {
-              
               UserCheckMaster.findOne({
                 where: {
                 tiny_url: checkUniqueId,
                 is_active: true,
                 start_date: { [sequelize.Op.lt]: sequelize.fn('NOW')},
                 end_date: { [sequelize.Op.gt]: sequelize.fn('NOW')},
-            }
-        }).then((item) => {
+            }}).then((item) => {
                 if (item !== null && item.id > 0 && Object.keys(data.invitation).length > 0 ) {
                  const check = item.toJSON();
                  data ={...data, check};
@@ -183,61 +178,140 @@ export function getTopics(req, res) {
                       return res.status(200).send(data);
                     });
                  });
-                 
-                } else {
+                } 
+                else {
+                    console.log("User check NUll");
                     UserCheckMaster.findOne({
                         where: {
                         tiny_url: checkUniqueId,
                         is_active: true
                     }}).then( (p)=>{
-                        var uid=p!=null?p.user_id:0;
-                        var dt=new Date();
-                        var st_date_grace=new Date(dt);
-                        st_date_grace.getMinutes(dt.getMinutes()+30);
-                        // Add 30 min fast than current time
-                        
-                        var sdt= new Date(p.start_date);
-                        var edt= new Date(p.end_date);
-                        var language=p.language;
-                       UserMaster.findOne({where:{id:uid}}).then((u)=>{
-                            if(u!=null){
-                                errorData.company_name=u.company_name;
-                                errorData.initiator= u.first_name;
-                            } 
-                            if(p==null) {
-                                errorData.status='invalid';
-                                errorData.message = message.CHECK_INVALID;
-                            } 
-                              //else if((new Date(p.start_date))>=dt){
-                             else if((new Date(p.start_date))>=st_date_grace){
-                                console.log("==================What coming?=======================")
-                                console.log("Greater than Current Date/Time:"+st_date_grace)
-                                console.log(new Date(p.start_date));
-                                errorData.status='not Started';
-                                errorData.current_Date=new Date();
-                                errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(sdt).format('DD/MM/YYYY HH:mm:ss'));
-                            } else if(  (new Date(p.end_date)) <dt){
-                                errorData.status='expired';
-                                errorData.message = message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(edt).format('DD/MM/YYYY HH:mm:ss'));
-                            } else if(p.is_active==false){
-                                errorData.status='canceled';
-                            } else{
-                               errorData.message = 'Something went wrong';
-                            }
-                            if(p!=null){
-                                errorData.name = p.name_en || p.name_he;
-                                errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
-                                errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
+                        if (p !== null && p.id > 0){
+                            console.log("User check not NUll");
+                            var uid=p!=null?p.user_id:0;
+                            var dt=new Date();
+                            var st_date_grace=new Date(dt);
+                            st_date_grace.getMinutes(dt.getMinutes()+30);
+                            // Add 30 min fast than current time
+                            
+                            var sdt= new Date(p.start_date);
+                            var edt= new Date(p.end_date);
+                            var language=p.language;
+                            UserMaster.findOne({where:{id:uid}}).then((u)=>{
+                                if(u!=null){
+                                    errorData.company_name=u.company_name;
+                                    errorData.initiator= u.first_name;
+                                }    
+                                if(p==null) {
+                                    errorData.status='invalid';
+                                    errorData.message = message.CHECK_INVALID;
+                                } 
+                                //else if((new Date(p.start_date))>=dt){
+                                else if((new Date(p.start_date))>=st_date_grace){
+                                    console.log("==================What coming?=======================")
+                                    console.log("Greater than Current Date/Time:"+st_date_grace)
+                                    console.log(new Date(p.start_date));
+                                    errorData.status='not Started';
+                                    errorData.current_Date=new Date();
+                                    errorData.message = message.CHECK_NOT_STARTED.replace('[DATETIME]',moment(sdt).format('DD/MM/YYYY HH:mm:ss'));
+                                } else if(  (new Date(p.end_date)) <dt){
+                                    errorData.status='expired';
+                                    errorData.message = message.CHECK_HAS_EXPIRED.replace('[DATETIME]',moment(edt).format('DD/MM/YYYY HH:mm:ss'));
+                                } else if(p.is_active==false){
+                                    errorData.status='canceled';
+                                } else{
+                                    errorData.message = 'Something went wrong';
+                                }
+                                if(p!=null){
+                                    errorData.name = p.name_en || p.name_he;
+                                    errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
+                                    errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
 
-                            }
-                            throw Error(errorData.message);
-                         }).catch( (es)=>{
-                             logger.error(es.stack);
-                            return res.status(200).send({error:errorData,dt:new Date(),language:language});
-                         });
-                        
+                                }
+                                throw Error(errorData.message);
+                            }).catch( (es)=>{
+                                logger.error(es.stack);
+                                console.log("Error catch and send email point one");
+                                let subject="Invitation Link Error Tracker";
+                                let customMessage='Black screen tracker error one';
+                                Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:es.message,custom:customMessage}).then((response)=>{
+                                    console.log('Sent Error tracker email');
+                                  }).catch((err) => {
+                                      logger.error(err.stack);
+                                      console.log('Error in sending Email');
+                                });
+                                return res.status(200).send({error:errorData,dt:new Date(),language:language});
+                            });
+                        }
+                        else{
+                            console.log("User check NUll");
+                            UserCheckMaster.findOne({
+                                where: {
+                                tiny_url: checkUniqueId,
+                                is_active: false
+                            }}).then( (p)=>{
+                                var uid=p!=null?p.user_id:0;
+                                var dt=new Date();
+                                var st_date_grace=new Date(dt);
+                                st_date_grace.getMinutes(dt.getMinutes()+30);
+                                var sdt= new Date(p.start_date);
+                                var edt= new Date(p.end_date);
+                                var language=p.language;
+                                UserMaster.findOne({where:{id:uid}}).then((u)=>{
+                                    if(u!=null){
+                                        errorData.company_name=u.company_name;
+                                        errorData.initiator= u.first_name;
+                                    }    
+                                    if(p.is_active==false){
+                                        errorData.status='canceled';
+                                    } else{
+                                        errorData.message = 'Something went wrong';
+                                    }
+                                    if(p!=null){
+                                        errorData.name = p.name_en || p.name_he;
+                                        errorData.start_date = sdt;//moment(sdt).format('DD/MM/YYYY HH:mm:ss');
+                                        errorData.end_date = edt;//moment(edt).format('DD/MM/YYYY HH:mm:ss');
+                                    }
+                                    throw Error(errorData.message);
+                                }).catch( (es)=>{
+                                    logger.error(es.stack);
+                                    console.log("Error catch and send email point two");
+                                    let customMessage='Black screen tracker error two';
+                                    let subject="Invitation Link Error Tracker";
+                                    Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:es.message,custom:customMessage}).then((response)=>{
+                                        console.log('Sent Error tracker email');
+                                    }).catch((err) => {
+                                        logger.error(err.stack);
+                                        console.log('Error in sending Email');
+                                    });
+                                    return res.status(200).send({error:errorData,dt:new Date(),language:language});
+                                });
+                                
+                            }).catch( (err)=>{
+                                logger.error(err.stack);
+                                console.log("Error catch and send email point three");
+                                let customMessage='Black screen tracker error three';
+                                let subject="Invitation Link Error Tracker";
+                                Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                                    console.log('Sent Error tracker email');
+                                  }).catch((err) => {
+                                      logger.error(err.stack);
+                                      console.log('Error in sending Email');
+                                });
+                                return res.status(200).send({error:errorData,dt:new Date(),language:language});
+                            });
+                        }
                     }).catch( (err)=>{
                         logger.error(err.stack);
+                        console.log("Error catch and send email point four");
+                        let customMessage='Black screen tracker error four';
+                        let subject="Invitation Link Error Tracker";
+                        Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                            console.log('Sent Error tracker email');
+                        }).catch((err) => {
+                            logger.error(err.stack);
+                            console.log('Error in sending Email');
+                        });
                         return res.status(200).send({error:errorData,dt:new Date(),language:language});
                     });
                     
@@ -245,23 +319,60 @@ export function getTopics(req, res) {
               }).catch((err) => {
                 res.statusMessage = err.message;
                 logger.error(err.stack);
+                console.log("Error catch and send email point five");
+                let customMessage='Black screen tracker error five';
+                let subject="Invitation Link Error Tracker";
+                Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                    console.log('Sent Error tracker email');
+                }).catch((err) => {
+                    logger.error(err.stack);
+                    console.log('Error in sending Email');
+                });
                return res.status(200).send({error:{msg:err.message},dt:new Date()});
             });
           }).catch((err) => {
             res.statusMessage = err.message;
+            console.log("Error catch and send email point six");
+            let customMessage='Black screen tracker error six';
+            let subject="Invitation Link Error Tracker";
+            Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                console.log('Sent Error tracker email');
+            }).catch((err) => {
+                logger.error(err.stack);
+                console.log('Error in sending Email');
+            });
             logger.error(err.stack);
             return res.status(200).send({error:{msg:err.message},dt:new Date()});
           });
-      }).catch((err) => {
-        res.statusMessage = err.message;
-        logger.error(err.stack);
-        return res.status(200).send({error:{msg:err.message},dt:new Date()});
-    });
+        }).catch((err) => {
+            res.statusMessage = err.message;
+            console.log("Error catch and send email point seven");
+            let customMessage='Black screen tracker error seven';
+            logger.error(err.stack);
+            let subject="Invitation Link Error Tracker";
+            Axios.post(privateLocalAddress+'/api/errortracker', {email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                console.log('Sent Error tracker email');
+            }).catch((err) => {
+                logger.error(err.stack);
+                console.log('Error in sending Email');
+            });
+            return res.status(200).send({error:{msg:err.message},dt:new Date()});
+        });
       
   } catch (error) {
-    res.statusMessage = error.message;
-    logger.error(error.stack);
-    return res.status(200).send({error:{msg:error.message},dt:new Date()});
+        const { userId } = req.body;
+        res.statusMessage = error.message;
+        console.log("Error catch and send email point eight");
+        let customMessage='Black screen tracker error eight';
+        logger.error(error.stack);
+        let subject="Invitation Link Error Tracker";
+        Axios.post(privateLocalAddress+'/api/errortracker', {email:'',uniqueId:userId,language:language,time:new Date(),subject,error:error.message,custom:customMessage}).then((response)=>{
+            console.log('Sent Error tracker email');
+        }).catch((err) => {
+            logger.error(err.stack);
+            console.log('Error in sending Email');
+        });
+        return res.status(200).send({error:{msg:error.message},dt:new Date()});
   }
 }
 /** 
@@ -286,7 +397,7 @@ export function saveAnswer(req, res,next) {
 checkUniqueId, topicId, userId, answer, option, takenTime
 } = req.body;
         let obj={url:"save answer",user_id:userId};
-        logActiveUserInfo(obj);
+        //logActiveUserInfo(obj);
         UserCheckMaster.findOne({where: {tiny_url: checkUniqueId}}).then((check) => {
             UserCheckInvitation.findAndCount({where: {uniqe_id: userId, user_check_id: check.id}}).then((u) => {
                 if (u.count > 0) {
@@ -632,13 +743,36 @@ checkUniqueId, topicId, userId, answer, option, takenTime
         logger.error(error.stack);
         return res.status(500).send(error);
     }
+}
+
+export function sendblankscreenemail(req, res) {
+    try{
+        const {userid,language,errormessage}=req.body;
+        let subject="Black screen tracker";
+        UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
+            Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userid,language:language,time:Date.now,subject,error:errormessage}).then((response)=>{
+                console.log('Sent Error tracker email');
+            }).catch((err) => {
+                logger.error(err.stack);
+                console.log('Error in sending Email');
+            });
+        }).catch((err)=>{
+            logger.error(err.stack);
+            console.log('Error in sending Email');
+        });
+        
+    }catch(error){
+      logger.error(error.stack);
+      return res.status(500).send(error);
+    }
   }
 
 
 export default {
     getTopics,
     saveAnswer,
-    viewReport
+    viewReport,
+    sendblankscreenemail
     // update
     // remove
   };
