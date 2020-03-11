@@ -6,6 +6,7 @@ const envVars = require('../config/env');
  const logger = log4js.getLogger('custom');
 // mailer = require('express-mailer');
 const OTPSchema = Models.OTPSchema;
+
 const User = Models.User;
   module.exports = (app, db) => {
     try{
@@ -318,36 +319,60 @@ app.post('/api/sendEmailDetectInternetExplorer', (req, res, next) => {
 });
 
 // send which user complete check...
-app.post('/api/sendcompletecheckemail', (req, res, next) => {
-  try{
-    const {email,checkName,time,language,subject} = req.body;
-    let customMessage='User complete check detector';
-    const bccmail=envVars.INTERNETEXPLORER_BccEMAIL;
-    const toEmail=envVars.INTERNETEXPLORER_EMAIL;
-    app.mailer.send('checkComplete', {
-        to: toEmail,
-        bcc:bccmail,
-        subject: subject,
-        data: {email,checkName,time,language,customMessage}
+  app.post('/api/sendcompletecheckemail', (req, res, next) => {
+    try{
+      const {email,checkName,time,language,links,completeLink,subject} = req.body;
+      let customMessage='User complete check detector';
+      const bccmail=envVars.INTERNETEXPLORER_BccEMAIL;
+      const toEmail=envVars.INTERNETEXPLORER_EMAIL;
+      app.mailer.send('checkComplete', {
+          to: toEmail,
+          bcc:bccmail,
+          subject: subject,
+          data: {email,checkName,time,language,customMessage,links,completeLink}
 
-    }, (error) => {
-        if (error) {
-           return res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
-        }
-        console.log("Email sent");
-        return res.status(200).send({successMessage: 'Email has been sent for Verification', status: 200});
+      }, (error) => {
+          if (error) {
+            return res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
+          }
+          console.log("Email sent");
+          return res.status(200).send({successMessage: 'Email has been sent for Verification', status: 200});
+      });
+    } catch(e){
+      logger.error(e.stack);
+      console.log(e);
+    }  
+  });
+  // send Internet Explorer mail...
+    app.post('/api/errortracker', (req, res, next) => {
+      try{
+        const {email,language,time,subject,error,uniqueId,custom} = req.body;
+        
+        const bccmail=envVars.INTERNETEXPLORER_BccEMAIL;
+        const toEmail=envVars.INTERNETEXPLORER_EMAIL;
+        app.mailer.send('errortrackermail', {
+            to: toEmail,
+            bcc:bccmail,
+            subject: subject,
+            data: {email,language,time,error,custom,uniqueId}
+
+        }, (error) => {
+            if (error) {
+              return res.status(500).send({errorMessage: 'There was an error sending the email', erorInfo: error});
+            }
+            console.log("Email sent");
+            return res.status(200).send({successMessage: 'Email has been sent for Verification', status: 200});
+        });
+      } catch(e){
+        logger.error(e.stack);
+        console.log(e);
+      }  
     });
-  } catch(e){
-    logger.error(e.stack);
-    console.log(e);
-  }  
-});
-
-    }catch(error){
+  }
+  catch(error){
       logger.error(error.stack);
       console.log(error);
-
-    }
+  }
 };
 
 

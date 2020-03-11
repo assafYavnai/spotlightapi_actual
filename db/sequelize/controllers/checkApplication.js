@@ -6,6 +6,8 @@ import {logActiveUserInfo} from '../activeusers';
 import * as config from '../constants';
 import moment from 'moment';
 import {message} from '../../../config/constants';
+import Axios from 'axios';
+import {privateLocalAddress, hostName} from '../../../config/app';
 const uuidv1 = require('uuid/v1');
 const logger = log4js.getLogger('custom'); 
 
@@ -133,30 +135,24 @@ export function getTopics(req, res) {
       let obj={url:"Get Topics",user_id:userId};
       logActiveUserInfo(obj);
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
-          data.invitation = {};
-          if(invitaiton!=null){
-                if(invitaiton.is_completed !== true){
+        data.invitation = {};
+        if(invitaiton!=null){
+            if(invitaiton.is_completed !== true){
                 data.invitation.current_topic = invitaiton.current_topic;
                 data.invitation.current_time = invitaiton.current_time;
                 data.invitation.email = invitaiton.email;
                 data.invitation.is_completed = invitaiton.is_completed;
-              }
-              else {
-              
-                errorData.status = 'finished';
-              
-                errorData.message = message.CHECK_COMPLETED;
-              }
-            
-          } else {
+            }
+            else {
+              errorData.status = 'finished';
+              errorData.message = message.CHECK_COMPLETED;
+            }
+        } else {
             errorData.status='not invited to you';
             errorData.message= message.INVALID_CHECK_INVITATION;
-         
-          }
-        
+        }
         UserCheckInvitation.update({
             is_accepted: true}, {where: {uniqe_id: userId}}).then((u) => {
-              
               UserCheckMaster.findOne({
                 where: {
                 tiny_url: checkUniqueId,
@@ -182,7 +178,8 @@ export function getTopics(req, res) {
                       return res.status(200).send(data);
                     });
                  });
-                } else {
+                } 
+                else {
                     console.log("User check NUll");
                     UserCheckMaster.findOne({
                         where: {
@@ -234,6 +231,15 @@ export function getTopics(req, res) {
                                 throw Error(errorData.message);
                             }).catch( (es)=>{
                                 logger.error(es.stack);
+                                console.log("Error catch and send email point one");
+                                let subject="Invitation Link Error Tracker";
+                                let customMessage='Black screen tracker error one';
+                                Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:es.message,custom:customMessage}).then((response)=>{
+                                    console.log('Sent Error tracker email');
+                                  }).catch((err) => {
+                                      logger.error(err.stack);
+                                      console.log('Error in sending Email');
+                                });
                                 return res.status(200).send({error:errorData,dt:new Date(),language:language});
                             });
                         }
@@ -269,16 +275,43 @@ export function getTopics(req, res) {
                                     throw Error(errorData.message);
                                 }).catch( (es)=>{
                                     logger.error(es.stack);
+                                    console.log("Error catch and send email point two");
+                                    let customMessage='Black screen tracker error two';
+                                    let subject="Invitation Link Error Tracker";
+                                    Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:es.message,custom:customMessage}).then((response)=>{
+                                        console.log('Sent Error tracker email');
+                                    }).catch((err) => {
+                                        logger.error(err.stack);
+                                        console.log('Error in sending Email');
+                                    });
                                     return res.status(200).send({error:errorData,dt:new Date(),language:language});
                                 });
                                 
                             }).catch( (err)=>{
                                 logger.error(err.stack);
+                                console.log("Error catch and send email point three");
+                                let customMessage='Black screen tracker error three';
+                                let subject="Invitation Link Error Tracker";
+                                Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                                    console.log('Sent Error tracker email');
+                                  }).catch((err) => {
+                                      logger.error(err.stack);
+                                      console.log('Error in sending Email');
+                                });
                                 return res.status(200).send({error:errorData,dt:new Date(),language:language});
                             });
                         }
                     }).catch( (err)=>{
                         logger.error(err.stack);
+                        console.log("Error catch and send email point four");
+                        let customMessage='Black screen tracker error four';
+                        let subject="Invitation Link Error Tracker";
+                        Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                            console.log('Sent Error tracker email');
+                        }).catch((err) => {
+                            logger.error(err.stack);
+                            console.log('Error in sending Email');
+                        });
                         return res.status(200).send({error:errorData,dt:new Date(),language:language});
                     });
                     
@@ -286,23 +319,60 @@ export function getTopics(req, res) {
               }).catch((err) => {
                 res.statusMessage = err.message;
                 logger.error(err.stack);
+                console.log("Error catch and send email point five");
+                let customMessage='Black screen tracker error five';
+                let subject="Invitation Link Error Tracker";
+                Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                    console.log('Sent Error tracker email');
+                }).catch((err) => {
+                    logger.error(err.stack);
+                    console.log('Error in sending Email');
+                });
                return res.status(200).send({error:{msg:err.message},dt:new Date()});
             });
           }).catch((err) => {
             res.statusMessage = err.message;
+            console.log("Error catch and send email point six");
+            let customMessage='Black screen tracker error six';
+            let subject="Invitation Link Error Tracker";
+            Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                console.log('Sent Error tracker email');
+            }).catch((err) => {
+                logger.error(err.stack);
+                console.log('Error in sending Email');
+            });
             logger.error(err.stack);
             return res.status(200).send({error:{msg:err.message},dt:new Date()});
           });
-      }).catch((err) => {
-        res.statusMessage = err.message;
-        logger.error(err.stack);
-        return res.status(200).send({error:{msg:err.message},dt:new Date()});
-    });
+        }).catch((err) => {
+            res.statusMessage = err.message;
+            console.log("Error catch and send email point seven");
+            let customMessage='Black screen tracker error seven';
+            logger.error(err.stack);
+            let subject="Invitation Link Error Tracker";
+            Axios.post(privateLocalAddress+'/api/errortracker', {email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                console.log('Sent Error tracker email');
+            }).catch((err) => {
+                logger.error(err.stack);
+                console.log('Error in sending Email');
+            });
+            return res.status(200).send({error:{msg:err.message},dt:new Date()});
+        });
       
   } catch (error) {
-    res.statusMessage = error.message;
-    logger.error(error.stack);
-    return res.status(200).send({error:{msg:error.message},dt:new Date()});
+        const { userId } = req.body;
+        res.statusMessage = error.message;
+        console.log("Error catch and send email point eight");
+        let customMessage='Black screen tracker error eight';
+        logger.error(error.stack);
+        let subject="Invitation Link Error Tracker";
+        Axios.post(privateLocalAddress+'/api/errortracker', {email:'',uniqueId:userId,language:language,time:new Date(),subject,error:error.message,custom:customMessage}).then((response)=>{
+            console.log('Sent Error tracker email');
+        }).catch((err) => {
+            logger.error(err.stack);
+            console.log('Error in sending Email');
+        });
+        return res.status(200).send({error:{msg:error.message},dt:new Date()});
   }
 }
 /** 
@@ -673,13 +743,36 @@ checkUniqueId, topicId, userId, answer, option, takenTime
         logger.error(error.stack);
         return res.status(500).send(error);
     }
+}
+
+export function sendblankscreenemail(req, res) {
+    try{
+        const {userid,language,errormessage}=req.body;
+        let subject="Black screen tracker";
+        UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
+            Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userid,language:language,time:Date.now,subject,error:errormessage}).then((response)=>{
+                console.log('Sent Error tracker email');
+            }).catch((err) => {
+                logger.error(err.stack);
+                console.log('Error in sending Email');
+            });
+        }).catch((err)=>{
+            logger.error(err.stack);
+            console.log('Error in sending Email');
+        });
+        
+    }catch(error){
+      logger.error(error.stack);
+      return res.status(500).send(error);
+    }
   }
 
 
 export default {
     getTopics,
     saveAnswer,
-    viewReport
+    viewReport,
+    sendblankscreenemail
     // update
     // remove
   };

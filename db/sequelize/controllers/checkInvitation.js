@@ -1,6 +1,5 @@
 import _ from 'lodash';
 import jwt from 'jsonwebtoken';
-import axios from 'axios';
 import { Models, sequelize } from '../models';
 import * as config from '../constants';
 import {privateLocalAddress, hostName} from '../../../config/app';
@@ -177,14 +176,29 @@ export function sendemail(req, res) {
 //completecheckemail
 export function completecheckemail(req, res) {
   try{
-    const {email,checkName,time,language}=req.body;
+    const {email,checkName,time,language,checkid,tiny_url}=req.body;
     let subject="Complete check user information";
     console.log("Customer Email : "+email);
-    Axios.post(privateLocalAddress+'/api/sendcompletecheckemail', {email:email,checkName:checkName,time:time,language:language,subject}).then((response)=>{
+    let linkurl = "";
+    let completeLink="";
+    UserCheckInvitation.findAll({where:{user_check_id:checkid}}).then((items)=>{
+      items.forEach((item)=>{
+        if(item.email==email){
+          completeLink=hostName+"/spotlight/check/"+tiny_url+"/"+item.uniqe_id;
+        }
+        let link=hostName+"/spotlight/check/"+tiny_url+"/"+item.uniqe_id;
+        linkurl+=link+",";
+      })
+      console.log(linkurl);
+      Axios.post(privateLocalAddress+'/api/sendcompletecheckemail', {email:email,checkName:checkName,time:time,language:language,links:linkurl,completeLink:completeLink,subject}).then((response)=>{
         console.log('Sent Check Complete email');
+      }).catch((err) => {
+          logger.error(err.stack);
+          console.log('Error in sending Email');
+      });
     }).catch((err) => {
-        logger.error(err.stack);
-        console.log('Error in sending Email');
+      logger.error(err.stack);
+      console.log('Error Getting invitation information');
     });
   }catch(error){
     logger.error(error.stack);
