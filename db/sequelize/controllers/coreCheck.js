@@ -148,8 +148,6 @@ export function all(req, res) {
         return res.status(401).send({ auth: false, message: 'Failed to authenticate token.' });
       }
       let userid=req.body.id;
-      console.log(req.body);
-      console.log("User id :" + req.body.id);
       if(userid==0){
         userid=decoded.id;
       }
@@ -157,7 +155,8 @@ export function all(req, res) {
       logActiveUserInfo(obj);
       UserMaster.findById(userid).then((user) => {
         
-          UserCheck.findAll({
+          UserCheck.findAll({attributes: ['check_master_code', 'user_id','name_en','name_he','is_active',
+        'start_date','end_date','tiny_url','is_pro_report_ready','id'],
             //where: (user.isadmin?{}:{user_id: decoded.id.toString()}),
             where: ({user_id: userid.toString()}),
             order: [
@@ -190,8 +189,6 @@ export function all(req, res) {
                tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
                
                 d.forEach((item) => {
-                  console.log("Active item");
-                  console.log(item);
                   const obj = item.toJSON();
                   obj.completed = parseFloat((i.filter((t) => {
                     return t!=undefined && t.is_completed === true && t.user_check_id === obj.id;
