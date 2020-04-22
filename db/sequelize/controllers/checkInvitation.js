@@ -5,6 +5,7 @@ import * as config from '../constants';
 import {privateLocalAddress, hostName} from '../../../config/app';
 import {logActiveUserInfo} from '../activeusers';
 import Axios from 'axios';
+import * as utils from '../../../utils/common';
 import checkApplication from './checkApplication';
 const uuidv4 = require('uuid/v4');
 var log4js = require('log4js');
@@ -57,13 +58,21 @@ const UserCheckMaster = Models.UserCheck;
               });
         });
         if (data.length > 0) {
-            UserCheckInvitation.bulkCreate(data).then((d) => {
+          UserCheckInvitation.findAll({where: { email: emails.split(','),user_check_id: check_id }}).then(c=>{
+            let dbEmails =[];
+            c.forEach( 
+              (dbe) => { 
+                dbEmails.push(dbe.dataValues.email);
+              }
+            );
+            UserCheckInvitation.bulkCreate(data, {ignoreDuplicates: true}).then((d) => {
             console.debug('Inserted all user for log');
-            let mainObject = {},
-            promises = [];
+            console.log(d); 
+            
             data.forEach(async (item) => {
               
               // const sendEmail= () =>{ return new Promise((resolve, reject) => {
+              if(dbEmails.indexOf(item.email)<0 ){
               console.log("start Email");
               await Axios.post(privateLocalAddress+'/api/sendInvitation', {email: item.email, code: item.uniqe_id, check_code: check.tiny_url, host: hostName,  customMessage, checkName,firstName,lastName,participant,dueDate,language,subject}).then((response)=>{
                 console.log('Sent Invitation email');
@@ -74,16 +83,25 @@ const UserCheckMaster = Models.UserCheck;
                 //console.log(err);
                 //return resolve(true);
               });
+            } else {
+              console.log('email already exists');
+            }
           //   });
           // };
            //var d = await sendEmail();
             });
+          });
             // TODO Implement here email notification for all email.
             return res.status(200).send('OK');
           }).catch((err) => {
             console.debug('error while sending invitation');
             logger.error(err.stack);
             // return res.status(500).send(err);
+            let customError ="";
+            if(err.msg !=undefined && err.msg.name !=undefined){
+              customError = new Error(err.msg.name);
+            }
+           err = utils.removeSqlErrorFields(err);
             return res.status(500).send({error:'sqlExp',msg:err});
           });
         } else {
