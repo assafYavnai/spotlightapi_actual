@@ -43,8 +43,9 @@ const UserCheckMaster = Models.UserCheck;
       logActiveUserInfo(obj);
       const { emails, check_id, customMessage,checkName,firstName,lastName,participant,dueDate,language,subject } = req.body;
       const data = [];
+      const emailsParced = emails.replace(/ /g,'');
       UserCheckMaster.findById(check_id).then((check) =>{
-        emails.split(',').forEach((item) => {
+        emailsParced.split(',').forEach((item) => {
           // insert this email into invitation table.
           const uniqId = uuidv4();
          data.push({
@@ -58,7 +59,7 @@ const UserCheckMaster = Models.UserCheck;
               });
         });
         if (data.length > 0) {
-          UserCheckInvitation.findAll({where: { email: emails.split(','),user_check_id: check_id }}).then(c=>{
+          UserCheckInvitation.findAll({where: { email: emailsParced.split(','),user_check_id: check_id }}).then(c=>{
             let dbEmails =[];
             c.forEach( 
               (dbe) => { 
