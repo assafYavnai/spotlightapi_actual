@@ -597,7 +597,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             logActiveUserInfo(obj);
             console.log(req.params);
             let data = {};
-            sequelize.query(`SELECT distinct c.*,min(d.tiny_url) as sharable_link,u.company_name,count(distinct i.id) as participants, 
+            sequelize.query(`SELECT distinct c.*,min(d.tiny_url) as sharable_link,u.company_name,(SELECT count(user_check_id)  from user_check_invitations where user_check_id=c.id) as participants,  
             round((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100,2)::numeric  completed, count(tbl.*),
             round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
             round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
@@ -605,7 +605,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             round((SuM(case tbl.choosen_option WHEN 'Not answered' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionna FROM user_checks c  inner join  
             (SELECT a.*,t.user_check_id FROM user_check_topics_answers a 
             inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
-            left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
+            left join user_check_invitations i on tbl.user_check_id=i.user_check_id and i.is_accepted=true
             on c.id=tbl.user_check_id 
             inner join users u on c.user_id::integer=u.id left join report_sharable_links d on d.user_check_id=tbl.user_check_id   WHERE c.id=?  group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((summary) => {
                 if (summary != null && summary.length > 0) {
@@ -684,7 +684,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             let obj={url:"Get Topics",user_id:req.params.id};
             logActiveUserInfo(obj);
             let data = {};
-            sequelize.query(`SELECT distinct c.*, u.company_name,count(distinct i.id) as participants, 
+            sequelize.query(`SELECT distinct c.*, u.company_name,(SELECT count(user_check_id)  from user_check_invitations where user_check_id=c.id) as participants, 
             round((SUM(CASE i.is_completed WHEN true THEN 1 else 0 end )::numeric/count(i.*))*100,2)::numeric  completed, count(tbl.*),
             round((SuM(case tbl.choosen_option WHEN 'A' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optiona,
             round((SuM(case tbl.choosen_option WHEN 'B' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionb,
@@ -692,7 +692,7 @@ checkUniqueId, topicId, userId, answer, option, takenTime
             round((SuM(case tbl.choosen_option WHEN 'Not answered' THEN 1 else 0 end)/count(tbl.*)::numeric)*100,2)::numeric optionna FROM user_checks c  inner join  
             (SELECT a.*,t.user_check_id FROM user_check_topics_answers a 
             inner join user_check_topics t on a.user_check_topic_id=t.id) tbl
-            left join user_check_invitations i on tbl.user_check_id=i.user_check_id 
+            left join user_check_invitations i on tbl.user_check_id=i.user_check_id and i.is_accepted=true
             on c.id=tbl.user_check_id 
             inner join users u on c.user_id::integer=u.id inner join report_sharable_links d on d.user_check_id =tbl.user_check_id   WHERE d.tiny_url=? group by c.id,u.company_name`, { type: sequelize.QueryTypes.SELECT, replacements: [req.params.id]}).then((summary) => {
                 if (summary != null && summary.length > 0) {
