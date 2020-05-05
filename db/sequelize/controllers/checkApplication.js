@@ -131,7 +131,7 @@ export function getTopics(req, res) {
     
       const { checkUniqueId, userId } = req.body;
       let data = {};
-      let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A'};
+      let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A',check_master_code:'N/A'};
       let obj={url:"Get Topics",user_id:userId};
       logActiveUserInfo(obj);
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
@@ -197,10 +197,12 @@ export function getTopics(req, res) {
                             var sdt= new Date(p.start_date);
                             var edt= new Date(p.end_date);
                             var language=p.language;
+                            errorData.check_master_code=p.check_master_code;
                             UserMaster.findOne({where:{id:uid}}).then((u)=>{
                                 if(u!=null){
                                     errorData.company_name=u.company_name;
                                     errorData.initiator= u.first_name;
+                                    
                                 }    
                                 if(p==null) {
                                     errorData.status='invalid';
