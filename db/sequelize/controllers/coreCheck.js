@@ -156,7 +156,7 @@ export function all(req, res) {
       UserMaster.findById(userid).then((user) => {
         
           UserCheck.findAll({attributes: ['check_master_code', 'user_id','name_en','name_he','is_active',
-        'start_date','end_date','tiny_url','is_pro_report_ready','id'],
+        'start_date','end_date','tiny_url','is_pro_report_ready','id','language'],
             //where: (user.isadmin?{}:{user_id: decoded.id.toString()}),
             where: ({user_id: userid.toString()}),
             order: [
