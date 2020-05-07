@@ -768,14 +768,102 @@ export function sendblankscreenemail(req, res) {
       logger.error(error.stack);
       return res.status(500).send(error);
     }
-  }
+}
+
+export function getCheck(req, res) {
+    try {
+        const { checkUniqueId, userId } = req.body;
+        let data = {};
+        let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A',check_master_code:'N/A',language:'N/A'};
+        let obj={url:"Get Topics",user_id:userId};
+        logActiveUserInfo(obj);
+        UserCheckMaster.findOne({
+            where: {
+            tiny_url: checkUniqueId,
+            is_active: true
+        }}).then( (item)=>{
+            if (item !== null && item.id > 0){
+                console.log("User check not NUll");
+                var uid=item!=null?item.user_id:0;
+                const check = item.toJSON();
+                data ={...data, check};
+                data.topics = [];
+                UserMaster.findOne({where:{id:check.user_id}}).then((u)=>{
+                    if(u!=null){
+                        data.company_name=u.company_name;
+                        return res.status(200).send(data);
+                    }
+                });
+            }
+            else{
+                console.log("User check NUll");
+                UserCheckMaster.findOne({
+                    where: {
+                    tiny_url: checkUniqueId,
+                    is_active: false
+                }}).then( (item)=>{
+                    var uid=item!=null?item.user_id:0;
+                    const check = item.toJSON();
+                    data ={...data, check};
+                    data.topics = [];
+                    UserMaster.findOne({where:{id:check.user_id}}).then((u)=>{
+                        if(u!=null){
+                            data.company_name=u.company_name;
+                            return res.status(200).send(data);
+                        }
+                    });
+                }).catch( (err)=>{
+                    logger.error(err.stack);
+                    console.log("Error catch and send email point three");
+                    let customMessage='Black screen tracker error three';
+                    let subject="Invitation Link Error Tracker";
+                    Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                        console.log('Sent Error tracker email');
+                      }).catch((err) => {
+                          logger.error(err.stack);
+                          console.log('Error in sending Email');
+                    });
+                    return res.status(200).send({error:errorData,dt:new Date(),language:language});
+                });
+            }
+        }).catch( (err)=>{
+            logger.error(err.stack);
+            console.log("Error catch and send email point four");
+            let customMessage='Black screen tracker error four';
+            let subject="Invitation Link Error Tracker";
+            Axios.post(privateLocalAddress+'/api/errortracker', {email:invitaiton!=null?invitaiton.email:'',uniqueId:userId,language:language,time:new Date(),subject,error:err.message,custom:customMessage}).then((response)=>{
+                console.log('Sent Error tracker email');
+            }).catch((err) => {
+                logger.error(err.stack);
+                console.log('Error in sending Email');
+            });
+            return res.status(200).send({error:errorData,dt:new Date(),language:language});
+        });
+        
+    } catch (error) {
+          const { userId } = req.body;
+          res.statusMessage = error.message;
+          console.log("Error catch and send email point eight");
+          let customMessage='Black screen tracker error eight';
+          logger.error(error.stack);
+          let subject="Invitation Link Error Tracker";
+          Axios.post(privateLocalAddress+'/api/errortracker', {email:'',uniqueId:userId,language:language,time:new Date(),subject,error:error.message,custom:customMessage}).then((response)=>{
+              console.log('Sent Error tracker email');
+          }).catch((err) => {
+              logger.error(err.stack);
+              console.log('Error in sending Email');
+          });
+          return res.status(200).send({error:{msg:error.message},dt:new Date()});
+    }
+}
 
 
 export default {
     getTopics,
     saveAnswer,
     viewReport,
-    sendblankscreenemail
+    sendblankscreenemail,
+    getCheck
     // update
     // remove
   };

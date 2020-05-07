@@ -177,6 +177,7 @@ if(cmsPageController){
     app.post('/api/checkapp/saveAnswer', checkApplication.saveAnswer);
     app.get('/api/checkapp/report/:id', checkApplication.viewReport);
     app.post('/api/checkapp/blankscreenemail',checkApplication.sendblankscreenemail);
+    app.post('/api/checkapp/getCheck',checkApplication.getCheck)
   }
 
   // Customer
