@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     updated_on: DataTypes.DATE,
     conclusion: DataTypes.STRING,
     language: DataTypes.STRING,
+    sharable_url:DataTypes.STRING,
     is_pro_report_ready: DataTypes.BOOLEAN
   }, {});
   user_check.associate = function(models) {

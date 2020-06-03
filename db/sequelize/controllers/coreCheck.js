@@ -10,7 +10,7 @@ const logger = log4js.getLogger('custom');
 const uuidv1 = require('uuid/v1');
 
 const {
-UserCheck, UserCheckTopics, TopicsMaster, UserCheckInvitation, UserGroups, UserGroupsEmail
+UserCheck, UserCheckTopics, TopicsMaster, UserCheckInvitation, UserGroups, UserGroupsEmail,userCheckSharable
 } = Models;
 const UserMaster = Models.User;
 const ReportSharableLink=Models.ReportSharableLinkModel;
@@ -156,7 +156,7 @@ export function all(req, res) {
       UserMaster.findById(userid).then((user) => {
         
           UserCheck.findAll({attributes: ['check_master_code', 'user_id','name_en','name_he','is_active',
-        'start_date','end_date','tiny_url','is_pro_report_ready','id','language'],
+        'start_date','end_date','tiny_url','is_pro_report_ready','id','language','sharable_url'],
             //where: (user.isadmin?{}:{user_id: decoded.id.toString()}),
             where: ({user_id: userid.toString()}),
             order: [
@@ -168,6 +168,8 @@ export function all(req, res) {
               return res.status(404).send({ message: 'Check not exist.' });
             }
             const data = [];
+            // data.invitedUsersData=[];
+            // data.sharedUsersData=[];
             const checks = d.map((p) => {
               return p.id;
             });
@@ -179,13 +181,11 @@ export function all(req, res) {
                 }
               }
             }).then((i) => {
-            // if(i==null || i.length==0){
-            //   return res.status(404).send({ message: 'Check Invitation not exist.' });
-            // }
               sequelize.query(`SELECT *,round((tbl.answered::numeric/total::numeric)*100,0) as topics_completed FROM (SELECT a.user_check_id,count(b.id) as answered ,(SELECT count(*) from user_check_invitations ci 
               inner join user_check_topics ct on ct.user_check_id=ci.user_check_id  where ci.user_check_id=a.user_check_id) as total    
               FROM user_check_topics a
-              left join user_check_topics_answers b on a.id=b.user_check_topic_id WHERE user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id)
+              left join user_check_topics_answers b on a.id=b.user_check_topic_id 
+              inner join user_check_invitations c on c.uniqe_id=b.user_id WHERE a.user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id)
                tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (t) => {
                
                 d.forEach((item) => {
@@ -211,13 +211,61 @@ export function all(req, res) {
                   }
                   data.push(obj);
                 });
-                return res.status(200).send(data);
-          }).catch( (err) => {
-            logger.error(err.stack);
-            return res.status(500).send(error);
-          });
-             
+
+              // calculation for sharable link
+              userCheckSharable.findAll({
+              where: {
+                  user_check_id: {
+                  [sequelize.Op.in]: checks
+                }
+              }
+              }).then((j) => {
+                sequelize.query(`SELECT *,round((tbl.answered::numeric/total::numeric)*100,0) as topics_completed FROM (SELECT a.user_check_id,(SELECT sum(si.current_topic) from user_check_sharables si where si.user_check_id=a.user_check_id) as answered ,(SELECT count(*) from user_check_sharables ci 
+                inner join user_check_topics ct on ct.user_check_id=ci.user_check_id  where ci.user_check_id=a.user_check_id) as total    
+                FROM user_check_topics a
+                left join user_check_topics_answers b on a.id=b.user_check_topic_id 
+                inner join user_check_sharables c on c.uniqe_id=b.user_id WHERE a.user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id)
+                tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (sl) => {
+
+                  data.forEach((item) => {
+                    //const sobj = item.toJSON();
+                    item.sharedcompleted = parseFloat((j.filter((t) => {
+                      return t!=undefined && t.is_completed === true && t.user_check_id === item.id;
+                    }).length) / (j.filter((t) => {
+                      return t!=undefined && t.user_check_id === item.id;
+                    }).length)) * 100;
+                    const sharedcompleted_arr = sl.filter((s)=>{
+                      return (s.user_check_id === item.id);
+                    });
+                    item.sharedtopics_completed=0;
+                    item.sharedanswered=0;
+                    item.sharedtotal=0;
+                    item.sharedtotalParticipant=j.filter((k)=>{
+                      return k.user_check_id === item.id;
+                    }).length;
+                    if(sharedcompleted_arr.length>0){
+                      item.sharedtopics_completed=parseInt(sharedcompleted_arr[0].topics_completed);
+                      item.sharedanswered=sharedcompleted_arr[0].answered;
+                      item.sharedtotal=sharedcompleted_arr[0].total;
+                    }
+                    //data.sharedUsersData.push(sobj);
+                  });
+                  // data.sharedUsersData=data.sharedUsersData.filter((filteritem)=>{
+                  //   return filteritem.totalParticipant>0;
+                  // }); 
+                  return res.status(200).send(data);
+                }).catch( (err) => {
+                  logger.error(err.stack);
+                  return res.status(500).send(err);
+                });
+              })
+
+              }).catch( (err) => {
+                logger.error(err.stack);
+                return res.status(500).send(error);
+              });
             });
+
           }).catch((error) => {
             console.debug('error while fetching users check');
             console.debug(error);
@@ -308,7 +356,50 @@ export function completed(req, res) {
                   }
                   data.push(obj);
                 });
-                return res.status(200).send(data);
+                // calculation for sharable link
+                userCheckSharable.findAll({
+                where: {
+                    user_check_id: {
+                    [sequelize.Op.in]: checks
+                  }
+                }
+                }).then((j) => {
+                  sequelize.query(`SELECT *,round((tbl.answered::numeric/total::numeric)*100,0) as topics_completed FROM (SELECT a.user_check_id,(SELECT sum(si.current_topic) from user_check_sharables si where si.user_check_id=a.user_check_id) as answered ,(SELECT count(*) from user_check_sharables ci 
+                  inner join user_check_topics ct on ct.user_check_id=ci.user_check_id  where ci.user_check_id=a.user_check_id) as total    
+                  FROM user_check_topics a
+                  left join user_check_topics_answers b on a.id=b.user_check_topic_id 
+                  inner join user_check_sharables c on c.uniqe_id=b.user_id WHERE a.user_check_id in (${checks.toString()}) group by a.user_check_id order by user_check_id)
+                  tbl where total>0`, { type: sequelize.QueryTypes.SELECT }).then( (sl) => {
+  
+                    data.forEach((item) => {
+                      //const sobj = item.toJSON();
+                      item.sharedcompleted = parseFloat((j.filter((t) => {
+                        return t!=undefined && t.is_completed === true && t.user_check_id === item.id;
+                      }).length) / (j.filter((t) => {
+                        return t!=undefined && t.user_check_id === item.id;
+                      }).length)) * 100;
+                      const sharedcompleted_arr = sl.filter((s)=>{
+                        return (s.user_check_id === item.id);
+                      });
+                      item.sharedtopics_completed=0;
+                      item.sharedanswered=0;
+                      item.sharedtotal=0;
+                      item.sharedtotalParticipant=j.filter((k)=>{
+                        return k.user_check_id === item.id;
+                      }).length;
+                      if(sharedcompleted_arr.length>0){
+                        item.sharedtopics_completed=parseInt(sharedcompleted_arr[0].topics_completed);
+                        item.sharedanswered=sharedcompleted_arr[0].answered;
+                        item.sharedtotal=sharedcompleted_arr[0].total;
+                      }
+                    }); 
+                    return res.status(200).send(data);
+                  }).catch( (err) => {
+                    logger.error(err.stack);
+                    return res.status(500).send(err);
+                  });
+                })
+                // return res.status(200).send(data);
           }).catch( (err) => {
             logger.error(err.stack);
             return res.status(500).send(error);
@@ -420,6 +511,7 @@ export function CreateOrUpdate(req, res) {
             });
           } else { // go to create new check
             data.tiny_url = uuidv1();
+            data.sharable_url=uuidv1();
             UserCheck.create(data).then((uc) => {
                const user_checkId=uc.id;
               
