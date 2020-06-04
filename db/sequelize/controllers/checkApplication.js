@@ -402,7 +402,7 @@ export function getTopics(req, res) {
  */
 export function saveAnswer(req, res,next) {
     try {
-        const {checkUniqueId, topicId, userId, answer, option, takenTime,sharableUser,storeentry,currentTopic,shareduserid} = req.body;
+        const {checkUniqueId, topicId, userId, answer, option, takenTime,sharableUser,storeentry,currentTopic,shareduserid,complete} = req.body;
         let obj={url:"save answer",user_id:userId};
         //logActiveUserInfo(obj);
         UserCheckMaster.findOne({where: {tiny_url: checkUniqueId}}).then((check) => {
@@ -474,7 +474,7 @@ export function saveAnswer(req, res,next) {
                     }
                     else{
                         let isCompleted=false;
-                        if(currentTopic==11){
+                        if(complete==true){
                             isCompleted=true;
                         }
                         UserCheckSharable.update({
