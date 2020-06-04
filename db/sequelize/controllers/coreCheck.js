@@ -681,6 +681,7 @@ export function CreateOrUpdateCheckCustom(req, res) {
             });
           } else { // go to create new check
             data.tiny_url = uuidv1();
+            data.sharable_url=uuidv1();
             UserCheck.create(data).then((uc) => {
                const user_checkId=uc.id;
               console.debug('New check created');
@@ -1005,6 +1006,7 @@ export function CreateOrUpdateCheckQuick(req, res) {
             });
           } else { // go to create new check
             data.tiny_url = uuidv1();
+            data.sharable_url=uuidv1();
             UserCheck.create(data).then((uc) => {
                const user_checkId=uc.id;
               console.debug('New check created');
