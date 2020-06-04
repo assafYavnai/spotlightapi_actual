@@ -130,7 +130,7 @@ const ReportSharableLink=Models.ReportSharableLinkModel;
 export function getTopics(req, res) {
   try {
     
-      const { checkUniqueId, userId } = req.body;
+      const { checkUniqueId, userId,sharedUserId } = req.body;
       let data = {};
       let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A',check_master_code:'N/A',language:'N/A'};
       let obj={url:"Get Topics",user_id:userId};
@@ -154,8 +154,8 @@ export function getTopics(req, res) {
         }
         UserCheckInvitation.update({
             is_accepted: true}, {where: {uniqe_id: userId}}).then((u) => {
-              console.log('Shareable Link open');  
-              UserCheckMaster.findOne({
+            console.log('Shareable Link open');  
+            UserCheckMaster.findOne({
                 where: {
                 tiny_url: checkUniqueId,
                 is_active: true,
@@ -179,7 +179,12 @@ export function getTopics(req, res) {
                         topics.forEach((t) => {
                            data.topics.push(t.toJSON());
                         });
-                      return res.status(200).send(data);
+                        UserCheckSharable.findOne({where:{id:sharedUserId}}).then((s)=>{
+                            if(s!=null){
+                                data.sharedCheckcomplete=s.is_completed;
+                            }
+                            return res.status(200).send(data);
+                        });  
                     });
                  });
                 } 
