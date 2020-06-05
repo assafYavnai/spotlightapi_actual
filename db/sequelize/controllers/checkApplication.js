@@ -137,7 +137,7 @@ export function getTopics(req, res) {
       logActiveUserInfo(obj);
       UserCheckInvitation.findOne({where: {uniqe_id: userId}}).then((invitaiton) => {
         data.invitation = {};
-        if(invitaiton!=null){
+        if(invitaiton !== null){
             if(invitaiton.is_completed !== true){
                 data.invitation.current_topic = invitaiton.current_topic;
                 data.invitation.current_time = invitaiton.current_time;
@@ -163,7 +163,7 @@ export function getTopics(req, res) {
                 end_date: { [sequelize.Op.gt]: sequelize.fn('NOW')},
             }}).then((item) => {
                 // && Object.keys(data.invitation).length > 0
-                if (item !== null && item.id > 0  ) {
+                if (item !== null && item.id > 0 && errorData.status!='finished' ) {
                  const check = item.toJSON();
                  data ={...data, check};
                  data.topics = [];
