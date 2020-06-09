@@ -1056,6 +1056,7 @@ export function getCheck(req, res) {
                 UserMaster.findOne({where:{id:check.user_id}}).then((u)=>{
                     if(u!=null){
                         data.company_name=u.company_name;
+                        data.name=u.first_name;
                         return res.status(200).send(data);
                     }
                 });
@@ -1074,6 +1075,7 @@ export function getCheck(req, res) {
                     UserMaster.findOne({where:{id:check.user_id}}).then((u)=>{
                         if(u!=null){
                             data.company_name=u.company_name;
+                            data.name=u.first_name;
                             return res.status(200).send(data);
                         }
                     });
@@ -1122,13 +1124,50 @@ export function getCheck(req, res) {
     }
 }
 
+export function getCheckByUniqeId(req, res) {
+    try {
+        const { checkUniqueId } = req.body;
+        let data = {};
+        let errorData={name:'N/A',company_name:'N/A',status:'N/A',start_date:'N/A',end_date:'N/A',initiator:'N/A',check_master_code:'N/A',language:'N/A'};
+        let obj={url:"Get Topics",user_id:checkUniqueId};
+        logActiveUserInfo(obj);
+        UserCheckMaster.findOne({
+            where: {
+            tiny_url: checkUniqueId,
+            is_active: true
+        }}).then( (item)=>{
+            if (item !== null && item.id > 0){
+                console.log("User check not NUll");
+                var uid=item!=null?item.user_id:0;
+                const check = item.toJSON();
+                data ={...data, check};
+                UserMaster.findOne({where:{id:check.user_id}}).then((u)=>{
+                    if(u!=null){
+                        data.company_name=u.company_name;
+                        data.name=u.first_name;
+                        return res.status(200).send(data);
+                    }
+                });
+            }
+        }).catch( (err)=>{
+            logger.error(err.stack);
+            return res.status(200).send({error:err,dt:new Date(),language:language});
+        });
+        
+    } catch (error) {
+          res.statusMessage = error.message;
+          return res.status(200).send({error:{msg:error.message},dt:new Date()});
+    }
+}
+
 
 export default {
     getTopics,
     saveAnswer,
     viewReport,
     sendblankscreenemail,
-    getCheck
+    getCheck,
+    getCheckByUniqeId
     // update
     // remove
   };
