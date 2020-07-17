@@ -748,6 +748,9 @@ export function saveAnswer(req, res,next) {
                                             topic.comments = comments.filter((c) => {
                                                 return c.user_check_topic_id === t.id && c.answer!="";
                                             });
+                                            topic.uncomments=comments.filter((c) => {
+                                                return c.user_check_topic_id === t.id && c.answer === "";
+                                            });
                                             return topic;
                                         });
                                         res.status(200).send(data);
@@ -831,6 +834,9 @@ export function saveAnswer(req, res,next) {
                                         const topic = t;
                                         topic.comments = comments.filter((c) => {
                                             return c.user_check_topic_id === t.id && c.answer!="";
+                                        });
+                                        topic.uncomments=comments.filter((c) => {
+                                            return c.user_check_topic_id === t.id && c.answer === "";
                                         });
                                         return topic;
                                     });
@@ -926,7 +932,10 @@ export function saveAnswer(req, res,next) {
                                                     data.topics = topics.map((t) => {
                                                         const topic = t;
                                                         topic.comments = comments.filter((c) => {
-                                                            return c.user_check_topic_id === t.id;
+                                                            return c.user_check_topic_id === t.id && c.answer!="";
+                                                        });
+                                                        topic.uncomments=comments.filter((c) => {
+                                                            return c.user_check_topic_id === t.id && c.answer === "";
                                                         });
                                                         return topic;
                                                     });
@@ -987,7 +996,10 @@ export function saveAnswer(req, res,next) {
                                                 data.topics = topics.map((t) => {
                                                     const topic = t;
                                                     topic.comments = comments.filter((c) => {
-                                                        return c.user_check_topic_id === t.id;
+                                                        return c.user_check_topic_id === t.id && c.answer!="";
+                                                    });
+                                                    topic.uncomments=comments.filter((c) => {
+                                                        return c.user_check_topic_id === t.id && c.answer === "";
                                                     });
                                                     return topic;
                                                 });
